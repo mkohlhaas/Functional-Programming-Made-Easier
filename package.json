@@ -1,0 +1,19 @@
+{
+  "name": "functional-programming-made-easier",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "purescript": "^0.14.5",
+    "purescript-language-server": "^0.16.5",
+    "purs-tidy": "^0.7.0",
+    "purty": "^7.0.0",
+    "spago": "^0.20.7"
+  }
+}
