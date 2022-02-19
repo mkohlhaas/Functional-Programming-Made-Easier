@@ -3,8 +3,9 @@ module Main where
 import Prelude
 
 import Effect (Effect)
-import Effect.Console (log)
+
+-- import Ch23a as Ch23
+import Ch23b as Ch23
 
 main :: Effect Unit
-main = do
-  log "🍝"
+main = Ch23.test
