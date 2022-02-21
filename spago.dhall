@@ -1,5 +1,17 @@
 { name = "my-project"
-, dependencies = [ "console", "effect", "prelude", "aff", "avar", "datetime", "enums", "exceptions", "random", "aff-bus", "transformers", "tuples" ]
+, dependencies =
+  [ "aff"
+  , "aff-bus"
+  , "avar"
+  , "console"
+  , "datetime"
+  , "effect"
+  , "exceptions"
+  , "prelude"
+  , "random"
+  , "tailrec"
+  , "transformers"
+  ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
 }
