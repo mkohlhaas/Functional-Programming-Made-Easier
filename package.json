@@ -14,6 +14,7 @@
     "purescript-language-server": "^0.16.5",
     "purs-tidy": "^0.7.0",
     "purty": "^7.0.0",
-    "spago": "^0.20.7"
+    "spago": "^0.20.7",
+    "xhr2": "^0.2.1"
   }
 }

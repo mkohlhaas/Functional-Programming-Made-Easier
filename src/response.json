@@ -1,0 +1,60 @@
+POST /
+{
+  connection: 'keep-alive',
+  host: 'localhost:8000',
+  'user-agent': 'Mozilla/5.0 (Linux x64) node.js/17.2.0 v8/9.6.180.14-node.12',
+  'content-type': 'text/plain;charset=UTF-8',
+  'content-length': '188'
+}
+
+BODY: {"status":{"tag":"NonTenured"},"personal":{"weight":63.5,"height":162.56,"age":31},"numberOfStudents":23,"grades":[{"tag":"Preschool"},{"tag":"Kindergarten"},{"contents":1,"tag":"Grade"}]}
+
+RESPONSE: {
+  "sutats": {
+    "gat": "NonTenured"
+  },
+  "lanosrep": {
+    "thgiew": 63.5,
+    "thgieh": 162.56,
+    "ega": 31
+  },
+  "stnedutSfOrebmun": 23,
+  "sedarg": [
+    {
+      "gat": "Preschool"
+    },
+    {
+      "gat": "Kindergarten"
+    },
+    {
+      "stnetnoc": 1,
+      "gat": "Grade"
+    }
+  ]
+}
+
+--------------------------------------------------------------------------------------------
+
+(Right "{
+  "sutats": {
+    "gat": "NonTenured"
+  },
+  "lanosrep": {
+    "thgiew": 63.5,
+    "thgieh": 162.56,
+    "ega": 31
+  },
+  "stnedutSfOrebmun": 23,
+  "sedarg": [
+    {
+      "gat": "Preschool"
+    },
+    {
+      "gat": "Kindergarten"
+    },
+    {
+      "stnetnoc": 1,
+      "gat": "Grade"
+    }
+  ]
+}")

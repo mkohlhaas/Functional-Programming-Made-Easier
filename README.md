@@ -8,3 +8,12 @@ Automatic rebuild:
 spago build --watch
 ```
 
+Start Json echo server with:
+```shell
+node src/echo-server.js
+```
+
+For testing the local Json server you can use curl, e.g.
+```shell
+curl -X POST http://localhost:8000/ -d '{"productId": 123456, "quantity": 100}'
+```
