@@ -2,7 +2,8 @@
 , dependencies =
   [ "aff"
   , "affjax"
-  , "bifunctors"
+  , "argonaut"
+  , "argonaut-codecs"
   , "console"
   , "effect"
   , "either"

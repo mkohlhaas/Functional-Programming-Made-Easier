@@ -1,7 +1,7 @@
 const http = require("http");
 
 const hostname = "localhost";
-const port = 8000;
+const port = 3000;
 
 const server = http.createServer((req, res) => {
   console.log(`\n${req.method} ${req.url}`);
