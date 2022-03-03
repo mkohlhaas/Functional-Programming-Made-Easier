@@ -4,6 +4,7 @@
   , "affjax"
   , "argonaut"
   , "argonaut-codecs"
+  , "bifunctors"
   , "console"
   , "effect"
   , "either"
