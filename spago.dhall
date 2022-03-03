@@ -8,8 +8,10 @@
   , "console"
   , "effect"
   , "either"
+  , "foldable-traversable"
   , "foreign-generic"
   , "maybe"
+  , "parallel"
   , "prelude"
   , "transformers"
   ]
