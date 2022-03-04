@@ -15,5 +15,8 @@
     "purs-tidy": "^0.7.0",
     "purty": "^7.0.0",
     "spago": "^0.20.7"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2"
   }
 }
