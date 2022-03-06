@@ -1,4 +1,4 @@
-module Api.Logoff where
+module Data.Api.Logoff where
 
 import Data.Generic.Rep (class Generic)
 import Data.UUID (UUID)

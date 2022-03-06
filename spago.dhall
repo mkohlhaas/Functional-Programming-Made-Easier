@@ -6,6 +6,8 @@
   , "foreign-generic"
   , "httpure"
   , "maybe"
+  , "node-process"
+  , "posix-types"
   , "prelude"
   , "uuid"
   ]

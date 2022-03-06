@@ -1,4 +1,4 @@
-module Api.Logon where
+module Data.Api.Logon where
 
 import Data.Generic.Rep (class Generic)
 import Data.UUID (UUID)
