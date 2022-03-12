@@ -14,4 +14,3 @@ instance encodeAccount :: Encode Account where
 
 instance decodeAccount :: Decode Account where
   decode = genericDecode defaultOptions
-
