@@ -2,6 +2,7 @@
 , dependencies =
   [ "aff"
   , "arrays"
+  , "avar"
   , "bifunctors"
   , "console"
   , "control"
@@ -14,10 +15,12 @@
   , "httpure"
   , "identity"
   , "lcg"
+  , "maybe"
   , "newtype"
   , "node-buffer"
   , "node-fs-aff"
   , "node-process"
+  , "ordered-collections"
   , "parsing"
   , "posix-types"
   , "prelude"
@@ -25,6 +28,7 @@
   , "strings"
   , "stringutils"
   , "transformers"
+  , "tuples"
   , "unicode"
   , "uuid"
   ]
