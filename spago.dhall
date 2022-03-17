@@ -20,6 +20,7 @@
   , "node-buffer"
   , "node-fs-aff"
   , "node-process"
+  , "nonempty"
   , "ordered-collections"
   , "parsing"
   , "posix-types"

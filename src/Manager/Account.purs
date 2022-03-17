@@ -4,7 +4,7 @@ import Prelude
 
 import Data.Map (Map)
 import Data.Map as Map
-import Data.Maybe (fromMaybe)
+import Data.Maybe (Maybe(..))
 import Data.Tuple (Tuple(..))
 import Effect.Aff (Aff)
 import Effect.Aff.AVar (AVar)
@@ -20,9 +20,11 @@ startup accounts = (accounts <#> \account@(Account { userName }) -> Tuple userNa
 shutdown :: AVar Accounts -> Aff Unit
 shutdown = void <<< AVar.take
 
-verifyLogon :: AVar Accounts -> String -> String -> Aff Boolean
+verifyLogon :: AVar Accounts -> String -> String -> Aff (Maybe Account)
 verifyLogon accountsAVar userName password = do
   passwordHash' <- passwordHashHex userName password
   accounts <- AVar.read accountsAVar
   let account' = Map.lookup userName accounts
-  pure $ account' <#> (\(Account { passwordHash}) -> passwordHash == passwordHash') # fromMaybe false
+  pure $ case account' of
+    Just (Account { passwordHash }) -> if passwordHash == passwordHash' then account' else Nothing
+    _ -> Nothing

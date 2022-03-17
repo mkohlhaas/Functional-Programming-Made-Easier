@@ -32,12 +32,10 @@ passwordHash :: AccountParserT String
 passwordHash = hex
 
 boolean :: AccountParserT Boolean
-boolean = do
-  bool <- string "true" <|> string "false"
-  case bool of
-    "true" -> pure true
-    "false" -> pure false
-    _ -> fail "Invalid Boolean"
+boolean =
+  string "true" *> pure true
+    <|> string "false" *> pure false
+    <|> fail "Invalid Boolean"
 
 temporaryPassword :: AccountParserT Boolean
 temporaryPassword = boolean
@@ -80,5 +78,5 @@ accountParser = do
     , lastName: lastName'
     }
   where
-   comma :: ∀ a. AccountParserT a -> AccountParserT a
-   comma p = p <* char ','
+  comma :: ∀ a. AccountParserT a -> AccountParserT a
+  comma p = p <* char ','
