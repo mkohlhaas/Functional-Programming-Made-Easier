@@ -47,6 +47,7 @@ main = launchAff_ do
         let
           shutdownServer = do
             log "Shutting down server..."
+            launchAff_ $ AccountManager.shutdown accountsAVar
             shutdown $ log "Server shutdown."
         onSignal SIGINT shutdownServer
         onSignal SIGTERM shutdownServer
