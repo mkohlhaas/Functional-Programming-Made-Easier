@@ -2,30 +2,30 @@ module Handler.Api.Logon where
 
 import Prelude
 
-import Control.Monad.Except (runExcept)
 import Control.Monad.Reader.Class (ask)
 import Control.Monad.Trans.Class (lift)
 import Data.Api.Logon (LogonRequest(..), LogonResponse(..), LogonResults(..))
 import Data.Maybe (Maybe(..))
-import Data.UUID (emptyUUID)
 import Entity.Account (Account(..))
-import Foreign.Generic (decodeJSON, encodeJSON)
+import Foreign.Generic (encodeJSON)
 import HTTPure as HTTPure
+import Handler.Api.Common (handleApi)
 import Handler.Class.ApiHandler (class ApiHandler, Handler)
 import Manager.Account (verifyLogon)
+import Manager.Session (createSession)
 
 data Logon = Logon
 
 instance apiHandlerLogon :: ApiHandler Logon where
-  handle request _ = do
-    logonReq <- runExcept (decodeJSON request :: _ LogonRequest)
-    pure $ handler logonReq
+  handle _ = handleApi handler
 
 handler :: LogonRequest -> Handler
 handler (LogonRequest { userName, password }) = do
-  { accountsAVar } <- ask
+  { accountsAVar, sessionsAVar } <- ask
   verifiedAccount <- lift $ verifyLogon accountsAVar userName password
-  HTTPure.ok $ encodeJSON
-    $ case verifiedAccount of
-        Nothing -> LogonResponse LogonResultsFailure
-        Just (Account { temporaryPassword }) -> LogonResponse $ LogonResultsSuccess { authToken: emptyUUID, mustChangePassword: temporaryPassword }
+  response <- case verifiedAccount of
+    Nothing -> pure $ LogonResponse LogonResultsFailure
+    Just (Account { temporaryPassword }) -> do
+      authToken <- lift $ createSession sessionsAVar userName
+      pure $ LogonResponse $ LogonResultsSuccess { authToken, mustChangePassword: temporaryPassword }
+  HTTPure.ok $ encodeJSON response

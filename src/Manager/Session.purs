@@ -8,7 +8,8 @@ import Data.Map as Map
 import Data.Maybe (Maybe(..))
 import Data.UUID (UUID, genUUID)
 import Effect.Aff (Aff)
-import Effect.Aff.AVar (AVar, empty, put, take)
+import Effect.Aff.AVar (AVar, put, take)
+import Effect.Aff.AVar as AVar
 import Effect.Class (liftEffect)
 import Effect.Now (now)
 import Entity.Session (Session(..))
@@ -16,7 +17,7 @@ import Entity.Session (Session(..))
 type Sessions = Map UUID Session
 
 startup :: Aff (AVar Sessions)
-startup = empty
+startup = AVar.new Map.empty
 
 shutdown :: AVar Sessions -> Aff Unit
 shutdown = void <<< take
@@ -39,6 +40,11 @@ createSession sessionsAVar userName = do
     session = Session { authToken, userName, lastTime }
   put (insert authToken session sessions) sessionsAVar
   pure authToken
+
+deleteSession :: AVar Sessions -> UUID -> Aff Unit
+deleteSession sessionsAVar authToken = do
+  sessions <- take sessionsAVar
+  put (Map.delete authToken sessions) sessionsAVar
 
 sessionTimeout :: Number
 sessionTimeout = 4.0 * 60.0 * 60.0 * 1000.0 -- 4 hours

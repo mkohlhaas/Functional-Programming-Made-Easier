@@ -3,12 +3,13 @@ module Main where
 import Prelude
 
 import Control.Monad.Reader (runReaderT)
-import Data.Array (head)
 import Data.DateTime (diff)
 import Data.Either (Either(..), hush)
+import Control.Alt (class Alt, (<|>))
+import Data.Foldable (class Foldable, foldl)
 import Data.JSDate (fromDateTime, toUTCString)
 import Data.Maybe (Maybe(..))
-import Data.NonEmpty (oneOf, (:|))
+import Data.NonEmpty (NonEmpty, (:|))
 import Data.Posix.Signal (Signal(..))
 import Data.Time.Duration (Milliseconds)
 import Data.UUID (genUUID)
@@ -22,18 +23,24 @@ import HTTPure as HTTPure
 import HTTPure.Request (Request)
 import HTTPure.Response (ResponseM)
 import Handler.Account as AccountHandler
+import Handler.Api.Logoff (Logoff)
 import Handler.Api.Logon (Logon)
 import Handler.Class.ApiHandler (HandlerEnv, handle)
 import Manager.Account as AccountManager
+import Manager.Session as SessionManager
 import Node.Process (onSignal)
 import Record (delete)
 import Type.Proxy (Proxy(..))
 
+oneOf :: ∀ a t f. Alt t => Foldable f => NonEmpty f (t a) -> t a
+oneOf (x :| xs) = foldl (<|>) x xs
+
 loggingRouter :: HandlerEnv -> Request -> ResponseM
 loggingRouter env req = do
   id <- liftEffect genUUID
-  let idStr = " SessionID: " <> show id <> " "
-      ts date = toUTCString $ fromDateTime date
+  let
+    idStr = " SessionID: " <> show id <> " "
+    ts date = toUTCString $ fromDateTime date
   startDate <- liftEffect nowDateTime
   log $ "REQUEST: " <> ts startDate <> idStr <> (show $ delete (Proxy :: _ "body") req)
   res <- router env req
@@ -46,7 +53,12 @@ router :: HandlerEnv -> Request -> ResponseM
 router env { body, method }
   | method == HTTPure.Post = do
       body' <- toString body
-      case hush =<< (head $ oneOf $ (handle body' (Proxy :: _ Logon)) :| []) of
+      let
+        handlers =
+          handle (Proxy :: _ Logon) :|
+            [ handle (Proxy :: _ Logoff)
+            ] <#> (_ $ body')
+      case hush $ oneOf handlers of
         Nothing -> HTTPure.badRequest body'
         Just handler -> runReaderT handler env
   | otherwise = HTTPure.methodNotAllowed
@@ -61,11 +73,13 @@ main = launchAff_ do
     Left err -> log $ "Cannot load accounts: " <> show err
     Right accounts -> do
       accountsAVar <- AccountManager.startup accounts
+      sessionsAVar <- SessionManager.startup
       liftEffect $ do
-        shutdown <- HTTPure.serve port (loggingRouter { accountsAVar }) $ log $ "Server up running on port: " <> show port
+        shutdown <- HTTPure.serve port (loggingRouter { accountsAVar, sessionsAVar }) $ log $ "Server up running on port: " <> show port
         let
           shutdownServer = do
             log "Shutting down server..."
+            launchAff_ $ SessionManager.shutdown sessionsAVar
             launchAff_ $ AccountManager.shutdown accountsAVar
             shutdown $ log "Server shutdown."
         onSignal SIGINT shutdownServer
