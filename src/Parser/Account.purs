@@ -3,15 +3,16 @@ module Parser.Account where
 import Prelude
 
 import Control.Alt ((<|>))
-import Data.Array (many, some, (:))
+import Data.Array (catMaybes, fromFoldable, many, some, (:))
 import Data.CodePoint.Unicode (isLower)
 import Data.Identity (Identity)
+import Data.Maybe (Maybe(..))
 import Data.String (CodePoint)
 import Data.String.CodePoints (codePointFromChar)
 import Data.String.CodeUnits (fromCharArray)
 import Entity.Account (Account(..))
 import Text.Parsing.Parser (ParserT, fail)
-import Text.Parsing.Parser.Combinators ((<?>))
+import Text.Parsing.Parser.Combinators (sepBy, (<?>))
 import Text.Parsing.Parser.String (string, satisfy, char)
 import Text.Parsing.Parser.String.Basic (letter, alphaNum, hexDigit, upper)
 
@@ -80,3 +81,8 @@ accountParser = do
   where
   comma :: ∀ a. AccountParserT a -> AccountParserT a
   comma p = p <* char ','
+
+accountsParser :: AccountParserT (Array Account)
+accountsParser = (Just <$> accountParser <|> pure Nothing) `sepBy` newline <#> catMaybes <<< fromFoldable
+  where
+  newline = char '\n'

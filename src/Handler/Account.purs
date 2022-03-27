@@ -8,13 +8,11 @@ import Data.Bifunctor (lmap)
 import Data.Either (Either(..))
 import Data.Foldable (intercalate)
 import Data.Newtype (unwrap)
-import Data.String.Utils (lines)
-import Data.Traversable (sequence)
 import Effect.Aff (Aff)
 import Entity.Account (Account(..))
 import Node.Encoding (Encoding(ASCII))
 import Node.FS.Aff (exists, readTextFile, writeTextFile, appendTextFile)
-import Parser.Account (accountParser)
+import Parser.Account (accountsParser)
 import Text.Parsing.Parser (ParseError, runParserT)
 
 ----------------
@@ -69,5 +67,5 @@ loadAccounts = do
   unless exists do
     bootstrapAccount' <- bootstrapAccount
     writeTextFile ASCII accountsFile bootstrapAccount'
-  accountLines <- lines <$> readTextFile ASCII accountsFile
-  pure $ sequence $ unwrap <<< flip runParserT accountParser <$> accountLines
+  fileData <- readTextFile ASCII accountsFile
+  pure $ unwrap $ runParserT fileData accountsParser

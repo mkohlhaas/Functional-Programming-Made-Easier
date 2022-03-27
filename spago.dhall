@@ -31,7 +31,6 @@
   , "quickcheck"
   , "record"
   , "strings"
-  , "stringutils"
   , "transformers"
   , "tuples"
   , "unicode"
