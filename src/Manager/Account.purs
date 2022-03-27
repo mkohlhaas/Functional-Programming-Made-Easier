@@ -2,6 +2,8 @@ module Manager.Account where
 
 import Prelude
 
+import Crypto (passwordHashHex)
+import Data.Either (Either(..))
 import Data.Map (Map)
 import Data.Map as Map
 import Data.Maybe (Maybe(..))
@@ -10,9 +12,11 @@ import Effect.Aff (Aff)
 import Effect.Aff.AVar (AVar)
 import Effect.Aff.AVar as AVar
 import Entity.Account (Account(..))
-import Handler.Account (passwordHashHex)
+import Utils (withAVar)
 
 type Accounts = Map String Account
+
+data CreateAccountError = CreateAccountAlreadyExists
 
 startup :: Array Account -> Aff (AVar Accounts)
 startup accounts = (accounts <#> \account@(Account { userName }) -> Tuple userName account) # Map.fromFoldable # AVar.new
@@ -28,3 +32,14 @@ verifyLogon accountsAVar userName password = do
   pure $ case account' of
     Just (Account { passwordHash }) -> if passwordHash == passwordHash' then account' else Nothing
     _ -> Nothing
+
+createAccount :: AVar Accounts -> Account -> Aff (Either CreateAccountError Unit)
+createAccount accountsAVar account@(Account { userName }) = do
+  withAVar accountsAVar \accounts -> pure $
+    if Map.member userName accounts then
+      Tuple accounts (Left CreateAccountAlreadyExists)
+    else
+      Tuple (Map.insert userName account accounts) (Right unit)
+
+findAccount :: AVar Accounts -> String -> Aff (Maybe Account)
+findAccount accountsAVar userName = AVar.read accountsAVar >>= pure <<< Map.lookup userName

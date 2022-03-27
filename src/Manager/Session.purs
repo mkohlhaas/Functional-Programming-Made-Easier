@@ -6,6 +6,7 @@ import Data.JSDate (fromInstant, getTime)
 import Data.Map (Map, filter, insert, update)
 import Data.Map as Map
 import Data.Maybe (Maybe(..))
+import Data.Tuple (Tuple(..))
 import Data.UUID (UUID, genUUID)
 import Effect.Aff (Aff)
 import Effect.Aff.AVar (AVar, put, take)
@@ -13,6 +14,7 @@ import Effect.Aff.AVar as AVar
 import Effect.Class (liftEffect)
 import Effect.Now (now)
 import Entity.Session (Session(..))
+import Utils (withAVar)
 
 type Sessions = Map UUID Session
 
@@ -25,11 +27,12 @@ shutdown = void <<< take
 verifySession :: AVar Sessions -> UUID -> Aff (Maybe Session)
 verifySession sessionsAVar authToken = do
   expireSessions sessionsAVar
-  sessions <- take sessionsAVar
-  now <- getTime <<< fromInstant <$> liftEffect now
-  let newSessions = update (\(Session session) -> Just (Session $ session { lastTime = now })) authToken sessions
-  put newSessions sessionsAVar
-  pure $ Map.lookup authToken newSessions
+  withAVar sessionsAVar \sessions -> do
+    now <- getTime <<< fromInstant <$> liftEffect now
+    let
+      newSessions = update (\(Session session) -> Just (Session $ session { lastTime = now })) authToken sessions
+      currentSession = Map.lookup authToken newSessions
+    pure $ Tuple newSessions currentSession
 
 createSession :: AVar Sessions -> String -> Aff UUID
 createSession sessionsAVar userName = do

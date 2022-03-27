@@ -13,16 +13,9 @@ type UserRow r =
   | r
   )
 
--- newtype User = User { | UserRow () }
 newtype User = User (Record (UserRow ()))
-
--- newtype User = User
---   { userName :: String
---   , temporaryPassword :: Boolean
---   , admin :: Boolean
---   , firstName :: String
---   , lastName :: String
---   }
+-- Alternative syntax:
+-- newtype User = User { | UserRow () }
 
 derive instance genericUser :: Generic User _
 

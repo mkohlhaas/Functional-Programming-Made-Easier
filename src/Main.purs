@@ -2,10 +2,10 @@ module Main where
 
 import Prelude
 
+import Control.Alt (class Alt, (<|>))
 import Control.Monad.Reader (runReaderT)
 import Data.DateTime (diff)
 import Data.Either (Either(..), hush)
-import Control.Alt (class Alt, (<|>))
 import Data.Foldable (class Foldable, foldl)
 import Data.JSDate (fromDateTime, toUTCString)
 import Data.Maybe (Maybe(..))
@@ -25,6 +25,7 @@ import HTTPure.Response (ResponseM)
 import Handler.Account as AccountHandler
 import Handler.Api.Logoff (Logoff)
 import Handler.Api.Logon (Logon)
+import Handler.Api.CreateUser(CreateUser)
 import Handler.Class.ApiHandler (HandlerEnv, handle)
 import Manager.Account as AccountManager
 import Manager.Session as SessionManager
@@ -40,7 +41,7 @@ loggingRouter env req = do
   id <- liftEffect genUUID
   let
     idStr = " SessionID: " <> show id <> " "
-    ts date = toUTCString $ fromDateTime date
+    ts = toUTCString <<< fromDateTime
   startDate <- liftEffect nowDateTime
   log $ "REQUEST: " <> ts startDate <> idStr <> (show $ delete (Proxy :: _ "body") req)
   res <- router env req
@@ -55,9 +56,7 @@ router env { body, method }
       body' <- toString body
       let
         handlers =
-          handle (Proxy :: _ Logon) :|
-            [ handle (Proxy :: _ Logoff)
-            ] <#> (_ $ body')
+          handle (Proxy :: _ Logon) :| [ handle (Proxy :: _ Logoff),handle (Proxy :: _ CreateUser)  ] <#> (_ $ body')
       case hush $ oneOf handlers of
         Nothing -> HTTPure.badRequest body'
         Just handler -> runReaderT handler env
