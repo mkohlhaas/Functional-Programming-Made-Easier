@@ -18,15 +18,17 @@ import Effect.Aff (launchAff_)
 import Effect.Class (liftEffect)
 import Effect.Class.Console (log)
 import Effect.Now (nowDateTime)
+import Foreign (MultipleErrors)
 import HTTPure (toString)
 import HTTPure as HTTPure
 import HTTPure.Request (Request)
 import HTTPure.Response (ResponseM)
 import Handler.Account as AccountHandler
+import Handler.Api.CreateUser (CreateUser)
 import Handler.Api.Logoff (Logoff)
 import Handler.Api.Logon (Logon)
-import Handler.Api.CreateUser(CreateUser)
-import Handler.Class.ApiHandler (HandlerEnv, handle)
+import Handler.Api.QueryUsers (QueryUsers)
+import Handler.Class.ApiHandler (HandlerEnv, Handler, handle)
 import Manager.Account as AccountManager
 import Manager.Session as SessionManager
 import Node.Process (onSignal)
@@ -50,13 +52,15 @@ loggingRouter env req = do
   log $ "RESPONSE: " <> ts endDate <> idStr <> (show $ delete (Proxy :: _ "writeBody") res) <> duration
   pure res
 
+apiHandlers :: NonEmpty Array (String -> Either MultipleErrors Handler)
+apiHandlers = handle (Proxy :: _ Logon) :| [ handle (Proxy :: _ Logoff), handle (Proxy :: _ CreateUser), handle (Proxy :: _ QueryUsers) ]
+
 router :: HandlerEnv -> Request -> ResponseM
 router env { body, method }
   | method == HTTPure.Post = do
       body' <- toString body
       let
-        handlers =
-          handle (Proxy :: _ Logon) :| [ handle (Proxy :: _ Logoff),handle (Proxy :: _ CreateUser)  ] <#> (_ $ body')
+        handlers = apiHandlers <#> (_ $ body')
       case hush $ oneOf handlers of
         Nothing -> HTTPure.badRequest body'
         Just handler -> runReaderT handler env
