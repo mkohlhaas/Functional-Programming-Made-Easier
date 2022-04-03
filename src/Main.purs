@@ -1,9 +1,9 @@
 module Main where
 
-import Prelude (Unit, discard)
-import Data.Maybe (Maybe)
+import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Effect.Console (log)
+import Prelude (Unit, discard, show, (==), (#), ($))
 
 -----------------
 -- Data Types --
@@ -25,6 +25,14 @@ class ToCSV a where
 class FromCSV a where
   fromCSV :: CSV -> Maybe a
 
+--------------------------
+-- Type Class instances --
+--------------------------
+
+---------------
+-- Functions --
+---------------
+
 ----------
 -- Main --
 ----------
@@ -32,8 +40,8 @@ class FromCSV a where
 main :: Effect Unit
 main = do
   log "Chapter 7."
-  log "Convert Person to CSV and back again."
-  -- log $ show $ toCSV (Person { name: FullName "Sue Smith" , age: Age 23 , occupation: Doctor }) == CSV "Sue Smith,23,Doctor"
-  -- log $ show $ toCSV (Person { name: FullName "Sue Smith" , age: Age 23 , occupation: Doctor }) -- "Sue Smith,23,Doctor"
-  -- let person = Person { name: FullName "Sue Smith" , age: Age 23 , occupation: Doctor }
-  -- log $ show $ (toCSV person # fromCSV) == Just person
+  log "Convert Person to CSV and back again. Imports are allowed and necessary."
+  log $ show $ toCSV (Person { name: FullName "Sue Smith", age: Age 23, occupation: Doctor }) == CSV "Sue Smith,23,Doctor"  -- true
+  log $ show $ toCSV (Person { name: FullName "Sue Smith", age: Age 23, occupation: Doctor })                               -- "Sue Smith,23,Doctor"
+  let person = Person { name: FullName "Sue Smith", age: Age 23, occupation: Doctor }
+  log $ show $ (toCSV person # fromCSV) == Just person                                                                      -- true
