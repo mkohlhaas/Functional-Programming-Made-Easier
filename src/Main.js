@@ -1,10 +1,10 @@
 "use strict";
 
-var unsafeCompareImpl = function (lt) {
-  return function (eq) {
-    return function (gt) {
-      return function (x) {
-        return function (y) {
+var unsafeCompareImpl = function(lt) {
+  return function(eq) {
+    return function(gt) {
+      return function(x) {
+        return function(y) {
           return x < y ? lt : x === y ? eq : gt;
         };
       };
@@ -12,21 +12,21 @@ var unsafeCompareImpl = function (lt) {
   };
 };
 
-var refEq = function (r1) {
-  return function (r2) {
+var refEq = function(r1) {
+  return function(r2) {
     return r1 === r2;
   };
 };
 
-exports.showIntImpl = function (n) {
+exports.showIntImpl = function(n) {
   return n.toString();
 };
 
-exports.showStringImpl = function (s) {
+exports.showStringImpl = function(s) {
   var l = s.length;
   return "\"" + s.replace(
     /[\0-\x1F\x7F"\\]/g, // eslint-disable-line no-control-regex
-    function (c, i) {
+    function(c, i) {
       switch (c) {
         case "\"":
         case "\\":
