@@ -141,7 +141,7 @@ notEq a1 a2 = (a1 == a2) == false
 ---------------
 
 infixr 0 apply as $
-infixl 4 eq as ==
+infix 4 eq as ==
 infixl 4 greaterThan as >
 infixl 4 greaterThanOrEq as >=
 infixl 4 lessThan as <
