@@ -80,7 +80,7 @@ instance Ord Unit where
 instance Ord a => Ord (Maybe a) where
   compare Nothing Nothing = EQ
   compare Nothing _ = LT
-  compare (Just _) Nothing = GT
+  compare _ Nothing = GT
   compare (Just a1) (Just a2) = compare a1 a2
 
 instance (Ord a, Ord b) => Ord (Either a b) where
