@@ -9,10 +9,6 @@ import Effect (Effect)
 import Effect.Console (log)
 import Prelude (Unit, discard, show, (==), (<=), (<), (>), (>=), ($))
 
--------------------------------------------------------------
--- Define data types Maybe and Either. Do not import them! --
--------------------------------------------------------------
-
 ----------------
 -- Data Types --
 ----------------
