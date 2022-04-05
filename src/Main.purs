@@ -41,20 +41,14 @@ derive instance Eq FullName
 derive instance Eq Age
 derive instance Eq Occupation
 derive instance Eq Person
-derive instance Generic CSV _
-derive instance Generic FullName _
-derive instance Generic Age _
 derive instance Generic Occupation _
-derive instance Generic Person _
 
-instance Show CSV where
-  show (CSV str) = str
+derive newtype instance Show CSV
 
 instance Show FullName where
   show (FullName name) = name
 
-instance Show Age where
-  show (Age age) = show age
+derive newtype instance Show Age
 
 instance Show Occupation where
   show = genericShow
@@ -85,11 +79,12 @@ readAge :: String -> Maybe Age
 readAge str = Age <$> fromString str
 
 readOccupation :: String -> Maybe Occupation
-readOccupation "Doctor" = Just Doctor
-readOccupation "Dentist" = Just Dentist
-readOccupation "Lawyer" = Just Lawyer
-readOccupation "Unemployed" = Just Unemployed
-readOccupation _ = Nothing
+readOccupation = case _ of
+  "Doctor" -> Just Doctor
+  "Dentist" -> Just Dentist
+  "Lawyer" -> Just Lawyer
+  "Unemployed" -> Just Unemployed
+  _ -> Nothing
 
 ----------
 -- Main --
