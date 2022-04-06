@@ -1,12 +1,13 @@
 module Main where
 
-import Prelude (Unit, class Semiring, class Ord, discard, show, ($))
-
-import Data.Foldable (class Foldable)
-import Data.List (List)
-import Data.Semigroup.Foldable (class Foldable1)
+import Data.Boolean (otherwise)
+import Data.Foldable (class Foldable, foldlDefault, foldrDefault, foldl, foldMap)
+import Data.List (List(..), (:), singleton)
+import Data.List.NonEmpty (NonEmptyList(..))
+import Data.NonEmpty ((:|))
 import Effect (Effect)
 import Effect.Console (log)
+import Prelude (class Ord, class Semiring, type (~>), Unit, discard, flip, negate, show, zero, ($), (+), (<>), (>))
 
 data Tree a = Leaf a | Node (Tree a) (Tree a)
 newtype RFTree a = RFTree (Tree a) -- RightFirstTree; breadth-first search
@@ -14,6 +15,57 @@ newtype LFTree a = LFTree (Tree a) -- LeftFirstTree; depth-first search
 
 class ToList f where
   toList :: ∀ a. f a -> List a
+
+---------------
+-- Functions --
+---------------
+
+reverse :: List ~> List
+reverse = foldl (flip (:)) Nil
+
+max :: ∀ a. Ord a => a -> a -> a
+max x y | x > y = x
+        | otherwise = y
+
+findMax :: ∀ a. Ord a => a -> List a -> a
+findMax = foldl max
+
+findMaxNE :: ∀ a. Ord a => NonEmptyList a -> a
+findMaxNE (NonEmptyList (a :| as)) = findMax a as
+
+sum :: ∀ a f. Foldable f => Semiring a => f a -> a
+sum = foldl (+) zero
+
+-------------------------
+-- Typeclass Instances --
+-------------------------
+
+instance Foldable LFTree where
+  foldr f = foldrDefault f
+  foldl f = foldlDefault f
+  foldMap f (LFTree (Leaf x)) = f x
+  foldMap f (LFTree (Node l r)) = foldMap f (LFTree l) <> foldMap f (LFTree r)
+
+instance Foldable RFTree where
+  foldr f = foldrDefault f
+  foldl f = foldlDefault f
+  foldMap f (RFTree (Leaf x)) = f x
+  foldMap f (RFTree (Node l r)) = foldMap f (RFTree r) <> foldMap f (RFTree l)
+
+instance Foldable Tree where
+  foldr f = foldrDefault f
+  foldl f = foldlDefault f
+  foldMap f (Leaf x) = f x
+  foldMap f (Node l r) = foldMap f l <> foldMap f r
+
+instance ToList LFTree where
+  toList = foldMap singleton
+
+instance ToList RFTree where
+  toList = foldMap singleton
+
+instance ToList Tree where
+  toList = foldMap singleton
 
 ----------
 -- Main --
