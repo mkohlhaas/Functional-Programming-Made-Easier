@@ -16,6 +16,8 @@ import Prelude (Unit, discard, show, ($), (==))
 class Semigroup a where
   append :: a -> a -> a
 
+infixr 5 append as <>
+
 class Semigroup m <= Monoid m where
   mempty :: m
 
@@ -128,12 +130,6 @@ instance Semigroup (Last a) where
 
 instance Monoid (Last a) where
   mempty = Last Nothing
-
----------------
--- Operators --
----------------
-
-infixr 5 append as <>
 
 ----------------------
 -- Helper Functions --
