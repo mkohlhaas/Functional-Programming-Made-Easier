@@ -1,9 +1,9 @@
 module Main where
 
-import Prelude (Unit, discard, show, ($))
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Effect.Console (log)
+import Prelude (Unit, discard, show, ($), (==))
 
 ---------------------------------------------------------
 -- 1. Define Type Classes Semigroup, Monoid, and Group --
