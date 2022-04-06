@@ -101,11 +101,14 @@ instance Group Mod4 where
 -- First --
 -----------
 derive newtype instance Eq a => Eq (First a)
-derive newtype instance Show a => Show (First a)
+derive instance Generic (First a) _
+
+instance Show a => Show (First a) where
+  show = genericShow
 
 instance Semigroup (First a) where
-  append first@(First (Just _)) _ = first
-  append _ first = first
+  append (First Nothing) last = last
+  append first _ = first
 
 instance Monoid (First a) where
   mempty = First Nothing
@@ -114,10 +117,13 @@ instance Monoid (First a) where
 -- Last --
 ----------
 derive newtype instance Eq a => Eq (Last a)
-derive newtype instance Show a => Show (Last a)
+derive instance Generic (Last a) _
+
+instance Show a => Show (Last a) where
+  show = genericShow
 
 instance Semigroup (Last a) where
-  append last@(Last (Just _)) (Last Nothing) = last
+  append first (Last Nothing) = first
   append _ last = last
 
 instance Monoid (Last a) where
@@ -286,9 +292,9 @@ main = do
   verifyMod4Semigroup
   verifyMod4Monoid
   verifyMod4Group
-  log $ show $ First Nothing <> First (Just 77)                            -- (First (Just 77)) or (Just 77)
+  log $ show $ First Nothing <> First (Just 77)                            -- (First (Just 77))
   log $ show $ mempty <> First Nothing   == First (Nothing :: Maybe Unit)  -- true
   log $ show $ mempty <> First (Just 77) == First (Just 77)                -- true
-  log $ show $ Last (Just 1) <> Last (Just 99)                             -- (Last (Just 99)) or (Just 99)
+  log $ show $ Last (Just 1) <> Last (Just 99)                             -- (Last (Just 99))
   log $ show $ mempty <> Last Nothing   == Last (Nothing :: Maybe Unit)    -- true
   log $ show $ mempty <> Last (Just 77) == Last (Just 77)                  -- true
