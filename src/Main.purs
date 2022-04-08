@@ -9,17 +9,17 @@ import Effect.Console (log)
 -- Type Classes --
 ------------------
 
----------------
--- Predicate --
----------------
+-------------------------------------------------------
+---------------------- Predicate ----------------------
+-------------------------------------------------------
 
 -- What is the polarity of the polymorphic parameter a ?
 -- What kind of functor do we need ?
 data Predicate a = Predicate (a -> Boolean)
 
--------------------
--- Moore Machine --
--------------------
+--------------------------------------------------------
+---------------------- Moore Machine -------------------
+--------------------------------------------------------
 
 -- What are the polarities of the polymorphic parameters a and b ?
 -- What kind of functor do we need ?
@@ -48,15 +48,17 @@ transitionFn s _ = s
 
 main :: Effect Unit
 main = do
-  log "Chapter 15."
-  -- log $ show $ runPredicate   (Predicate even) $ 10               -- true
-  -- log $ show $ runPredicate   (Predicate even) $ 11               -- false
-  -- log $ show $ runPredicate   (Predicate odd)  $ 10               -- false
-  -- log $ show $ runPredicate   (Predicate odd)  $ 11               -- true
-  -- log $ show $ runPredicate   (cmap (_ + 1) (Predicate odd)) 10   -- true
-  -- log $ show $ runPredicate   (cmap (_ + 2) (Predicate odd)) 10   -- false
-  -- log $ show $ runPredicate   ((_ + 1) >$<  (Predicate odd)) 10   -- true
-  -- log $ show $ runPredicate   ((_ + 2) >$<  (Predicate odd)) 10   -- false
-  -- log $ show $ runFoldL addr  [1, 2, 3]                           -- 6               addr leverages Moore
-  -- log $ show $ runFoldL addr  (1.0 : 2.0 : 3.0 : Nil)             -- 6.0
-  -- log $ show $ runFoldL sizer [ "This", "is", "the", "test" ]     -- "Size is 13"    sizer leverages addr
+  log "Exercise Chapter 15."
+  log "------------ Predicates ------------"
+  log $ show $ runPredicate   (Predicate even) $ 10               -- true
+  log $ show $ runPredicate   (Predicate even) $ 11               -- false
+  log $ show $ runPredicate   (Predicate odd)  $ 10               -- false
+  log $ show $ runPredicate   (Predicate odd)  $ 11               -- true
+  log $ show $ runPredicate   (cmap (_ + 1) (Predicate odd)) 10   -- true
+  log $ show $ runPredicate   (cmap (_ + 2) (Predicate odd)) 10   -- false
+  log $ show $ runPredicate   ((_ + 1) >$<  (Predicate odd)) 10   -- true
+  log $ show $ runPredicate   ((_ + 2) >$<  (Predicate odd)) 10   -- false
+  log "----------- Moore Machine ----------"
+  log $ show $ runFoldL addr  [1, 2, 3]                           -- 6               addr leverages Moore
+  log $ show $ runFoldL addr  (1.0 : 2.0 : 3.0 : Nil)             -- 6.0
+  log $ show $ runFoldL sizer [ "This", "is", "the", "test" ]     -- "Size is 13"    sizer leverages addr
