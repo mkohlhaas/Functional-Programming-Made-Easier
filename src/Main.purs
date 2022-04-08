@@ -29,6 +29,7 @@ lmap = flip bimap identity
 data Maybe a = Nothing | Just a
 
 derive instance Eq a => Eq (Maybe a)
+
 derive instance Generic (Maybe a) _
 
 instance Show a => Show (Maybe a) where
@@ -58,6 +59,7 @@ instance Bifunctor Either where
 data Tuple a b = Tuple a b
 
 derive instance (Eq a, Eq b) => Eq (Tuple a b)
+
 derive instance Generic (Tuple a b) _
 
 instance (Show a, Show b) => Show (Tuple a b) where
@@ -104,7 +106,7 @@ main = do
   log $ show $ "Tuple Identity: " <> show ((identity <$> Tuple 10 20) == Tuple 10 20)                              -- "Tuple Identity: true"
   log $ show $ "Tuple Composition : " <> show ((map (g <<< f) (Tuple 10 20)) == (map f <<< map g) (Tuple 10 20))   -- "Tuple Composition : true"
   log $ show $ rmap  (_ * 2) $ Left "error reason"                                                                 -- (Left "error reason")
-  log $ show $ lmap  toUpper $ (Left "error reason" :: Either String Unit)                                         -- (Left "ERROR REASON")
+  log $ show $ lmap  toUpper $ (Left "error reason" :: Either _ Unit)                                              -- (Left "ERROR REASON")
   log $ show $ rmap  (_ * 2) $ (Right 10 :: Either Unit Int)                                                       -- (Right 20)
   log $ show $ lmap  toUpper $ Right 10                                                                            -- (Right 10)
   log $ show $ rmap  (_ * 2) $ Tuple 80 40                                                                         -- (Tuple 80 80)
