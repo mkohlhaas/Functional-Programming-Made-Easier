@@ -1,5 +1,15 @@
 { name = "my-project"
-, dependencies = [ "console", "effect", "prelude", "integers" ]
+, dependencies =
+  [ "console"
+  , "contravariant"
+  , "effect"
+  , "foldable-traversable"
+  , "integers"
+  , "lists"
+  , "prelude"
+  , "profunctor"
+  , "strings"
+  ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
 }
