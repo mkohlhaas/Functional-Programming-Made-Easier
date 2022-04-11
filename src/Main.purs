@@ -44,14 +44,21 @@ instance (Show a, Show b) => Show (Either a b) where
 
 derive instance (Eq a, Eq b) => Eq (Either a b)
 
-instance Functor (Either a) where
-  map f (Right b) = Right $ f b
-  map _ (Left a) = Left a
+-- 1. Derive instance:
+derive instance Functor (Either a)
+--
+-- 2. Using liftA1:
+-- instance Functor (Either a) where
+--   map = liftA1
+--
+-- 3. Explicit implementation:
+-- instance Functor (Either a) where
+--   map f (Right b) = Right $ f b
+--   map _ (Left a) = Left a
 
 instance Apply (Either a) where
-  apply (Right f) (Right b) = Right $ f b
+  apply (Right f) x = f <$> x
   apply (Left a) _ = Left a
-  apply _ (Left a) = Left a
 
 instance Applicative (Either a) where
   pure = Right
@@ -71,6 +78,7 @@ type FamilyNamesRow r = (fatherName :: FullName, motherName :: FullName, childNa
 
 newtype Age = Age Int
 newtype FullName = FullName String
+-- See also: https://github.com/purescript/documentation/blob/master/language/Records.md#extending-records
 newtype Family = Family { | FamilyNamesRow (FamilyAgesRow ()) }
 newtype FamilyAges = FamilyAges { | FamilyAgesRow () }
 newtype LowerAge = LowerAge Int
@@ -86,12 +94,10 @@ derive instance Generic FamilyMember _
 instance Show FamilyMember where
   show = genericShow
 
-
-instance Monoid a => Apply (Validation a) where
-  apply (Validation (Right f)) (Validation (Right result)) = Validation $ Right (f result)
+instance Semigroup a => Apply (Validation a) where
   apply (Validation (Left err1)) (Validation (Left err2)) = Validation $ Left (err1 <> err2)
   apply (Validation (Left err)) _ = Validation $ Left err
-  apply _ (Validation (Left err)) = Validation $ Left err
+  apply (Validation (Right f)) x = f <$> x
 
 -- Write validateAge function
 validateAge :: LowerAge -> UpperAge -> Age -> FamilyMember -> Validation (Array String) Age
@@ -135,7 +141,7 @@ main = do
   log "----------------"
   log "-- Validation --"
   log "----------------"
-  log $ show $ createFamilyAges { fatherAge: Age 40, motherAge: Age 30, childAge: Age 10 }  -- (Validation (Right (FamilyAges { childAge: (Age 10), fatherAge: (Age 40), motherAge: (Age 30) })))
+  log $ show $ createFamilyAges { fatherAge: Age 40, motherAge: Age 30, childAge: Age 10 }  -- (Validation (Right (FamilyAges { childAge: 10, fatherAge: 40, motherAge: 30 })))
   log $ show $ createFamilyAges { fatherAge: Age 400, motherAge: Age 300, childAge: Age 0 } -- (Validation (Left ["Father is too old", "Mother is too old", "Child is too young"]))
   log $ show $ createFamilyAges { fatherAge: Age 4, motherAge: Age 3, childAge: Age 10 }    -- (Validation (Left ["Father is too young", "Mother is too young"]))
   log $ show $ createFamilyAges { fatherAge: Age 40, motherAge: Age 30, childAge: Age 100 } -- (Validation (Left ["Child is too old"]))
