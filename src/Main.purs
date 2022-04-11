@@ -17,7 +17,7 @@ import Effect.Console (log)
 ------------------------------
 
 -- e = error type, a = return type
-class ParserError (e :: Type) where
+class ParserError e where
   eof :: e
 
 data PError = EOF -- application specific parse error type
