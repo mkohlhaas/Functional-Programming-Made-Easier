@@ -43,7 +43,7 @@ data Threeple a b c = Threeple a b c
 
 -- Create ParserError instance for PError
 
--- Write a char parser using Sting libary function uncons
+-- Write a char parser using String libary function uncons
 -- char :: ∀ e. Parser e Char
 
 -- Write a two-char parser
@@ -73,7 +73,7 @@ data Threeple a b c = Threeple a b c
 
 main :: Effect Unit
 main = do
-  log "Ch. 17 Applicative Parser."
+  log "Exercise Ch. 17 Applicative Parser."
 -- log $ show $ (parse  char         "ABC" :: Either PError _)                           -- (Right (Tuple "BC" 'A')).
 -- log $ show $ (parse  twoChars     "ABC" :: Either PError _)                           -- (Right (Tuple "C" (Tuple 'A' 'B'))).
 -- log $ show $ (parse  threeChars   "ABC" :: Either PError _)                           -- (Right (Tuple "" (Tuple 'A' (Tuple 'B' 'C'))))
