@@ -2,12 +2,15 @@ module Main where
 
 import Prelude
 
+import Data.Array (replicate)
 import Data.Either (Either(..))
 import Data.Generic.Rep (class Generic)
 import Data.Maybe (Maybe(..))
 import Data.Show.Generic (genericShow)
-import Data.String.CodeUnits (uncons)
+import Data.String.CodeUnits (fromCharArray, uncons)
+import Data.Traversable (class Traversable, sequence)
 import Data.Tuple (Tuple(..))
+import Data.Unfoldable (class Unfoldable, replicateA)
 import Effect (Effect)
 import Effect.Console (log)
 
@@ -36,19 +39,12 @@ data Threeple a b c = Threeple a b c
 
 derive instance Functor (Parser e)
 
--- instance Apply (Parser e) where
---   apply (Parser f) (Parser g) = Parser $ \str -> case g str of
---     Left err -> Left err
---     Right (Tuple lo res) -> case f lo of
---       Left err -> Left err
---       Right (Tuple lo1 f') -> Right (Tuple lo1 (f' res))
-
 instance Apply (Parser e) where
-  apply f g = Parser $ \str -> case parse g $ str of
+  apply f g = Parser $ \str -> case parse f $ str of
     Left err -> Left err
-    Right (Tuple lo res) -> case parse f $ lo of
+    Right (Tuple lo f') -> case parse g $ lo of
       Left err -> Left err
-      Right (Tuple lo1 f') -> Right (Tuple lo1 (f' res))
+      Right (Tuple lo1 res) -> Right (Tuple lo1 (f' res))
 
 instance Applicative (Parser e) where
   pure x = Parser \str -> Right (Tuple str x)
@@ -73,51 +69,64 @@ instance Show PError where
 instance ParserError PError where
   eof = EOF
 
--- Write a char parser using Sting libary function uncons
+-- Write a char parser using String libary function uncons
 char :: ∀ e. Parser e Char
 char = Parser \str -> case uncons str of
   Nothing -> Left eof
   Just { head, tail } -> Right $ Tuple tail head
 
 -- Write a two-char parser
--- twoChars :: ∀ e. Parser e (Tuple Char Char)
+twoChars :: ∀ e. Parser e (Tuple Char Char)
+twoChars = Tuple <$> char <*> char
 
 -- Write a char-two-char parser
--- threeChars :: ∀ e. Parser e (Tuple Char (Tuple Char Char))
+threeChars :: ∀ e. Parser e (Tuple Char (Tuple Char Char))
+threeChars = Tuple <$> char <*> twoChars
 
 -- Write a Show instance for Threeple
+derive instance Generic (Threeple a b c) _
+
+instance (Show a, Show b, Show c) => Show (Threeple a b c) where
+  show = genericShow
 
 -- Write a Threeple 3-char parser
--- threeChars' :: ∀ e. Parser e (Threeple Char Char Char)
+threeChars' :: ∀ e. Parser e (Threeple Char Char Char)
+threeChars' = Threeple <$> char <*> char <*> char
 
 -- Write a 3-char parser returning a String using library function fromCharArray
--- threeChars'' :: ∀ e. Parser e String
+threeChars'' :: ∀ e. Parser e String
+threeChars'' = (\a b c -> fromCharArray [ a, b, c ]) <$> char <*> char <*> char
 
 -- Write a parse' function which includes the error type in its signature
--- parse' :: ∀ a. Parser PError a -> ParseFunction PError a
+parse' :: ∀ a. Parser PError a -> ParseFunction PError a
+parse' p = parse p
 
 -- Write a 10-char parser in the same manner as the 3-char parser
--- tenChars :: ∀ e. Parser e String
+tenChars :: ∀ e. Parser e String
+tenChars = (\a b c d e f g h i j -> fromCharArray [a, b, c, d, e, f, g, h, i, j]) <$> char <*> char <*> char <*> char <*> char <*> char <*> char <*> char <*> char <*> char
 
 -- Do the same using sequence from Data.Traversable and replicate from Data.Array using this helper function
--- count :: ∀ e a. Int -> Parser e a -> Parser e (Array a)
+count :: ∀ e a. Int -> Parser e a -> Parser e (Array a)
+count n p = sequence $ replicate n p
 
 -- Make count more generic and call it count'
+count' :: ∀ m t a. Applicative m => Unfoldable t => Traversable t => Int -> m a -> m (t a)
+count' n p = replicateA n p
 
 main :: Effect Unit
 main = do
-  log "Ch. 17 Applicative Parser."
-  log $ show $ (parse  char         "ABC" :: Either PError _)                           -- (Right (Tuple "BC" 'A')).
--- log $ show $ (parse  twoChars     "ABC" :: Either PError _)                           -- (Right (Tuple "C" (Tuple 'A' 'B'))).
--- log $ show $ (parse  threeChars   "ABC" :: Either PError _)                           -- (Right (Tuple "" (Tuple 'A' (Tuple 'B' 'C'))))
--- log $ show $ (parse  threeChars'  "ABC" :: Either PError _)                           -- (Right (Tuple "" (Threeple 'A' 'B' 'C')))
--- log $ show $ (parse  threeChars'' "ABC" :: Either PError _)                           -- (Right (Tuple "" "ABC"))
--- log $ show $ parse'  char         "ABC"                                               -- (Right (Tuple "BC" 'A')).
--- log $ show $ parse'  twoChars     "ABC"                                               -- (Right (Tuple "C" (Tuple 'A' 'B'))).
--- log $ show $ parse'  threeChars   "ABC"                                               -- (Right (Tuple "" (Tuple 'A' (Tuple 'B' 'C'))))
--- log $ show $ parse'  threeChars'  "ABC"                                               -- (Right (Tuple "" (Threeple 'A' 'B' 'C')))
--- log $ show $ parse'  threeChars'' "ABC"                                               -- (Right (Tuple "" "ABC"))
--- log $ show $ parse'  threeChars   "A"                                                 -- (Left EOF)
--- log $ show $ parse'  tenChars     "ABCDEFGHIJKLMNOPQRSTUVXYZ"                         -- (Right (Tuple "KLMNOPQRSTUVXYZ" "ABCDEFGHIJ"))
--- log $ show $ parse' (fromCharArray <$> (count  10 char)) "ABCDEFGHIJKLMNOPQRSTUVXYZ"  -- (Right (Tuple "KLMNOPQRSTUVXYZ" "ABCDEFGHIJ"))
--- log $ show $ parse' (fromCharArray <$> (count' 10 char)) "ABCDEFGHIJKLMNOPQRSTUVXYZ"  -- (Right (Tuple "KLMNOPQRSTUVXYZ" "ABCDEFGHIJ"))
+  log "Exercise Ch. 17 Applicative Parser."
+  log $ show $ (parse char "ABC" :: Either PError _)                                    -- (Right (Tuple "BC" 'A')).
+  log $ show $ (parse twoChars "ABC" :: Either PError _)                                -- (Right (Tuple "C" (Tuple 'A' 'B'))).
+  log $ show $ (parse threeChars "ABC" :: Either PError _)                              -- (Right (Tuple "" (Tuple 'A' (Tuple 'B' 'C'))))
+  log $ show $ (parse threeChars' "ABC" :: Either PError _)                             -- (Right (Tuple "" (Threeple 'A' 'B' 'C')))
+  log $ show $ (parse threeChars'' "ABC" :: Either PError _)                            -- (Right (Tuple "" "ABC"))
+  log $ show $ parse' char "ABC"                                                        -- (Right (Tuple "BC" 'A')).
+  log $ show $ parse' twoChars "ABC"                                                    -- (Right (Tuple "C" (Tuple 'A' 'B'))).
+  log $ show $ parse' threeChars "ABC"                                                  -- (Right (Tuple "" (Tuple 'A' (Tuple 'B' 'C'))))
+  log $ show $ parse' threeChars' "ABC"                                                 -- (Right (Tuple "" (Threeple 'A' 'B' 'C')))
+  log $ show $ parse' threeChars'' "ABC"                                                -- (Right (Tuple "" "ABC"))
+  log $ show $ parse' threeChars "A"                                                    -- (Left EOF)
+  log $ show $ parse' tenChars "ABCDEFGHIJKLMNOPQRSTUVXYZ"                              -- (Right (Tuple "KLMNOPQRSTUVXYZ" "ABCDEFGHIJ"))
+  log $ show $ parse' (fromCharArray <$> (count 10 char)) "ABCDEFGHIJKLMNOPQRSTUVXYZ"   -- (Right (Tuple "KLMNOPQRSTUVXYZ" "ABCDEFGHIJ"))
+  log $ show $ parse' (fromCharArray <$> (count' 10 char)) "ABCDEFGHIJKLMNOPQRSTUVXYZ"  -- (Right (Tuple "KLMNOPQRSTUVXYZ" "ABCDEFGHIJ"))
