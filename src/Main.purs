@@ -2,8 +2,12 @@ module Main where
 
 import Prelude
 
-import Data.Either (Either)
-import Data.Tuple (Tuple)
+import Data.Either (Either(..))
+import Data.Generic.Rep (class Generic)
+import Data.Maybe (Maybe(..))
+import Data.Show.Generic (genericShow)
+import Data.String.CodeUnits (uncons)
+import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Console (log)
 
@@ -30,21 +34,50 @@ data Threeple a b c = Threeple a b c
 -- Create Necessary Instances for Parser --
 -------------------------------------------
 
--------------------
--- Using the Parser
--------------------
+derive instance Functor (Parser e)
+
+-- instance Apply (Parser e) where
+--   apply (Parser f) (Parser g) = Parser $ \str -> case g str of
+--     Left err -> Left err
+--     Right (Tuple lo res) -> case f lo of
+--       Left err -> Left err
+--       Right (Tuple lo1 f') -> Right (Tuple lo1 (f' res))
+
+instance Apply (Parser e) where
+  apply f g = Parser $ \str -> case parse g $ str of
+    Left err -> Left err
+    Right (Tuple lo res) -> case parse f $ lo of
+      Left err -> Left err
+      Right (Tuple lo1 f') -> Right (Tuple lo1 (f' res))
+
+instance Applicative (Parser e) where
+  pure x = Parser \str -> Right (Tuple str x)
+
+----------------------
+-- Using the Parser --
+----------------------
 
 -- Write a parse function
--- parse :: ∀ e a. Parser e a -> ParseFunction e a
+parse :: ∀ e a. Parser e a -> ParseFunction e a
+parse (Parser f) = f
 
--- Use parse in map and apply
+-- Use parse in map/apply
 
 -- Create Show instance for PError
+derive instance Generic PError _
+
+instance Show PError where
+  show = genericShow
 
 -- Create ParserError instance for PError
+instance ParserError PError where
+  eof = EOF
 
 -- Write a char parser using Sting libary function uncons
--- char :: ∀ e. Parser e Char
+char :: ∀ e. Parser e Char
+char = Parser \str -> case uncons str of
+  Nothing -> Left eof
+  Just { head, tail } -> Right $ Tuple tail head
 
 -- Write a two-char parser
 -- twoChars :: ∀ e. Parser e (Tuple Char Char)
@@ -74,7 +107,7 @@ data Threeple a b c = Threeple a b c
 main :: Effect Unit
 main = do
   log "Ch. 17 Applicative Parser."
--- log $ show $ (parse  char         "ABC" :: Either PError _)                           -- (Right (Tuple "BC" 'A')).
+  log $ show $ (parse  char         "ABC" :: Either PError _)                           -- (Right (Tuple "BC" 'A')).
 -- log $ show $ (parse  twoChars     "ABC" :: Either PError _)                           -- (Right (Tuple "C" (Tuple 'A' 'B'))).
 -- log $ show $ (parse  threeChars   "ABC" :: Either PError _)                           -- (Right (Tuple "" (Tuple 'A' (Tuple 'B' 'C'))))
 -- log $ show $ (parse  threeChars'  "ABC" :: Either PError _)                           -- (Right (Tuple "" (Threeple 'A' 'B' 'C')))
