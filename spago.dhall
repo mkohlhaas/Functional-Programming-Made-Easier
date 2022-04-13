@@ -1,5 +1,6 @@
 { name = "my-project"
-, dependencies = [ "console", "effect", "prelude", "either", "tuples" ]
+, dependencies =
+  [ "console", "effect", "either", "prelude", "strings", "tuples" ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
 }
