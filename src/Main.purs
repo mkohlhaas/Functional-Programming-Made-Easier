@@ -1,6 +1,7 @@
 module Main where
 
 import Prelude
+
 import Control.Alt (class Alt, (<|>))
 import Data.CodePoint.Unicode (isDecDigit, isAlpha)
 import Data.Either (Either(..))
@@ -189,15 +190,15 @@ type DateParts = { year :: Year, month :: Month, day :: Day, format :: DateForma
 
 main :: Effect Unit
 main = do
-  log "Ch. 19 Date Parser."
-  -- log $ show $ parse' (atMost' (-2) alphaNum) "a1b2c3" -- (Right (Tuple "a1b2c3" ""))
-  -- log $ show $ parse' (atMost' 2 alphaNum) "$_$" -- (Right (Tuple "$_$" ""))
-  -- log $ show $ parse' (atMost' 2 alphaNum) "a1b2c3" -- (Right (Tuple "b2c3" "a1"))
-  -- log $ show $ parse' yearFirst "1962-10-02"
-  -- log $ show $ parse' monthFirst "10/2/1962"
-  -- log $ show $ parse' yearFirst "1999-12-31"
-  -- log $ show $ parse' monthFirst "12/31/1999"
-  -- log $ show $ parse' date "1962-10-02"
-  -- log $ show $ parse' date "10/2/1962"
-  -- log $ show $ parse' date "1999-12-31"
-  -- log $ show $ parse' date "12/31/1999"
+  log "Exercise Chapter 19 - Date Parser."
+  log $ show $ parse' (atMost' (-2) alphaNum) "a1b2c3" -- (Right (Tuple "a1b2c3" ""))
+  log $ show $ parse' (atMost' 2 alphaNum) "$_$"       -- (Right (Tuple "$_$" ""))
+  log $ show $ parse' (atMost' 2 alphaNum) "a1b2c3"    -- (Right (Tuple "b2c3" "a1"))
+  log $ show $ parse' yearFirst "1962-10-02"
+  log $ show $ parse' monthFirst "10/2/1962"
+  log $ show $ parse' yearFirst "1999-12-31"
+  log $ show $ parse' monthFirst "12/31/1999"
+  log $ show $ parse' date "1962-10-02"
+  log $ show $ parse' date "10/2/1962"
+  log $ show $ parse' date "1999-12-31"
+  log $ show $ parse' date "12/31/1999"
