@@ -11,7 +11,7 @@ import Effect.Console (log)
 
 -- 3. model a type rws that works similar to the state monad
 
--- note:
+-- Note:
 -- reader = read-only; don't care about the value on output, only on input
 -- writer = write-only; don't care about the value on input, only on output
 -- state  = read-write
@@ -55,30 +55,30 @@ type Config = { debugModeOn :: Boolean }
 type Counter = Int
 
 -- Use this test function
--- rwsTest :: RWS Config (Array String) Counter Unit
--- rwsTest = do
---   tell [ "test the log" ]
---   tell [ "test the log2", "test the log3" ]
---   config <- ask
---   tell [ "the config is " <> show config ]
---   counter <- get
---   tell [ "old counter is " <> show counter ]
---   put $ counter + 1
---   newCounter <- get
---   tell [ "new counter is " <> show newCounter ]
---   pure unit
+rwsTest :: RWS Config (Array String) Counter Unit
+rwsTest = do
+  tell [ "test the log" ]
+  tell [ "test the log2", "test the log3" ]
+  config <- ask
+  tell [ "the config is " <> show config ]
+  counter <- get
+  tell [ "old counter is " <> show counter ]
+  put $ counter + 1
+  newCounter <- get
+  tell [ "new counter is " <> show newCounter ]
+  pure unit
 
 main :: Effect Unit
 main =
   log "Ch. 19 RWS Monad"
-  -- log $ show $ runRWS rwsTest { r: { debugModeOn: true }, w: mempty, s: 0 }
+  log $ show $ runRWS rwsTest { r: { debugModeOn: true }, w: mempty, s: 0 }
 
-  -- (Tuple unit
-  -- { r: { debugModeOn: true },
-  --   s: 1,
-  --   w: ["test the log",
-  --       "test the log2",
-  --       "test the log3",
-  --       "the config is { debugModeOn: true }",
-  --       "old counter is 0",
-  --       "new counter is 1"] })
+-- (Tuple unit
+-- { r: { debugModeOn: true },
+--   s: 1,
+--   w: ["test the log",
+--       "test the log2",
+--       "test the log3",
+--       "the config is { debugModeOn: true }",
+--       "old counter is 0",
+--       "new counter is 1"] })
