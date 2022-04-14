@@ -1,6 +1,7 @@
 module Main where
 
 import Prelude
+
 import Control.Alt (class Alt, (<|>))
 import Data.Array as A
 import Data.CodePoint.Unicode (isDecDigit, isAlpha)
@@ -179,9 +180,9 @@ constChar' c = satisfy (show c) (_ == c)
 
 main :: Effect Unit
 main = do
-  log "Ch. 19 Some and Many Parsers."
--- log $ show $ parse' digits "2343423423abc"                  -- (Right (Tuple "abc" "2343423423"))
--- log $ show $ parse' (many' digit) "_2343423423abc"          -- (Right (Tuple "_2343423423abc" ""))
--- log $ show $ parse' digits "_2343423423abc"                 -- (Left (InvalidChar "digit"))
--- log $ show $ parse' ugly "17, some words"                   -- (Right (Tuple "" ["17","some words",""]))
--- log $ show $ parse' ugly "5432, some more words1234567890"  -- (Right (Tuple "" ["5432","some more words","1234567890"]))
+  log "Exercise Chapter 19 - Some and Many Parsers."
+  log $ show $ parse' digits "2343423423abc"                  -- (Right (Tuple "abc" "2343423423"))
+  log $ show $ parse' (many' digit) "_2343423423abc"          -- (Right (Tuple "_2343423423abc" ""))
+  log $ show $ parse' digits "_2343423423abc"                 -- (Left (InvalidChar "digit"))
+  log $ show $ parse' ugly "17, some words"                   -- (Right (Tuple "" ["17","some words",""]))
+  log $ show $ parse' ugly "5432, some more words1234567890"  -- (Right (Tuple "" ["5432","some more words","1234567890"]))
