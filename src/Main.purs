@@ -3,14 +3,14 @@ module Main where
 import Prelude
 
 import Data.Array as A
-import Data.CodePoint.Unicode (isDecDigit)
+import Data.CodePoint.Unicode (isAlpha, isDecDigit)
 import Data.Either (Either(..))
-import Data.Generic.Rep (class Generic)
 import Data.Maybe (Maybe(..))
-import Data.Show.Generic (genericShow)
-import Data.String.CodeUnits (uncons, fromCharArray)
+import Data.String.CodePoints (codePointFromChar)
+import Data.String.CodeUnits (fromCharArray, uncons)
 import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..))
+import Data.Unfoldable (class Unfoldable, replicateA)
 import Effect (Effect)
 import Effect.Console (log)
 
@@ -19,14 +19,14 @@ import Effect.Console (log)
 -- single Parser in the chain were to fail, we want to short-circuit the parsing and return the error with
 -- some useful information as to what went wrong.
 
-------------------------------
--- Data Types and Type Classes
-------------------------------
+---------------------------------
+-- Data Types and Type Classes --
+---------------------------------
 
 -- e = error type
 -- a = return type
 
-class ParserError (e :: Type) where
+class ParserError e where
   eof :: e
   invalidChar :: String -> e
 
@@ -36,7 +36,11 @@ type ParseFunction e a = ParserError e => String -> Either e (ParserState a)
 newtype Parser e a = Parser (ParseFunction e a)
 data Threeple a b c = Threeple a b c
 
-instance functorParser :: Functor (Parser e) where
+instance ParserError PError where
+  eof = EOF
+  invalidChar = InvalidChar
+
+instance Functor (Parser e) where
   map f g = Parser \s -> map f <$> parse g s
 
 instance applyParser :: Apply (Parser e) where
@@ -46,16 +50,16 @@ instance applyParser :: Apply (Parser e) where
       Left e -> Left e
       Right (Tuple s2 a) -> Right $ Tuple s2 $ h a
 
-instance applicativeParser :: Applicative (Parser e) where
+instance Applicative (Parser e) where
   pure a = Parser \s -> Right $ Tuple s a
 
--- 1. Create a Bind instance for Parser
--- 2. Create a Monad instance for Parser and rewrite Apply (Parser e) in do notation
--- 3. Create Alt instance for Parser
+-- 1. Create a Bind instance for Parser.
+-- 2. Create a Monad instance for Parser and rewrite Apply (Parser e) in do notation.
+-- 3. Create Alt instance for Parser.
 
--------------------
--- Using the Parser
--------------------
+------------
+-- Parser --
+------------
 
 parse :: ∀ e a. Parser e a -> ParseFunction e a
 parse (Parser f) = f
@@ -77,7 +81,7 @@ char = Parser \s -> case uncons s of
   Just { head, tail } -> Right $ Tuple tail head
 
 -- 4. These are our applicative parsers. Rewrite them using our new monadic parser using do notation.
--- 5. Replace in new function name A with B for bind, e.g. twoCharsA -> twoCharsB
+--    Replace in new function name A with B for bind, e.g. twoCharsA -> twoCharsB.
 
 twoCharsA :: ∀ e. Parser e (Tuple Char Char)
 twoCharsA = Tuple <$> char <*> char
@@ -93,32 +97,36 @@ threeCharsA'' = (\c1 c2 c3 -> fromCharArray [ c1, c2, c3 ]) <$> char <*> char <*
 
 tenCharsA :: ∀ e. Parser e String
 tenCharsA = (\c1 c2 c3 c4 c5 c6 c7 c8 c9 c10 -> fromCharArray [ c1, c2, c3, c4, c5, c6, c7, c8, c9, c10 ])
-  <$> char <*> char <*> char <*> char <*> char <*> char <*> char <*> char <*> char <*> char
+  <$> char
+  <*> char
+  <*> char
+  <*> char
+  <*> char
+  <*> char
+  <*> char
+  <*> char
+  <*> char
+  <*> char
 
--- 6. Write a satisfy function
--- satisfy :: ∀ e. ParserError e => String -> (Char -> Boolean) -> Parser e Char
-
--- 7. Write a parser that always fails
+-- 5. Write a parser that always fails.
 -- fail :: ∀ e a. ParserError e => e -> Parser e a
 
--- 8. Write a Char-parser called digit parser based on satisfy using isDecDigit from a PureScript library
+-- 6. Write a satisfy function (the first argument - the String - is an error message).
+-- satisfy :: ∀ e. ParserError e => String -> (Char -> Boolean) -> Parser e Char
+
+-- 7. Write a Char-parser called digit parser based on satisfy using isDecDigit.
 -- digit :: ∀ e. ParserError e => Parser e Char
 
--- 9. Write a Char-parser called letter parser (use isAlpha)
--- letter  :: ∀ e. ParserError e => Parser e Char
+-- 8. Write a Char-parser called letter parser (use isAlpha).
+-- letter :: ∀ e. ParserError e => Parser e Char
 
--- 10. Write an alphanum parser using the digit and letter parsers. Make sure it provides a meaningful error message.
+-- 9. Write an alphanum parser using the digit and letter parsers. Make sure it provides a meaningful error message.
 -- alphaNum :: ∀ e. ParserError e => Parser e Char
 
--- 11. Write a count' function that leverages count and creates a parsed String as output.
--- count'' :: ∀ e. Int -> Parser e Char -> Parser e String
+count :: ∀ m f a. Applicative m => Unfoldable f => Traversable f => Int -> m a -> m (f a)
+count = replicateA
 
-count :: ∀ e a. Int -> Parser e a -> Parser e (Array a)
-count n p
-  | n < 0 = pure []
-  | otherwise = sequence (A.replicate n p)
-
--- 12. 'count' uses specifically Arrays. Make it more generic.
+-- 10. Refactor count to make it more pleasant to work with and call it count'.
 
 main :: Effect Unit
 main = do

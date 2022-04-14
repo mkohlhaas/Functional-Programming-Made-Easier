@@ -9,6 +9,7 @@
   , "prelude"
   , "strings"
   , "tuples"
+  , "unfoldable"
   , "unicode"
   ]
 , packages = ./packages.dhall
