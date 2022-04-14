@@ -2,6 +2,7 @@
 , dependencies =
   [ "arrays"
   , "console"
+  , "control"
   , "effect"
   , "either"
   , "foldable-traversable"
@@ -9,6 +10,7 @@
   , "prelude"
   , "strings"
   , "tuples"
+  , "unfoldable"
   , "unicode"
   ]
 , packages = ./packages.dhall
