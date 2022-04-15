@@ -36,10 +36,6 @@ type ParseFunction e a = ParserError e => String -> Either e (ParserState a)
 newtype Parser e a = Parser (ParseFunction e a)
 data Threeple a b c = Threeple a b c
 
-instance ParserError PError where
-  eof = EOF
-  invalidChar = InvalidChar
-
 instance Functor (Parser e) where
   map f g = Parser \s -> map f <$> parse g s
 
