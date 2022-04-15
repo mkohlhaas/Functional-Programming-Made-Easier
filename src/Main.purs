@@ -3,7 +3,6 @@ module Main where
 import Prelude
 
 import Control.Alt (class Alt, (<|>))
-import Data.Array as A
 import Data.CodePoint.Unicode (isAlpha, isDecDigit)
 import Data.Either (Either(..))
 import Data.Generic.Rep (class Generic)
@@ -43,25 +42,24 @@ instance ParserError PError where
   eof = EOF
   invalidChar = InvalidChar
 
+-- The reason for double mapping is because we have a Tuple inside of an Either.
+-- We have to make two hops, if you will.
 instance Functor (Parser e) where
   map f g = Parser \s -> map f <$> parse g s
 
+-- exactly the same as: apply = ap
 instance Apply (Parser e) where
-  apply f x = do
+  apply f a = do
     f' <- f
-    x' <- x
-    pure $ f' x'
+    a' <- a
+    pure $ f' a'
 
 instance Applicative (Parser e) where
   pure a = Parser \s -> Right $ Tuple s a
 
 -- 1. Create a Bind instance for Parser.
 instance Bind (Parser e) where
-  bind p f = Parser \str -> case parse p str of
-    Left err -> Left err
-    Right (Tuple lo a) -> case parse (f a) lo of
-      Left err' -> Left err'
-      Right (Tuple lo' a') -> Right (Tuple lo' a')
+  bind p f = Parser \str -> parse p str >>= \(Tuple lo a) -> parse (f a) lo
 
 -- 2. Create a Monad instance for Parser and rewrite Apply (Parser e) in do notation.
 instance Monad (Parser e)
@@ -169,7 +167,7 @@ fail error = Parser $ const $ Left error
 
 -- 6. Write a satisfy function (the first argument - the String - is an error message).
 satisfy :: ∀ e. ParserError e => String -> (Char -> Boolean) -> Parser e Char
-satisfy errMsg pred = char >>= \c -> if pred c then pure c else fail (invalidChar errMsg)
+satisfy errMsg pred = char >>= \c -> if pred c then pure c else fail $ invalidChar errMsg
 
 -- 7. Write a Char-parser called digit parser based on satisfy using isDecDigit.
 digit :: ∀ e. ParserError e => Parser e Char
@@ -183,16 +181,12 @@ letter = satisfy "alpha" $ isAlpha <<< codePointFromChar
 alphaNum :: ∀ e. ParserError e => Parser e Char
 alphaNum = digit <|> letter <|> fail (invalidChar "alphaNum")
 
-count :: ∀ e a. Int -> Parser e a -> Parser e (Array a)
-count n p = sequence (A.replicate n p)
+count :: ∀ m f a. Applicative m => Unfoldable f => Traversable f => Int -> m a -> m (f a)
+count = replicateA
 
--- 10. Write a count'' function that leverages count and creates a parsed String as output.
-count'' :: ∀ e. Int -> Parser e Char -> Parser e String
-count'' n p = fromCharArray <$> count n p
-
--- 11. 'count' uses Arrays. Make it more generic.
-count' :: ∀ m f a. Applicative m => Unfoldable f => Traversable f => Int -> m a -> m (f a)
-count' = replicateA
+-- 10. Refactor count to make it more pleasant to work with and call it count'.
+count' :: ∀ e. Int -> Parser e Char -> Parser e String
+count' n p = fromCharArray <$> count n p
 
 main :: Effect Unit
 main = do
@@ -231,8 +225,8 @@ main = do
   log "-- Helper Functions --"
   log "----------------------"
   log $ show $ parse' (fromCharArray <$> (count 10 char)) "ABCDEFGHIJKLMNOPQRSTUVXYZ" -- (Right (Tuple "KLMNOPQRSTUVXYZ" "ABCDEFGHIJ"))
-  log $ show $ parse' (fromCharArray <$> count' 3 digit) "123456"                     -- (Right (Tuple "456" "123"))
-  log $ show $ parse' (fromCharArray <$> count' 3 digit) "abc456"                     -- (Left (InvalidChar "digit"))
-  log $ show $ parse' (fromCharArray <$> count' 4 letter) "Freddy"                    -- (Right (Tuple "dy" "Fred"))
-  log $ show $ parse' (fromCharArray <$> count' 10 alphaNum) "a1b2c3d4e5"             -- (Right (Tuple "" "a1b2c3d4e5"))
-  log $ show $ parse' (fromCharArray <$> count' 10 alphaNum) "######"                 -- (Left (InvalidChar "alphaNum"))
+  log $ show $ parse' (count' 3 digit) "123456"                                       -- (Right (Tuple "456" "123"))
+  log $ show $ parse' (count' 3 digit) "abc456"                                       -- (Left (InvalidChar "digit"))
+  log $ show $ parse' (count' 4 letter) "Freddy"                                      -- (Right (Tuple "dy" "Fred"))
+  log $ show $ parse' (count' 10 alphaNum) "a1b2c3d4e5"                               -- (Right (Tuple "" "a1b2c3d4e5"))
+  log $ show $ parse' (count' 10 alphaNum) "######"                                   -- (Left (InvalidChar "alphaNum"))
