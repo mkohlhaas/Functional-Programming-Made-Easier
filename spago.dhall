@@ -1,5 +1,19 @@
 { name = "my-project"
-, dependencies = [ "console", "effect", "prelude", "unicode", "control", "either", "foldable-traversable", "maybe", "strings", "tuples", "unfoldable" ]
+, dependencies =
+  [ "arrays"
+  , "console"
+  , "control"
+  , "effect"
+  , "either"
+  , "foldable-traversable"
+  , "integers"
+  , "maybe"
+  , "prelude"
+  , "strings"
+  , "tuples"
+  , "unfoldable"
+  , "unicode"
+  ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
 }

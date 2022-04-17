@@ -18,7 +18,7 @@ import Data.Unfoldable (class Unfoldable, replicateA)
 -- Data Types and Type Classes --
 ---------------------------------
 
-class ParserError (e :: Type) where
+class ParserError e where
   eof :: e
   invalidChar :: String -> e
 
@@ -30,6 +30,9 @@ newtype Parser e a = Parser (ParseFunction e a)
 data Threeple a b c = Threeple a b c
 
 derive instance Generic (Threeple a b c) _
+
+instance Show (Parser e a) where
+  show _ = "Parser ..."
 
 instance (Show a, Show b, Show c) => Show (Threeple a b c) where
   show = genericShow
