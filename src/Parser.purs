@@ -3,6 +3,7 @@ module Parser where
 import Prelude
 
 import Control.Alt (class Alt, (<|>))
+import Control.Lazy (class Lazy, defer)
 import Data.Array as A
 import Data.CodePoint.Unicode (isDecDigit, isAlpha)
 import Data.Either (Either(..))
@@ -60,6 +61,9 @@ instance Alt (Parser e) where
     Parser \s -> case parse p1 s of
       Left _ -> parse p2 s
       Right x -> Right x
+
+instance Lazy (Parser e a) where
+  defer f = Parser \str -> parse (f unit) str
 
 parse :: ∀ e a. Parser e a -> ParseFunction e a
 parse (Parser f) = f
