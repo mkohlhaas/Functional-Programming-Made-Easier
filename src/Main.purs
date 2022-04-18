@@ -4,57 +4,60 @@ import Prelude
 import Effect (Effect)
 import Effect.Console (log)
 
--- 1. Write Reader, Writer and State data types which are monads for your own reference.
--- you might want to comment out this code.
+-- 1. Write Reader, Writer and State monads for your own reference.
+-- Hint: You might want to comment out this code.
 
--- 2. model a type called rwsresult that contains all three monads
+-- 2. Model a type called RWSResult that contains all three monads.
 
--- 3. model a type rws that works similar to the state monad
+-- 3. Model a type RWS that works similar to the state monad.
 
 -- Note:
--- reader = read-only; don't care about the value on output, only on input
--- writer = write-only; don't care about the value on input, only on output
--- state  = read-write
+-- Reader = read-only; don't care about the value on output, only on input
+-- Writer = write-only; don't care about the value on input, only on output
+-- State  = read-write
 
--- 4. write a runrws function similar to runstate
+-- 4. Write a runRWS function similar to runstate.
 
--- 5. write a functor instance for rws
+-- 5. Write a functor instance for RWS.
 
--- 6. write an apply instance for rws (you are free to take a shortcut)
+-- 6. Write an apply instance for RWS
+-- You are free to take a shortcut.
 
--- 7. write an applicative instance for rws (make sure the writer is empty on output)
+-- 7. Write an applicative instance for RWS.
+-- Make sure the writer is empty on output.
 
--- 8. write a bind instance for rws (make sure the writer generates the correct log)
+-- 8. Write a bind instance for RWS.
+-- Make sure the writer generates the correct log.
 
--- 9. write a monad instance for rws
+-- 9. Write a monad instance for RWS.
 
----------------------
--- monad rws's api --
----------------------
+-------------------
+-- RWS Monad API --
+-------------------
 
--- 10. write a tell function like writer's
--- tell :: ∀ r w s. w -> rws r w s unit
+-- 10. Write a tell function.
+-- tell :: ∀ r w s. w -> RWS r w s Unit
 
--- 11. write an ask function like reader's
--- ask :: ∀ r w s. rws r w s r
+-- 11. Write an ask function.
+-- ask :: ∀ r w s. RWS r w s r
 
--- 12. write a get function like state's
--- get :: ∀ r w s. rws r w s s
+-- 12. Write a get function.
+-- get :: ∀ r w s. RWS r w s s
 
--- 13. write a put function like state's
+-- 13. Write a put function.
 -- put :: ∀ r w s. s -> RWS r w s Unit
 
 ---------------------------------
 -- Data Structures for Testing --
 ---------------------------------
 
--- for the Reader part
+-- for the Reader
 type Config = { debugModeOn :: Boolean }
 
--- for the State part
+-- for the State
 type Counter = Int
 
--- Use this test function
+-- test function
 rwsTest :: RWS Config (Array String) Counter Unit
 rwsTest = do
   tell [ "test the log" ]
@@ -68,11 +71,16 @@ rwsTest = do
   tell [ "new counter is " <> show newCounter ]
   pure unit
 
+----------
+-- Main --
+----------
+
 main :: Effect Unit
 main =
-  log "Ch. 19 RWS Monad"
+  log "Chapter 19 - RWS Monad"
   log $ show $ runRWS rwsTest { r: { debugModeOn: true }, w: mempty, s: 0 }
 
+-- Output:
 -- (Tuple unit
 -- { r: { debugModeOn: true },
 --   s: 1,
