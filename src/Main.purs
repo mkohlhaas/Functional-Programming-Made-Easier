@@ -1,51 +1,44 @@
 module Main where
 
 import Prelude
+
 import Effect (Effect)
 import Effect.Console (log)
 
+type RWSResult r w s = { r :: r, w :: w, s :: s } -- contains all three monads.
+data RWS r w s a = RWS (RWSResult r w s -> Tuple a (RWSResult r w s)) -- works similar to the state monad.
+
 -- 1. Write Reader, Writer and State monads for your own reference.
--- Hint: You might want to comment out this code.
 
--- 2. Model a type called RWSResult that contains all three monads.
+-- 2. Write a runRWS function similar to runstate.
+-- runRWS :: ∀ r w s a. RWS r w s a -> RWSResult r w s -> Tuple a (RWSResult r w s)
 
--- 3. Model a type RWS that works similar to the state monad.
+-- 3. Write a functor instance for RWS.
 
--- Note:
--- Reader = read-only; don't care about the value on output, only on input
--- Writer = write-only; don't care about the value on input, only on output
--- State  = read-write
+-- 4. Write an apply instance for RWS.
+-- This time take a shortcut.
 
--- 4. Write a runRWS function similar to runstate.
+-- 5. Write an applicative instance for RWS.
 
--- 5. Write a functor instance for RWS.
+-- 6. Write a bind instance for RWS.
 
--- 6. Write an apply instance for RWS
--- You are free to take a shortcut.
-
--- 7. Write an applicative instance for RWS.
--- Make sure the writer is empty on output.
-
--- 8. Write a bind instance for RWS.
--- Make sure the writer generates the correct log.
-
--- 9. Write a monad instance for RWS.
+-- 7. Write a monad instance for RWS.
 
 -------------------
 -- RWS Monad API --
 -------------------
 
--- 10. Write a tell function.
--- tell :: ∀ r w s. w -> RWS r w s Unit
+-- 8. Write a tell function.
+-- tell :: ∀ r w s. Semigroup w => w -> RWS r w s Unit
 
--- 11. Write an ask function.
--- ask :: ∀ r w s. RWS r w s r
+-- 9. Write an ask function.
+-- ask :: ∀ r w s. Monoid w => RWS r w s r
 
--- 12. Write a get function.
--- get :: ∀ r w s. RWS r w s s
+-- 10. Write a get function.
+-- get :: ∀ r w s. Monoid w => RWS r w s s
 
--- 13. Write a put function.
--- put :: ∀ r w s. s -> RWS r w s Unit
+-- 11. Write a put function.
+-- put :: ∀ r w s. s -> Monoid w => RWS r w s Unit
 
 ---------------------------------
 -- Data Structures for Testing --
@@ -76,8 +69,8 @@ rwsTest = do
 ----------
 
 main :: Effect Unit
-main =
-  log "Chapter 19 - RWS Monad"
+main = do
+  log "Chapter 19 - RWS Monad."
   log $ show $ runRWS rwsTest { r: { debugModeOn: true }, w: mempty, s: 0 }
 
 -- Output:
