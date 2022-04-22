@@ -29,7 +29,7 @@ const server = http.createServer((req, res) => {
     return no;
   };
 
-  req.on("data", function (chunk) {
+  req.on("data", function(chunk) {
     console.log("BODY: " + chunk);
     res.statusCode = 200;
     res.setHeader("Content-Type", "text/plain");
