@@ -2,13 +2,13 @@ module Ch23a where
 
 import Prelude
 
-import Effect (Effect)
-import Effect.Exception (error)
 import Data.Time.Duration (Milliseconds(..))
+import Effect (Effect)
 import Effect.Aff (Aff, delay, launchAff_, forkAff, killFiber, joinFiber)
 import Effect.Aff.AVar (AVar)
 import Effect.Aff.AVar as AVar
 import Effect.Class.Console (log)
+import Effect.Exception (error)
 
 ----------------
 -- Data Types --
@@ -22,20 +22,25 @@ type Count = Int
 -- Instances --
 ---------------
 
-derive instance eqTickTock :: Eq TickTock
+derive instance Eq TickTock
 
 ---------------
 -- Functions --
 ---------------
 
+delayMs :: Number -> Aff Unit
+delayMs = delay <<< Milliseconds
+
 clock :: AVar TickTock -> Aff Unit
 clock ttAVar = do
   void $ AVar.take ttAVar
-  delay (Milliseconds 1000.0)
+  delayMs 1000.0
   AVar.put Tick ttAVar
+  log "Clock: Tick"
   void $ AVar.take ttAVar
-  delay (Milliseconds 1000.0)
+  delayMs 1000.0
   AVar.put Tock ttAVar
+  log "Clock: Tock"
   clock ttAVar
 
 bomb :: AVar TickTock -> Count -> Aff Unit
@@ -45,11 +50,11 @@ bomb ttAVar detonationCount = go 0 WaitingForTick
   go count state =
     if count == detonationCount then do log "BOOM!!"
     else do
-      delay (Milliseconds 100.0)
+      delayMs 100.0
       tt <- AVar.read ttAVar
       case state, tt of
-        WaitingForTick, Tick -> log "Tick" *> go (count + 0) WaitingForTock
-        WaitingForTock, Tock -> log "Tock" *> go (count + 1) WaitingForTick
+        WaitingForTick, Tick -> log "Bomb: Tick" *> go (count + 0) WaitingForTock
+        WaitingForTock, Tock -> log "Bomb: Tock" *> go (count + 1) WaitingForTick
         _, _ -> go count state
 
 ----------
