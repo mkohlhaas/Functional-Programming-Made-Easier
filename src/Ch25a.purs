@@ -5,7 +5,7 @@ import Prelude
 import Effect (Effect)
 import Effect.Class.Console (log)
 import Control.Monad.Except (runExcept)
-import Data.Either
+import Data.Either (Either(..))
 import Data.Show.Generic (genericShow)
 import Data.Generic.Rep (class Generic)
 import Data.Maybe (Maybe(..))
@@ -16,8 +16,6 @@ import Affjax.ResponseFormat as ResponseFormat
 import Affjax.RequestBody as RequestBody
 import Effect.Aff (launchAff_)
 import Type.Proxy (Proxy(..))
-
--- import Data.Bifunctor (bimap)
 
 ----------------
 -- Data Types --
@@ -168,4 +166,4 @@ processAjaxResult _ = case _ of
 test :: Effect Unit
 test = launchAff_ do
   result <- Ajax.post ResponseFormat.string "http://localhost:8000/" $ Just $ RequestBody.string $ encodeJSON teacher
-  log $ processAjaxResult (Proxy:: _ ReversedTeacher) result
+  log $ processAjaxResult (Proxy :: _ ReversedTeacher) result
