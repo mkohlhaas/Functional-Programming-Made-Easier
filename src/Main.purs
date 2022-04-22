@@ -31,7 +31,6 @@ instance Functor m => Functor (StateT s m) where
 --   map f g = StateT \s -> runStateT g s >>= \(Tuple a s') -> pure $ Tuple (f a) s'
 
 -- 4. Write Apply instance.
-
 instance Monad m => Apply (StateT s m) where
   apply f x = StateT \s -> do
     Tuple f' s' <- runStateT f s
@@ -67,22 +66,22 @@ instance MonadTrans (StateT s) where
 -- instance MonadAsk r m => MonadAsk r (StateT s m) where
 --   ask = StateT \s -> ask <#> \r -> Tuple r s
 
--- 10. Write MonadTell instance.
+-- 11. Write MonadTell instance.
 -- instance MonadTell w m => MonadTell w (StateT s m) where
 --   tell w = StateT \s -> tell w <#> \_ -> Tuple unit s
 
--- 11. Write monadAskStateT and monadTellStateT in terms of MonadTrans, i.e. with lift.
+-- 12. Write monadAskStateT and monadTellStateT in terms of MonadTrans, i.e. with lift.
 instance MonadAsk r m => MonadAsk r (StateT s m) where
   ask = lift ask
 
 instance MonadTell w m => MonadTell w (StateT s m) where
   tell = lift <<< tell
 
--- 12. Write MonadThrow instance.
+-- 13. Write MonadThrow instance.
 instance MonadThrow e m => MonadThrow e (StateT s m) where
   throwError = lift <<< throwError
 
--- 13. Write MonadError instance.
+-- 14. Write MonadError instance.
 instance MonadError e m => MonadError e (StateT s m) where
   catchError (StateT fmx) f = StateT \s -> catchError (fmx s) \e -> runStateT (f e) s
 
@@ -90,7 +89,7 @@ instance MonadError e m => MonadError e (StateT s m) where
 type AppStack e w s a = ExceptT e (WriterT w (StateT s Effect)) a
 type AppM = AppStack String String Int Unit
 
--- 13. Write runApp to run AppM.
+-- 15. Write runApp to run AppM.
 -- runApp :: Int -> AppM -> Effect StackResult
 -- runApp st = flip runStateT st <<< runWriterT <<< runExceptT
 
@@ -104,7 +103,7 @@ type AppEffects = { log :: String, state :: Int, result :: Maybe Unit }
 -- AppResult contains our side-effect values from running our Monad Stack AppEffects and, optionally, the error if one occurred.
 type AppResult = Tuple (Maybe String) AppEffects
 
--- 16. Write a mapping function "results" that turns StackResult into an AppResult. Change runApp using "results".
+-- 17. Write a mapping function "results" that turns StackResult into an AppResult. Change runApp using "results".
 -- results :: StackResult -> AppResult
 results :: StackResult -> AppResult
 results (Tuple (Tuple (Left err) l) s) = Tuple (Just err) { log: l, state: s, result: Nothing }
@@ -113,11 +112,11 @@ results (Tuple (Tuple (Right result) l) s) = Tuple Nothing { log: l, state: s, r
 runApp :: Int -> AppM -> Effect AppResult
 runApp st = (results <$> _) <<< flip runStateT st <<< runWriterT <<< runExceptT
 
--- 17. Write helper function "logM" that appends a newline after every string in the writer.
+-- 18. Write helper function "logM" that appends a newline after every string in the writer.
 logM :: ∀ m. MonadTell String m => String -> m Unit
 logM s = tell $ s <> "\n"
 
--- 18. Write the application monad.
+-- 19. Write the application monad.
 -- For logging use logM.
 
 -- app :: AppM
