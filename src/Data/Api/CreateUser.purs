@@ -1,8 +1,8 @@
 module Data.Api.CreateUser where
 
-import Entity.User (UserRow)
-import Data.UUID (UUID)
 import Data.Generic.Rep (class Generic)
+import Data.UUID (UUID)
+import Entity.User (UserRow)
 import Foreign.Generic (genericEncode, genericDecode)
 import Foreign.Generic.Class (class Encode, class Decode, defaultOptions)
 

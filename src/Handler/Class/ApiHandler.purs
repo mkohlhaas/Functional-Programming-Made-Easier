@@ -15,6 +15,9 @@ class ApiHandler :: ∀ k. k -> Constraint
 class ApiHandler a where
   handle :: Proxy a -> String -> Either MultipleErrors Handler
 
-type HandlerEnv = { accountsAVar :: AVar Accounts
-                  , sessionsAVar :: AVar Sessions}
+type HandlerEnv =
+  { accountsAVar :: AVar Accounts
+  , sessionsAVar :: AVar Sessions
+  }
+
 type Handler = ReaderT HandlerEnv Aff Response

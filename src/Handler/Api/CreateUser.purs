@@ -1,10 +1,10 @@
 module Handler.Api.CreateUser where
 
-import Control.Monad.Reader.Trans (ask, lift)
 import Prelude
 
 import Control.Monad.Error.Class (throwError)
 import Control.Monad.Except (runExceptT, withExceptT)
+import Control.Monad.Reader.Trans (ask, lift)
 import Crypto (passwordHashHex)
 import Data.Api.CreateUser (CreateUserFailureReason(..), CreateUserRequest(..), CreateUserResponse(..), CreateUserResults(..))
 import Data.Either (either, note)

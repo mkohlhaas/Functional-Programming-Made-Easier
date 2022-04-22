@@ -30,8 +30,9 @@ accountsFile = "accounts.csv"
 
 bootstrapAccount :: Aff String
 bootstrapAccount = do
-  let userName = "admin"
-      password = "admin"
+  let
+    userName = "admin"
+    password = "admin"
   passwordHash <- passwordHashHex userName password
   pure $ accountToCSV $ Account
     { userName

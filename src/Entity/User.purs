@@ -14,6 +14,7 @@ type UserRow r =
   )
 
 newtype User = User (Record (UserRow ()))
+
 -- Alternative syntax:
 -- newtype User = User { | UserRow () }
 
