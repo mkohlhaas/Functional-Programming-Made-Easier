@@ -1,6 +1,7 @@
 module Ch22g where
 
 import Prelude
+
 import Control.Monad.Error.Class (try)
 import Data.Either (Either(..))
 import Data.Time.Duration (Milliseconds(..))
@@ -12,18 +13,22 @@ import Effect.Class.Console (log)
 import Node.Encoding (Encoding(..))
 import Node.FS.Aff (readTextFile)
 
+delayMs :: Number -> Aff Unit
+delayMs = delay <<< Milliseconds
+
 readAFileAfterTwoSeconds :: AVar String -> Aff Unit
 readAFileAfterTwoSeconds fileAVar = do
-  delay (Milliseconds 2000.0)
-  result <- try $ readTextFile ASCII "somefile.txt"
+  delayMs 2000.0
+  -- result <- try $ readTextFile ASCII "somefile.txt"
+  result <- try $ readTextFile ASCII "test.txt"
   case result of
     Right text -> AVar.put text fileAVar
-    Left err -> log $ "readAFileAfterTwoSeconds: " <> show err
+    Left err -> log $ "In function <readAFileAfterTwoSeconds>:\n" <> show err
 
 processFile :: AVar String -> Aff Unit
 processFile fileAVar = do
   text <- AVar.take fileAVar
-  log $ "processFile: " <> text
+  log $ "ProcessFile:\n" <> text
 
 test :: Effect Unit
 test = launchAff_ do
