@@ -31,21 +31,21 @@ import Effect.Console (log)
 
 -- 10. Write MonadAsk instance.
 
--- 10. Write MonadTell instance.
+-- 11. Write MonadTell instance.
 
--- 11. Write monadAskStateT and monadTellStateT in terms of MonadTrans, i.e. with lift.
+-- 12. Write monadAskStateT and monadTellStateT in terms of MonadTrans, i.e. with lift.
 
--- 12. Write MonadThrow instance.
+-- 13. Write MonadThrow instance.
 
--- 13. Write MonadError instance.
+-- 14. Write MonadError instance.
 
 -- This is our Monad stack:
 type AppStack e w s a = ExceptT e (WriterT w (StateT s Effect)) a
 type AppM = AppStack String String Int Unit
 
--- 14. Write runApp to run AppM.
+-- 15. Write runApp to run AppM.
 
--- 15. Factor out the return type, call it StackResult and update runApp.
+-- 16. Factor out the return type, call it StackResult and update runApp.
 -- type StackResult = ...
 
 -- AppEffects stores all side-effects of the monad stack.
@@ -54,12 +54,12 @@ type AppEffects = { log :: String, state :: Int, result :: Maybe Unit }
 -- AppResult contains our side-effect values from running our Monad Stack AppEffects and, optionally, the error if one occurred.
 type AppResult = Tuple (Maybe String) AppEffects
 
--- 16. Write a mapping function "results" that turns StackResult into an AppResult. Change runApp using "results".
+-- 17. Write a mapping function "results" that turns StackResult into an AppResult. Change runApp using "results".
 -- results :: StackResult -> AppResult
 
--- 17. Write helper function "logM" that appends a newline after every string in the writer.
+-- 18. Write helper function "logM" that appends a newline after every string in the writer.
 
--- 18. Write the application monad.
+-- 19. Write the application monad.
 -- For logging use logM.
 
 -- app :: AppM
