@@ -15,20 +15,20 @@ import Node.Encoding (Encoding(..))
 import Node.FS.Aff (readTextFile)
 
 readAFile :: BusW String -> Aff Unit
-readAFile writeBus = do
+readAFile writeFileBus = do
   result <- try $ readTextFile ASCII "somefile.txt"
   case result of
-    Right text -> Bus.write text writeBus
+    Right text -> Bus.write text writeFileBus
     Left err -> log $ show err
 
 processFile :: (String -> String) -> BusR String -> Aff Unit
-processFile convert readBus = do
-  text <- Bus.read readBus
+processFile convert readFileBus = do
+  text <- Bus.read readFileBus
   log $ convert text
 
 test :: Effect Unit
 test = launchAff_ do
-  Tuple readBus writeBus <- Bus.split <$> Bus.make
-  void $ forkAff $ processFile toUpper readBus
-  void $ forkAff $ processFile toLower readBus
-  void $ forkAff $ readAFile writeBus
+  Tuple readFileBus writeFileBus <- Bus.split <$> Bus.make
+  void $ forkAff $ processFile toUpper readFileBus
+  void $ forkAff $ processFile toLower readFileBus
+  void $ forkAff $ readAFile writeFileBus
