@@ -51,7 +51,7 @@ randomGenerator valueType pred = do
     { bus } <- ask
     liftAffToFiberM do
       n <- delayRandom
-      when (pred n) $ flip Bus.write bus $ "Found a value that is " <> valueType <> " (" <> show n <> ")"
+      when (pred n) $ flip Bus.write bus $ "Found a value that is " <> valueType <> " (" <> show n <> ")."
     modify_ _ { count = count - 1 }
     randomGenerator valueType pred
 
