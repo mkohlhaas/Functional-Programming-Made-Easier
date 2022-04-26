@@ -29,11 +29,11 @@ type FiberM a = ReaderT Config (StateT State Aff) a
 delayMs :: Number -> Aff Unit
 delayMs = delay <<< Milliseconds
 
-randomAff :: Aff Number
-randomAff = liftEffect random
-
 constant :: Aff Number
 constant = pure 0.4
+
+randomAff :: Aff Number
+randomAff = liftEffect random
 
 delayRandom :: Aff Number
 delayRandom = delayMs 1000.0 *> randomAff
@@ -47,12 +47,14 @@ runFiberM bus = void <<< forkAff <<< flip runStateT 3 <<< flip runReaderT bus
 liftAffToFiberM :: Aff ~> FiberM
 liftAffToFiberM = lift <<< lift
 
+-- Subscriber
 logger :: FiberM Unit
 logger = forever do
   bus <- ask
   s <- liftAffToFiberM $ Bus.read bus
   log $ "Logger " <> s
 
+-- Publisher
 randomGenerator :: Int -> String -> (Number -> Boolean) -> FiberM Unit
 randomGenerator id predInfo pred = do
   count <- get
@@ -63,6 +65,7 @@ randomGenerator id predInfo pred = do
       log $ "Random number " <> show id <> ": " <> show n
       when (pred n) $ flip Bus.write bus $ show id <> ": found a value that is " <> predInfo <> " (" <> show n <> ")."
     modify_ (_ - 1)
+    -- https://github.com/purescript/documentation/blob/master/language/Records.md#record-update
     -- modify_ _ { count = count - 1 }
     randomGenerator id predInfo pred
 
