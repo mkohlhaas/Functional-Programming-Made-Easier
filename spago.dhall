@@ -2,6 +2,8 @@
 , dependencies =
   [ "aff"
   , "affjax"
+  , "argonaut"
+  , "argonaut-codecs"
   , "console"
   , "effect"
   , "either"
