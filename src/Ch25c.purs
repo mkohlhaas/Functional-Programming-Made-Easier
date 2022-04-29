@@ -18,10 +18,7 @@ import Foreign.Generic (encodeJSON)
 
 test :: Effect Unit
 test = launchAff_ do
-  results <- parSequence $ (\json -> Ajax.post ResponseFormat.json "http://localhost:3000/" $ Just $ RequestBody.String json) <$>
-    [ encodeJSON testTeacher
-    , encodeJSON testStudent
-    ]
+  results <- parSequence $ (\json -> Ajax.post ResponseFormat.json "http://localhost:3000/" $ Just $ RequestBody.String json) <$> [ encodeJSON testTeacher , encodeJSON testStudent ]
   log $ case map (_.body) <$> sequence results of
     Left err -> Ajax.printError err
     Right [ teacherJson, studentJson ] -> show (decodeJson teacherJson :: _ Teacher) <> "\n" <> show (decodeJson studentJson :: _ Student)

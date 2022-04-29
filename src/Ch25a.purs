@@ -27,7 +27,6 @@ processAjaxResult _ = case _ of
 -------------------
 -- Test Function --
 -------------------
-
 test :: Effect Unit
 test = launchAff_ do
   result <- Ajax.post ResponseFormat.string "http://localhost:3000/" $ Just $ RequestBody.string $ encodeJSON testTeacher
