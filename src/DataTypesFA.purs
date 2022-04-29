@@ -4,7 +4,7 @@ module DataTypesFA where
 
 import Prelude
 
-import Data.Argonaut (class DecodeJson, JsonDecodeError(..), decodeJson, (.:))
+import Data.Argonaut (class DecodeJson, Json, JsonDecodeError(..), decodeJson, (.:))
 import Data.Either (Either(..))
 import Data.Generic.Rep (class Generic)
 import Data.Show.Generic (genericShow)
@@ -141,7 +141,7 @@ instance DecodeJson Grade where
       "Grade" -> Grade <$> contents
       "High" -> High <$> contents
       "College" -> College <$> contents
-      _ -> Left $ AtKey "tag" $ UnexpectedValue json
+      _ -> fail json
 
 instance DecodeJson TeachingStatus where
   decodeJson json = do
@@ -152,7 +152,7 @@ instance DecodeJson TeachingStatus where
       "Probationary" -> pure Probationary
       "NonTenured" -> pure NonTenured
       "Tenured" -> pure Tenured
-      _ -> Left $ AtKey "tag" $ UnexpectedValue json
+      _ -> fail json
 
 instance DecodeJson Personal where
   decodeJson json = do
@@ -164,7 +164,7 @@ instance DecodeJson Personal where
       weight <- c .: "thgiew"
       age <- c .: "ega"
       pure $ Personal { height, weight, age }
-    else Left $ AtKey "tag" $ UnexpectedValue json
+    else fail json
 
 instance DecodeJson Student where
   decodeJson json = do
@@ -177,7 +177,7 @@ instance DecodeJson Student where
       gpa <- c .: "apg"
       personal <- c .: "lanosrep"
       pure $ Student { grade, teacher, gpa, personal }
-    else Left $ AtKey "tag" $ UnexpectedValue json
+    else fail json
 
 instance DecodeJson Teacher where
   decodeJson json = do
@@ -190,7 +190,10 @@ instance DecodeJson Teacher where
       personal <- c .: "lanosrep"
       status <- c .: "sutats"
       pure $ Teacher { grades, numberOfStudents, personal, status }
-    else Left $ AtKey "tag" $ UnexpectedValue json
+    else fail json
+
+fail :: ∀ a. Json -> Either JsonDecodeError a
+fail = Left <<< AtKey "tag" <<< UnexpectedValue
 
 ---------------
 -- Test Data --
