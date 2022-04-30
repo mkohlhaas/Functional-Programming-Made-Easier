@@ -14,7 +14,7 @@ import Manager.Session (deleteSession, verifySession)
 
 data Logoff = Logoff
 
-instance apiHandlerLogon :: ApiHandler Logoff where
+instance ApiHandler Logoff where
   handle _ = handleApi handler
 
 handler :: LogoffRequest -> Handler

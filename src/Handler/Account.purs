@@ -18,13 +18,11 @@ import Text.Parsing.Parser (ParseError, runParserT)
 ----------------
 -- Data Types --
 ----------------
-
 data CreateAccountError = CreateAccountFileError String
 
 -----------------
 -- Helper Data --
 -----------------
-
 accountsFile :: String
 accountsFile = "accounts.csv"
 
@@ -46,7 +44,6 @@ bootstrapAccount = do
 ----------------------
 -- Helper Functions --
 ----------------------
-
 accountToCSV :: Account -> String
 accountToCSV (Account { userName, passwordHash, temporaryPassword, admin, firstName, lastName }) =
   intercalate "," [ userName, passwordHash, show temporaryPassword, show admin, firstName, lastName ] <> "\n"
@@ -57,7 +54,6 @@ createAccount account = lmap show <$> (try $ appendTextFile ASCII accountsFile $
 ----------------------------
 -- Module's Main Function --
 ----------------------------
-
 loadAccounts :: Aff (Either ParseError (Array Account))
 loadAccounts = do
   exists' <- try $ exists accountsFile

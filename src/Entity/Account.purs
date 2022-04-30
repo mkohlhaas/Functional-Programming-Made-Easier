@@ -7,10 +7,9 @@ import Foreign.Generic.Class (class Encode, class Decode, defaultOptions)
 
 newtype Account = Account (Record (UserRow (passwordHash :: String)))
 
-derive instance genericAccount :: Generic Account _
-
-instance encodeAccount :: Encode Account where
+derive instance Generic Account _
+instance Encode Account where
   encode = genericEncode defaultOptions
 
-instance decodeAccount :: Decode Account where
+instance Decode Account where
   decode = genericDecode defaultOptions

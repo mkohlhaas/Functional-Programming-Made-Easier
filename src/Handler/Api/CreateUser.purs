@@ -23,7 +23,7 @@ import Utils (liftSuccess)
 
 data CreateUser = CreateUser
 
-instance apiHandlerCreateUser :: ApiHandler CreateUser where
+instance ApiHandler CreateUser where
   handle _ = handleApi handler
 
 handler :: CreateUserRequest -> Handler

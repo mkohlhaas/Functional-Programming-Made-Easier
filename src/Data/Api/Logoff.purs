@@ -8,52 +8,41 @@ import Foreign.Generic.Class (class Encode, class Decode, defaultOptions)
 ----------------
 -- Data Types --
 ----------------
-
 newtype LogoffRequest = LogoffRequest
   { authToken :: UUID }
+
+newtype LogoffResponse = LogoffResponse LogoffResult
 
 data LogoffResult
   = LogoffResultsFailure
   | LogoffResultsSuccess
 
-newtype LogoffResponse = LogoffResponse LogoffResult
-
-----------------------------------------
--- Instances and Instance Derivations --
-----------------------------------------
-
 -------------------
 -- LogoffRequest --
 -------------------
-
-derive instance genericLogoffRequest :: Generic LogoffRequest _
-
-instance encodeLogoffRequest :: Encode LogoffRequest where
+derive instance Generic LogoffRequest _
+instance Encode LogoffRequest where
   encode = genericEncode defaultOptions
 
-instance decodeLogoffRequest :: Decode LogoffRequest where
+instance Decode LogoffRequest where
   decode = genericDecode defaultOptions
 
 ------------------
 -- LogoffResult --
 ------------------
-
-derive instance genericLogoffResult :: Generic LogoffResult _
-
-instance encodeLogoffResult :: Encode LogoffResult where
+derive instance Generic LogoffResult _
+instance Encode LogoffResult where
   encode = genericEncode defaultOptions
 
-instance decodeLogoffResult :: Decode LogoffResult where
+instance Decode LogoffResult where
   decode = genericDecode defaultOptions
 
 --------------------
 -- LogoffResponse --
 --------------------
-
-derive instance genericLogoffResponse :: Generic LogoffResponse _
-
-instance encodeLogoffResponse :: Encode LogoffResponse where
+derive instance Generic LogoffResponse _
+instance Encode LogoffResponse where
   encode = genericEncode defaultOptions
 
-instance decodeLogoffResponse :: Decode LogoffResponse where
+instance Decode LogoffResponse where
   decode = genericDecode defaultOptions

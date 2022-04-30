@@ -18,10 +18,9 @@ newtype User = User (Record (UserRow ()))
 -- Alternative syntax:
 -- newtype User = User { | UserRow () }
 
-derive instance genericUser :: Generic User _
-
-instance encodeUser :: Encode User where
+derive instance Generic User _
+instance Encode User where
   encode = genericEncode defaultOptions
 
-instance decodeUser :: Decode User where
+instance Decode User where
   decode = genericDecode defaultOptions

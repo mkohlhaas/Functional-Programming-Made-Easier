@@ -11,10 +11,9 @@ newtype Session = Session
   , lastTime :: Number
   }
 
-derive instance genericSession :: Generic Session _
-
-instance encodeSession :: Encode Session where
+derive instance Generic Session _
+instance Encode Session where
   encode = genericEncode defaultOptions
 
-instance decodeSession :: Decode Session where
+instance Decode Session where
   decode = genericDecode defaultOptions

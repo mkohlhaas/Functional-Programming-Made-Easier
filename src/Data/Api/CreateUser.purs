@@ -9,14 +9,13 @@ import Foreign.Generic.Class (class Encode, class Decode, defaultOptions)
 ----------------
 -- Data Types --
 ----------------
-
 newtype CreateUserRequest = CreateUserRequest { authToken :: UUID, user :: Record (UserRow (password :: String)) }
+
+newtype CreateUserResponse = CreateUserResponse CreateUserResults
 
 data CreateUserResults
   = CreateUserResultsSuccess
   | CreateUserResultsFailure { reason :: CreateUserFailureReason }
-
-newtype CreateUserResponse = CreateUserResponse CreateUserResults
 
 data CreateUserFailureReason
   = AlreadyExists
@@ -24,54 +23,42 @@ data CreateUserFailureReason
   | NotAuthorized
   | FileIOError String
 
-----------------------------------------
--- Instances and Instance Derivations --
-----------------------------------------
-
 -----------------------
 -- CreateUserRequest --
 -----------------------
-
-derive instance genericCreateUserRequest :: Generic CreateUserRequest _
-
-instance encodeCreateUserRequest :: Encode CreateUserRequest where
+derive instance Generic CreateUserRequest _
+instance Encode CreateUserRequest where
   encode = genericEncode defaultOptions
 
-instance decodeCreateUserRequest :: Decode CreateUserRequest where
+instance Decode CreateUserRequest where
   decode = genericDecode defaultOptions
 
 -------------------------------
 -- CreateUserResponseResults --
 -------------------------------
-
-derive instance genericCreateUserResults :: Generic CreateUserResults _
-
-instance encodeCreateUserResults :: Encode CreateUserResults where
+derive instance Generic CreateUserResults _
+instance Encode CreateUserResults where
   encode = genericEncode defaultOptions
 
-instance decodeCreateUserResults :: Decode CreateUserResults where
+instance Decode CreateUserResults where
   decode = genericDecode defaultOptions
 
 ------------------------
 -- CreateUserResponse --
 ------------------------
-
-derive instance genericCreateUserResponse :: Generic CreateUserResponse _
-
-instance encodeCreateUserResponse :: Encode CreateUserResponse where
+derive instance Generic CreateUserResponse _
+instance Encode CreateUserResponse where
   encode = genericEncode defaultOptions
 
-instance decodeCreateUserResponse :: Decode CreateUserResponse where
+instance Decode CreateUserResponse where
   decode = genericDecode defaultOptions
 
 ------------------------------------
 -- CreateUserResultsFailureReason --
 ------------------------------------
-
-derive instance genericCreateUserFailureReason :: Generic CreateUserFailureReason _
-
-instance encodeCreateUserFailureReason :: Encode CreateUserFailureReason where
+derive instance Generic CreateUserFailureReason _
+instance Encode CreateUserFailureReason where
   encode = genericEncode defaultOptions
 
-instance decodeCreateUserFailureReason :: Decode CreateUserFailureReason where
+instance Decode CreateUserFailureReason where
   decode = genericDecode defaultOptions

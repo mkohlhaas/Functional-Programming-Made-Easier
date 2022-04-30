@@ -8,11 +8,12 @@ import Foreign.Generic.Class (class Encode, class Decode, defaultOptions)
 ----------------
 -- Data Types --
 ----------------
-
 newtype LogonRequest = LogonRequest
   { userName :: String
   , password :: String
   }
+
+newtype LogonResponse = LogonResponse LogonResults
 
 data LogonResults
   = LogonResultsSuccess
@@ -21,43 +22,32 @@ data LogonResults
       }
   | LogonResultsFailure
 
-newtype LogonResponse = LogonResponse LogonResults
-
-----------------------------------------
--- Instances and Instance Derivations --
-----------------------------------------
-
 ------------------
 -- LogonRequest --
 ------------------
-derive instance genericLogonRequest :: Generic LogonRequest _
-
-instance encodeLogonRequest :: Encode LogonRequest where
+derive instance Generic LogonRequest _
+instance Encode LogonRequest where
   encode = genericEncode defaultOptions
 
-instance decodeLogonRequest :: Decode LogonRequest where
+instance Decode LogonRequest where
   decode = genericDecode defaultOptions
 
 ------------------
 -- LogonResults --
 ------------------
-
-derive instance genericLogonResults :: Generic LogonResults _
-
-instance encodeLogonResults :: Encode LogonResults where
+derive instance Generic LogonResults _
+instance Encode LogonResults where
   encode = genericEncode defaultOptions
 
-instance decodeLogonResults :: Decode LogonResults where
+instance Decode LogonResults where
   decode = genericDecode defaultOptions
 
 -------------------
 -- LogonResponse --
 -------------------
-
-derive instance genericLogonResponse :: Generic LogonResponse _
-
-instance encodeLogonResponse :: Encode LogonResponse where
+derive instance Generic LogonResponse _
+instance Encode LogonResponse where
   encode = genericEncode defaultOptions
 
-instance decodeLogonResponse :: Decode LogonResponse where
+instance Decode LogonResponse where
   decode = genericDecode defaultOptions

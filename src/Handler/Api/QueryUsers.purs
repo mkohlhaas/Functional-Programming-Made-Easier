@@ -22,7 +22,7 @@ import Utils (liftSuccess)
 
 data QueryUsers = QueryUsers
 
-instance apiHandlerQueryUsers :: ApiHandler QueryUsers where
+instance ApiHandler QueryUsers where
   handle _ = handleApi handler
 
 -- getAccounts :: AVar Accounts -> Aff (Array Account)

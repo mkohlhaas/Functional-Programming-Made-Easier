@@ -16,7 +16,7 @@ import Manager.Session (createSession)
 
 data Logon = Logon
 
-instance apiHandlerLogon :: ApiHandler Logon where
+instance ApiHandler Logon where
   handle _ = handleApi handler
 
 handler :: LogonRequest -> Handler

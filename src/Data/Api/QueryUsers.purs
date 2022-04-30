@@ -9,7 +9,6 @@ import Foreign.Generic.Class (class Encode, class Decode, defaultOptions)
 ----------------
 -- Data Types --
 ----------------
-
 newtype QueryUsersRequest = QueryUsersRequest { authToken :: UUID }
 
 newtype QueryUsersResponse = QueryUsersResponse QueryUsersResults
@@ -20,54 +19,42 @@ data QueryUsersResults
 
 data QueryUsersFailureReason = NotAuthorized | NotAuthenticated
 
-----------------------------------------
--- Instances and Instance Derivations --
-----------------------------------------
-
 -----------------------
 -- QueryUsersRequest --
 -----------------------
-
-derive instance genericQueryUsersRequest :: Generic QueryUsersRequest _
-
-instance encodeQueryUsersRequest :: Encode QueryUsersRequest where
+derive instance Generic QueryUsersRequest _
+instance Encode QueryUsersRequest where
   encode = genericEncode defaultOptions
 
-instance decodeQueryUsersRequest :: Decode QueryUsersRequest where
+instance Decode QueryUsersRequest where
   decode = genericDecode defaultOptions
 
 ------------------------
 -- QueryUsersResponse --
 ------------------------
-
-derive instance genericQueryUsersResponse :: Generic QueryUsersResponse _
-
-instance encodeQueryUsersResponse :: Encode QueryUsersResponse where
+derive instance Generic QueryUsersResponse _
+instance Encode QueryUsersResponse where
   encode = genericEncode defaultOptions
 
-instance decodeQueryUsersResponse :: Decode QueryUsersResponse where
+instance Decode QueryUsersResponse where
   decode = genericDecode defaultOptions
 
 -----------------------
 -- QueryUsersResults --
 -----------------------
-
-derive instance genericQueryUsersResults :: Generic QueryUsersResults _
-
-instance encodeQueryUsersResults :: Encode QueryUsersResults where
+derive instance Generic QueryUsersResults _
+instance Encode QueryUsersResults where
   encode = genericEncode defaultOptions
 
-instance decodeQueryUsersResults :: Decode QueryUsersResults where
+instance Decode QueryUsersResults where
   decode = genericDecode defaultOptions
 
 -----------------------------
 -- QueryUsersFailureReason --
 -----------------------------
-
-derive instance genericQueryUsersFailureReason :: Generic QueryUsersFailureReason _
-
-instance encodeQueryUsersFailureReason :: Encode QueryUsersFailureReason where
+derive instance Generic QueryUsersFailureReason _
+instance Encode QueryUsersFailureReason where
   encode = genericEncode defaultOptions
 
-instance decodeQueryUsersFailureReason :: Decode QueryUsersFailureReason where
+instance Decode QueryUsersFailureReason where
   decode = genericDecode defaultOptions
