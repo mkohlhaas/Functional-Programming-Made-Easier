@@ -11,9 +11,11 @@ import Manager.Account (Accounts)
 import Manager.Session (Sessions)
 import Type.Proxy (Proxy)
 
+type RequestString = String
+
 class ApiHandler :: ∀ k. k -> Constraint
 class ApiHandler a where
-  handle :: Proxy a -> String -> Either MultipleErrors Handler
+  handle :: Proxy a -> RequestString -> Either MultipleErrors Handler
 
 type HandlerEnv =
   { accountsAVar :: AVar Accounts

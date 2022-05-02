@@ -8,7 +8,7 @@ Automatic rebuild:
 spago build --watch
 ```
 
-### Directory structure:
+### Directory Structure:
 Data modelling means to define data types and corresponding Json types.  
 - [**Entity**](https://github.com/mkohlhaas/Functional-Programming-Made-Easier/tree/ch-28/src/Entity)  
   Data modelling for sessions, accounts, users.
@@ -24,3 +24,9 @@ Data modelling means to define data types and corresponding Json types.
 - [**Manager**](https://github.com/mkohlhaas/Functional-Programming-Made-Easier/tree/ch-28/src/Manager)  
   Managers for sessions and accounts  
   → verify sessions/accounts, create sessions/accounts, ...
+
+### Server Architecture:
+
+![Server Architecture](assets/Server_Architecture.png)
+
+The difference between a __Handler__ and a __Manager__ is whether it interfaces to the outside world or not.

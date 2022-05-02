@@ -52,6 +52,7 @@ loggingRouter env req = do
   log $ "RESPONSE: " <> ts endDate <> idStr <> (show $ delete (Proxy :: _ "writeBody") res) <> duration
   pure res
 
+-- TODO: refactor using existential types
 apiHandlers :: NonEmpty Array (String -> Either MultipleErrors Handler)
 apiHandlers = handle (Proxy :: _ Logon) :| [ handle (Proxy :: _ Logoff), handle (Proxy :: _ CreateUser), handle (Proxy :: _ QueryUsers) ]
 

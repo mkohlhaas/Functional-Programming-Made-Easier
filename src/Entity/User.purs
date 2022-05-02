@@ -13,10 +13,10 @@ type UserRow r =
   | r
   )
 
-newtype User = User (Record (UserRow ()))
+newtype User = User { | UserRow () }
 
 -- Alternative syntax:
--- newtype User = User { | UserRow () }
+-- newtype User = User (Record (UserRow ()))
 
 derive instance Generic User _
 instance Encode User where
