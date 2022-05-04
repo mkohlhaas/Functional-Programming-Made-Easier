@@ -12,10 +12,11 @@ import Effect.Aff (Aff)
 import Effect.Aff.AVar (AVar, put, take)
 import Effect.Aff.AVar as AVar
 import Effect.Class (liftEffect)
-import Effect.Now (now)
+import Effect.Now as Now
 import Entity.Session (Session(..))
 import Utils (withAVar)
 
+type UserName = String
 type Sessions = Map UUID Session
 
 startup :: Aff (AVar Sessions)
@@ -24,19 +25,22 @@ startup = AVar.new Map.empty
 shutdown :: AVar Sessions -> Aff Unit
 shutdown = void <<< take
 
+now :: Aff Number
+now = getTime <<< fromInstant <$> liftEffect Now.now
+
 verifySession :: AVar Sessions -> UUID -> Aff (Maybe Session)
 verifySession sessionsAVar authToken = do
   expireSessions sessionsAVar
   withAVar sessionsAVar \sessions -> do
-    now <- getTime <<< fromInstant <$> liftEffect now
+    now' <- now
     let
-      newSessions = update (\(Session session) -> Just (Session $ session { lastTime = now })) authToken sessions
+      newSessions = update (\(Session session) -> Just (Session $ session { lastTime = now' })) authToken sessions
       currentSession = Map.lookup authToken newSessions
     pure $ Tuple newSessions currentSession
 
-createSession :: AVar Sessions -> String -> Aff UUID
+createSession :: AVar Sessions -> UserName -> Aff UUID
 createSession sessionsAVar userName = do
-  lastTime <- getTime <<< fromInstant <$> liftEffect now
+  lastTime <- now
   authToken <- liftEffect genUUID
   sessions <- take sessionsAVar
   let
@@ -55,6 +59,6 @@ sessionTimeout = 4.0 * 60.0 * 60.0 * 1000.0 -- 4 hours
 expireSessions :: AVar Sessions -> Aff Unit
 expireSessions sessionsAVar = do
   sessions <- take sessionsAVar
-  now <- getTime <<< fromInstant <$> liftEffect now
-  let sessions' = filter (\(Session { lastTime }) -> now - lastTime < sessionTimeout) sessions
+  now' <- now
+  let sessions' = filter (\(Session { lastTime }) -> now' - lastTime < sessionTimeout) sessions
   put sessions' sessionsAVar
