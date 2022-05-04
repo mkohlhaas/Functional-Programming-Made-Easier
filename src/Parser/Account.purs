@@ -24,8 +24,6 @@ userName = do
   a <- many alphaNum
   pure $ fromCharArray $ l : a
 
-type PasswordParserT a = ParserT String Identity a
-
 hex :: AccountParserT String
 hex = fromCharArray <$> some hexDigit
 

@@ -17,11 +17,12 @@ import Test.QuickCheck.Gen (sample)
 
 type UserName = String
 type Password = String
+type SaltLength = Int
 
 userNameSeed :: UserName -> Seed
 userNameSeed userName = userName # toCharArray <#> toCharCode # foldl (*) 1 # mkSeed
 
-userNameSalt :: Int -> UserName -> String
+userNameSalt :: SaltLength -> UserName -> String
 userNameSalt saltLength userName = fromCharArray $ sample (userNameSeed userName) saltLength arbitrary
 
 passwordHashHex :: UserName -> Password -> Aff String

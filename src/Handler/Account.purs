@@ -15,18 +15,14 @@ import Node.FS.Aff (exists, readTextFile, writeTextFile, appendTextFile)
 import Parser.Account (accountsParser)
 import Text.Parsing.Parser (ParseError, runParserT)
 
-----------------
--- Data Types --
-----------------
 data CreateAccountError = CreateAccountFileError String
+type AccountsFileName = String
+type CSVString = String
 
------------------
--- Helper Data --
------------------
-accountsFile :: String
+accountsFile :: AccountsFileName
 accountsFile = "accounts.csv"
 
-bootstrapAccount :: Aff String
+bootstrapAccount :: Aff CSVString
 bootstrapAccount = do
   let
     userName = "admin"
@@ -41,19 +37,13 @@ bootstrapAccount = do
     , lastName: "Admin"
     }
 
-----------------------
--- Helper Functions --
-----------------------
-accountToCSV :: Account -> String
+accountToCSV :: Account -> CSVString
 accountToCSV (Account { userName, passwordHash, temporaryPassword, admin, firstName, lastName }) =
   intercalate "," [ userName, passwordHash, show temporaryPassword, show admin, firstName, lastName ] <> "\n"
 
 createAccount :: Account -> Aff (Either CreateAccountError Unit)
 createAccount account = lmap show <$> (try $ appendTextFile ASCII accountsFile $ accountToCSV account) <#> lmap CreateAccountFileError
 
-----------------------------
--- Module's Main Function --
-----------------------------
 loadAccounts :: Aff (Either ParseError (Array Account))
 loadAccounts = do
   exists' <- try $ exists accountsFile
