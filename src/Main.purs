@@ -35,28 +35,30 @@ import Node.Process (onSignal)
 import Record (delete)
 import Type.Proxy (Proxy(..))
 
+type Router = HandlerEnv -> Request -> ResponseM
+type RequestHandler = String -> Either MultipleErrors Handler
+
 oneOf :: ∀ a t f. Alt t => Foldable f => NonEmpty f (t a) -> t a
 oneOf (x :| xs) = foldl (<|>) x xs
 
-loggingRouter :: HandlerEnv -> Request -> ResponseM
-loggingRouter env req = do
+loggingRouter :: Router -> Router
+loggingRouter r env req = do
   id <- liftEffect genUUID
   let
     idStr = " SessionID: " <> show id <> " "
     ts = toUTCString <<< fromDateTime
   startDate <- liftEffect nowDateTime
   log $ "REQUEST: " <> ts startDate <> idStr <> (show $ delete (Proxy :: _ "body") req)
-  res <- router env req
+  res <- r env req
   endDate <- liftEffect nowDateTime
   let duration = " [Duration: " <> show (diff endDate startDate :: Milliseconds) <> " ms]"
   log $ "RESPONSE: " <> ts endDate <> idStr <> (show $ delete (Proxy :: _ "writeBody") res) <> duration
   pure res
 
--- TODO: refactor using existential types
-apiHandlers :: NonEmpty Array (String -> Either MultipleErrors Handler)
+apiHandlers :: NonEmpty Array RequestHandler
 apiHandlers = handle (Proxy :: _ Logon) :| [ handle (Proxy :: _ Logoff), handle (Proxy :: _ CreateUser), handle (Proxy :: _ QueryUsers) ]
 
-router :: HandlerEnv -> Request -> ResponseM
+router :: Router
 router env { body, method }
   | method == HTTPure.Post = do
       body' <- toString body
@@ -79,7 +81,7 @@ main = launchAff_ do
       accountsAVar <- AccountManager.startup accounts
       sessionsAVar <- SessionManager.startup
       liftEffect $ do
-        shutdown <- HTTPure.serve port (loggingRouter { accountsAVar, sessionsAVar }) $ log $ "Server up running on port: " <> show port
+        shutdown <- HTTPure.serve port (loggingRouter router { accountsAVar, sessionsAVar }) $ log $ "Server up running on port: " <> show port
         let
           shutdownServer = do
             log "Shutting down server..."
