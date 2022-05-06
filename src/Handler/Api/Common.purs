@@ -9,7 +9,9 @@ import Foreign.Class (class Decode)
 import Foreign.Generic (decodeJSON)
 import Handler.Class.ApiHandler (Handler)
 
-handleApi :: ∀ a. Decode a => (a -> Handler) -> String -> Either MultipleErrors Handler
+type RequestHandler = String -> Either MultipleErrors Handler
+
+handleApi :: ∀ a. Decode a => (a -> Handler) -> RequestHandler
 handleApi handler request = do
-  logonReq <- runExcept (decodeJSON request :: _ a)
-  pure $ handler logonReq
+  req <- runExcept (decodeJSON request :: _ a)
+  pure $ handler req

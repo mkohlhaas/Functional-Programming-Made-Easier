@@ -36,8 +36,8 @@ boolean =
     <|> string "false" *> pure false
     <|> fail "Invalid Boolean"
 
-temporaryPassword :: AccountParserT Boolean
-temporaryPassword = boolean
+mustChangePassword :: AccountParserT Boolean
+mustChangePassword = boolean
 
 admin :: AccountParserT Boolean
 admin = boolean
@@ -64,14 +64,14 @@ accountParser :: AccountParserT Account
 accountParser = do
   userName' <- userName # comma
   passwordHash' <- passwordHash # comma
-  temporaryPassword' <- temporaryPassword # comma
+  mustChangePassword' <- mustChangePassword # comma
   admin' <- admin # comma
   firstName' <- firstName # comma
   lastName' <- lastName
   pure $ Account
     { userName: userName'
     , passwordHash: passwordHash'
-    , temporaryPassword: temporaryPassword'
+    , mustChangePassword: mustChangePassword'
     , admin: admin'
     , firstName: firstName'
     , lastName: lastName'

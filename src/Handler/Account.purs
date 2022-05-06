@@ -31,15 +31,15 @@ bootstrapAccount = do
   pure $ accountToCSV $ Account
     { userName
     , passwordHash
-    , temporaryPassword: true
+    , mustChangePassword: true
     , admin: true
     , firstName: "Joe"
     , lastName: "Admin"
     }
 
 accountToCSV :: Account -> CSVString
-accountToCSV (Account { userName, passwordHash, temporaryPassword, admin, firstName, lastName }) =
-  intercalate "," [ userName, passwordHash, show temporaryPassword, show admin, firstName, lastName ] <> "\n"
+accountToCSV (Account { userName, passwordHash, mustChangePassword, admin, firstName, lastName }) =
+  intercalate "," [ userName, passwordHash, show mustChangePassword, show admin, firstName, lastName ] <> "\n"
 
 createAccount :: Account -> Aff (Either CreateAccountError Unit)
 createAccount account = lmap show <$> (try $ appendTextFile ASCII accountsFile $ accountToCSV account) <#> lmap CreateAccountFileError

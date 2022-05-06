@@ -6,7 +6,7 @@ import Foreign.Generic.Class (class Encode, class Decode, defaultOptions)
 
 type UserRow r =
   ( userName :: String
-  , temporaryPassword :: Boolean
+  , mustChangePassword :: Boolean
   , admin :: Boolean
   , firstName :: String
   , lastName :: String
