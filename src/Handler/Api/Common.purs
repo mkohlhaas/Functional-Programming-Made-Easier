@@ -9,7 +9,8 @@ import Foreign.Class (class Decode)
 import Foreign.Generic (decodeJSON)
 import Handler.Class.ApiHandler (Handler)
 
-type RequestHandler = String -> Either MultipleErrors Handler
+type RequestString = String
+type RequestHandler = RequestString -> Either MultipleErrors Handler
 
 handleApi :: ∀ a. Decode a => (a -> Handler) -> RequestHandler
 handleApi handler request = do

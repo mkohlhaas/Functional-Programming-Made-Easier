@@ -1,0 +1,93 @@
+{
+    "info": {
+        "name": "RESTer",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Functional Programming Made Easier",
+            "item": [
+                {
+                    "name": "Logon",
+                    "item": [
+                        {
+                            "name": "Invalid",
+                            "item": [
+                                {
+                                    "request": {
+                                        "url": "localhost:3000",
+                                        "method": "GET",
+                                        "header": [],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{ \"tag\": \"LogonRequest\",\n\"contents\": {\n\"userName\": \"invalid\",\n\"password\": \"invalid\"\n}\n}"
+                                        }
+                                    },
+                                    "id": "rester-5",
+                                    "name": "GET request"
+                                },
+                                {
+                                    "request": {
+                                        "url": "localhost:3000",
+                                        "method": "POST",
+                                        "header": [],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{ \"tag\": \"LogonRequest\",\n\"contents\": {\n\"userName\": \"invalid\",\n\"password\": \"admin\"\n}\n}"
+                                        }
+                                    },
+                                    "id": "rester-1",
+                                    "name": "User invalid"
+                                },
+                                {
+                                    "request": {
+                                        "url": "localhost:3000",
+                                        "method": "POST",
+                                        "header": [],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{ \"tag\": \"LogonRequest\",\n\"contents\": {\n\"userName\": \"admin\",\n\"password\": \"invalid\"\n}\n}"
+                                        }
+                                    },
+                                    "id": "rester-4",
+                                    "name": "Wrong password"
+                                },
+                                {
+                                    "request": {
+                                        "url": "localhost:3000",
+                                        "method": "POST",
+                                        "header": [],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{ \"tag\": \"LogonRequest\",\n\"contents\": {\n\"userName\": \"invalid\",\n\"password\": \"invalid\"\n}\n}"
+                                        }
+                                    },
+                                    "id": "rester-2",
+                                    "name": "Wrong user, wrong password"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Valid",
+                            "item": [
+                                {
+                                    "request": {
+                                        "url": "localhost:3000",
+                                        "method": "POST",
+                                        "header": [],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{ \"tag\": \"LogonRequest\",\n\"contents\": {\n\"userName\": \"admin\",\n\"password\": \"admin\"\n}\n}"
+                                        }
+                                    },
+                                    "id": "rester-3",
+                                    "name": "Correct user, password, protocol"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

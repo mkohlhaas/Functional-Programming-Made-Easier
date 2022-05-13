@@ -11,7 +11,8 @@ import Manager.Account (Accounts)
 import Manager.Session (Sessions)
 import Type.Proxy (Proxy)
 
-type RequestHandler = String -> Either MultipleErrors Handler
+type RequestString = String
+type RequestHandler = RequestString -> Either MultipleErrors Handler
 
 class ApiHandler :: ∀ k. k -> Constraint
 class ApiHandler a where

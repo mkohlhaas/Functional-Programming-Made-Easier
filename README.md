@@ -30,3 +30,6 @@ Data modelling means to define data types and corresponding Json types.
 ![Server Architecture](assets/Server_Architecture.png)
 
 The difference between a __Handler__ and a __Manager__ is whether it interfaces to the outside world or not.
+
+### Testing REST
+Use [RESTer Firefox plugin](https://github.com/frigus02/RESTer)!
