@@ -8,6 +8,24 @@
             "name": "Functional Programming Made Easier",
             "item": [
                 {
+                    "name": "Logoff",
+                    "item": [
+                        {
+                            "request": {
+                                "url": "localhost:3000",
+                                "method": "POST",
+                                "header": [],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{ \"tag\": \"LogoffRequest\",\n\"contents\": {\n\"authToken\": \"INSERT-AUTHTOKEN\"\n}\n}"
+                                }
+                            },
+                            "id": "rester-6",
+                            "name": "Insert AuthToken"
+                        }
+                    ]
+                },
+                {
                     "name": "Logon",
                     "item": [
                         {
@@ -23,7 +41,7 @@
                                             "raw": "{ \"tag\": \"LogonRequest\",\n\"contents\": {\n\"userName\": \"invalid\",\n\"password\": \"invalid\"\n}\n}"
                                         }
                                     },
-                                    "id": "rester-5",
+                                    "id": "rester-1",
                                     "name": "GET request"
                                 },
                                 {
@@ -36,7 +54,7 @@
                                             "raw": "{ \"tag\": \"LogonRequest\",\n\"contents\": {\n\"userName\": \"invalid\",\n\"password\": \"admin\"\n}\n}"
                                         }
                                     },
-                                    "id": "rester-1",
+                                    "id": "rester-2",
                                     "name": "User invalid"
                                 },
                                 {
@@ -49,7 +67,7 @@
                                             "raw": "{ \"tag\": \"LogonRequest\",\n\"contents\": {\n\"userName\": \"admin\",\n\"password\": \"invalid\"\n}\n}"
                                         }
                                     },
-                                    "id": "rester-4",
+                                    "id": "rester-3",
                                     "name": "Wrong password"
                                 },
                                 {
@@ -62,7 +80,7 @@
                                             "raw": "{ \"tag\": \"LogonRequest\",\n\"contents\": {\n\"userName\": \"invalid\",\n\"password\": \"invalid\"\n}\n}"
                                         }
                                     },
-                                    "id": "rester-2",
+                                    "id": "rester-4",
                                     "name": "Wrong user, wrong password"
                                 }
                             ]
@@ -80,7 +98,7 @@
                                             "raw": "{ \"tag\": \"LogonRequest\",\n\"contents\": {\n\"userName\": \"admin\",\n\"password\": \"admin\"\n}\n}"
                                         }
                                     },
-                                    "id": "rester-3",
+                                    "id": "rester-5",
                                     "name": "Correct user, password, protocol"
                                 }
                             ]
