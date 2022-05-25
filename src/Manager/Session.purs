@@ -17,7 +17,8 @@ import Entity.Session (Session(..))
 import Utils (withAVar)
 
 type UserName = String
-type Sessions = Map UUID Session
+type AuthToken = UUID
+type Sessions = Map AuthToken Session
 
 startup :: Aff (AVar Sessions)
 startup = AVar.new Map.empty
@@ -25,10 +26,20 @@ startup = AVar.new Map.empty
 shutdown :: AVar Sessions -> Aff Unit
 shutdown = void <<< take
 
+sessionTimeout :: Number
+sessionTimeout = 4.0 * 60.0 * 60.0 * 1000.0 -- 4 hours
+
 now :: Aff Number
 now = getTime <<< fromInstant <$> liftEffect Now.now
 
-verifySession :: AVar Sessions -> UUID -> Aff (Maybe Session)
+expireSessions :: AVar Sessions -> Aff Unit
+expireSessions sessionsAVar = do
+  sessions <- take sessionsAVar
+  now' <- now
+  let sessions' = filter (\(Session { lastTime }) -> now' - lastTime < sessionTimeout) sessions
+  put sessions' sessionsAVar
+
+verifySession :: AVar Sessions -> AuthToken -> Aff (Maybe Session)
 verifySession sessionsAVar authToken = do
   expireSessions sessionsAVar
   withAVar sessionsAVar \sessions -> do
@@ -38,7 +49,7 @@ verifySession sessionsAVar authToken = do
       currentSession = Map.lookup authToken newSessions
     pure $ Tuple newSessions currentSession
 
-createSession :: AVar Sessions -> UserName -> Aff UUID
+createSession :: AVar Sessions -> UserName -> Aff AuthToken
 createSession sessionsAVar userName = do
   lastTime <- now
   authToken <- liftEffect genUUID
@@ -48,17 +59,7 @@ createSession sessionsAVar userName = do
   put (insert authToken session sessions) sessionsAVar
   pure authToken
 
-deleteSession :: AVar Sessions -> UUID -> Aff Unit
+deleteSession :: AVar Sessions -> AuthToken -> Aff Unit
 deleteSession sessionsAVar authToken = do
   sessions <- take sessionsAVar
   put (Map.delete authToken sessions) sessionsAVar
-
-sessionTimeout :: Number
-sessionTimeout = 4.0 * 60.0 * 60.0 * 1000.0 -- 4 hours
-
-expireSessions :: AVar Sessions -> Aff Unit
-expireSessions sessionsAVar = do
-  sessions <- take sessionsAVar
-  now' <- now
-  let sessions' = filter (\(Session { lastTime }) -> now' - lastTime < sessionTimeout) sessions
-  put sessions' sessionsAVar
