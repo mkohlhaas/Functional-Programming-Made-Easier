@@ -29,8 +29,8 @@ instance ApiHandler CreateUser where
 handler :: CreateUserRequest -> Handler
 handler (CreateUserRequest { authToken, user: user' }) = do
   { accountsAVar, sessionsAVar } <- ask
-  result <- lift $ runExceptT do
-    Session { userName } <- verifySession sessionsAVar authToken <#> note NotAuthenticated # liftSuccess
+  result <- lift $ runExceptT do -- result :: Either CreateUserFailureReason Unit
+    Session { userName } <- verifySession sessionsAVar authToken <#> note NotAuthenticated # liftSuccess -- RHS :: ExceptT CreateUserFailureReason Aff Session
     Account { admin } <- AM.findAccount accountsAVar userName <#> note NotAuthorized # liftSuccess
     unless admin $ throwError NotAuthorized
     passwordHash <- lift $ passwordHashHex user'.userName user'.password

@@ -2,9 +2,9 @@ module Utils where
 
 import Prelude
 
-import Control.Monad.Error.Class (class MonadError, throwError)
+import Control.Monad.Error.Class (class MonadThrow, liftEither)
 import Control.Monad.Reader.Trans (class MonadTrans, lift)
-import Data.Either (Either, either)
+import Data.Either (Either)
 import Data.Tuple (Tuple(..))
 import Effect.Aff.AVar (AVar)
 import Effect.Aff.AVar as AVar
@@ -19,8 +19,5 @@ withAVar aVar f = do
   liftAff $ AVar.put newValue aVar
   pure result
 
-liftEither :: ∀ e m a. MonadError e m => Either e a -> m a
-liftEither = either throwError pure
-
-liftSuccess :: ∀ e a m t. Monad m => MonadTrans t => MonadError e (t m) => m (Either e a) -> t m a
+liftSuccess :: ∀ t m e a. MonadTrans t => MonadThrow e (t m) => Monad m => m (Either e a) -> t m a
 liftSuccess ma = ma # lift >>= liftEither

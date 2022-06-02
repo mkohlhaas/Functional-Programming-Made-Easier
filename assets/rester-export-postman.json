@@ -8,6 +8,24 @@
             "name": "Functional Programming Made Easier",
             "item": [
                 {
+                    "name": "Create User",
+                    "item": [
+                        {
+                            "request": {
+                                "url": "localhost:3000",
+                                "method": "POST",
+                                "header": [],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"tag\": \"CreateUserRequest\",\n  \"contents\": {\n    \"authToken\": \"AUTH_TOKEN_FROM_LOGON_RESPONSE\",\n    \"user\": {\n      \"userName\": \"USER\",\n      \"password\": \"PASSWORD\",\n      \"mustChangePassword\": true,\n      \"admin\": true,\n      \"firstName\": \"FIRST_NAME\",\n      \"lastName\": \"LAST_NAME\"\n    }\n  }\n}"
+                                }
+                            },
+                            "id": "rester-13",
+                            "name": "New User"
+                        }
+                    ]
+                },
+                {
                     "name": "Logoff",
                     "item": [
                         {
@@ -20,7 +38,7 @@
                                     "raw": "{ \"tag\": \"LogoffRequest\",\n\"contents\": {\n\"authToken\": \"INSERT-AUTHTOKEN\"\n}\n}"
                                 }
                             },
-                            "id": "rester-6",
+                            "id": "rester-7",
                             "name": "Insert AuthToken"
                         }
                     ]
@@ -41,7 +59,7 @@
                                             "raw": "{ \"tag\": \"LogonRequest\",\n\"contents\": {\n\"userName\": \"invalid\",\n\"password\": \"invalid\"\n}\n}"
                                         }
                                     },
-                                    "id": "rester-1",
+                                    "id": "rester-15",
                                     "name": "GET request"
                                 },
                                 {
@@ -54,7 +72,7 @@
                                             "raw": "{ \"tag\": \"LogonRequest\",\n\"contents\": {\n\"userName\": \"invalid\",\n\"password\": \"admin\"\n}\n}"
                                         }
                                     },
-                                    "id": "rester-2",
+                                    "id": "rester-17",
                                     "name": "User invalid"
                                 },
                                 {
@@ -67,7 +85,7 @@
                                             "raw": "{ \"tag\": \"LogonRequest\",\n\"contents\": {\n\"userName\": \"admin\",\n\"password\": \"invalid\"\n}\n}"
                                         }
                                     },
-                                    "id": "rester-3",
+                                    "id": "rester-19",
                                     "name": "Wrong password"
                                 },
                                 {
@@ -80,7 +98,7 @@
                                             "raw": "{ \"tag\": \"LogonRequest\",\n\"contents\": {\n\"userName\": \"invalid\",\n\"password\": \"invalid\"\n}\n}"
                                         }
                                     },
-                                    "id": "rester-4",
+                                    "id": "rester-21",
                                     "name": "Wrong user, wrong password"
                                 }
                             ]
@@ -98,12 +116,25 @@
                                             "raw": "{ \"tag\": \"LogonRequest\",\n\"contents\": {\n\"userName\": \"admin\",\n\"password\": \"admin\"\n}\n}"
                                         }
                                     },
-                                    "id": "rester-5",
+                                    "id": "rester-12",
                                     "name": "Correct user, password, protocol"
                                 }
                             ]
                         }
                     ]
+                },
+                {
+                    "request": {
+                        "url": "localhost:3000",
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{ \"tag\": \"QueryUsersRequest\",\n  \"contents\": {\n    \"authToken\": \"ADMIN_AUTH_TOKEN_FROM_LOGON_RESPONSE\"\n  }\n}"
+                        }
+                    },
+                    "id": "rester-1",
+                    "name": "Query Users"
                 }
             ]
         }

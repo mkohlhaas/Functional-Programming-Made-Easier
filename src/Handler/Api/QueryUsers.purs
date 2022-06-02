@@ -25,7 +25,6 @@ data QueryUsers = QueryUsers
 instance ApiHandler QueryUsers where
   handle _ = handleApi handler
 
--- getAccounts :: AVar Accounts -> Aff (Array Account)
 handler :: QueryUsersRequest -> Handler
 handler (QueryUsersRequest { authToken }) = do
   { accountsAVar, sessionsAVar } <- ask
