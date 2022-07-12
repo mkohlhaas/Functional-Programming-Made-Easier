@@ -130,39 +130,39 @@ main = do
   log "-------------------------"
   log "-- Applicative Parsers --"
   log "-------------------------"
-  log $ show $ (parse char "ABC" :: Either PError _)                                  -- (Right (Tuple "BC" 'A')).
-  log $ show $ (parse twoCharsA "ABC" :: Either PError _)                             -- (Right (Tuple "C" (Tuple 'A' 'B'))).
-  log $ show $ (parse threeCharsA "ABC" :: Either PError _)                           -- (Right (Tuple "" (Tuple 'A' (Tuple 'B' 'C'))))
-  log $ show $ (parse threeCharsA' "ABC" :: Either PError _)                          -- (Right (Tuple "" (Threeple 'A' 'B' 'C')))
-  log $ show $ (parse threeCharsA'' "ABC" :: Either PError _)                         -- (Right (Tuple "" "ABC"))
-  log $ show $ parse' char "ABC"                                                      -- (Right (Tuple "BC" 'A')).
-  log $ show $ parse' twoCharsA "ABC"                                                 -- (Right (Tuple "C" (Tuple 'A' 'B'))).
-  log $ show $ parse' threeCharsA "ABC"                                               -- (Right (Tuple "" (Tuple 'A' (Tuple 'B' 'C'))))
-  log $ show $ parse' threeCharsA' "ABC"                                              -- (Right (Tuple "" (Threeple 'A' 'B' 'C')))
-  log $ show $ parse' threeCharsA'' "ABC"                                             -- (Right (Tuple "" "ABC"))
-  log $ show $ parse' threeCharsA "A"                                                 -- (Left EOF)
-  log $ show $ parse' tenCharsA "ABCDEFGHIJKLMNOPQRSTUVXYZ"                           -- (Right (Tuple "KLMNOPQRSTUVXYZ" "ABCDEFGHIJ"))
+  log $ show $ (parse char "ABC" :: Either PError _) ----------------------------------- (Right (Tuple "BC" 'A')).
+  log $ show $ (parse twoCharsA "ABC" :: Either PError _) ------------------------------ (Right (Tuple "C" (Tuple 'A' 'B'))).
+  log $ show $ (parse threeCharsA "ABC" :: Either PError _) ---------------------------- (Right (Tuple "" (Tuple 'A' (Tuple 'B' 'C'))))
+  log $ show $ (parse threeCharsA' "ABC" :: Either PError _) --------------------------- (Right (Tuple "" (Threeple 'A' 'B' 'C')))
+  log $ show $ (parse threeCharsA'' "ABC" :: Either PError _) -------------------------- (Right (Tuple "" "ABC"))
+  log $ show $ parse' char "ABC" ------------------------------------------------------- (Right (Tuple "BC" 'A')).
+  log $ show $ parse' twoCharsA "ABC" -------------------------------------------------- (Right (Tuple "C" (Tuple 'A' 'B'))).
+  log $ show $ parse' threeCharsA "ABC" ------------------------------------------------ (Right (Tuple "" (Tuple 'A' (Tuple 'B' 'C'))))
+  log $ show $ parse' threeCharsA' "ABC" ----------------------------------------------- (Right (Tuple "" (Threeple 'A' 'B' 'C')))
+  log $ show $ parse' threeCharsA'' "ABC" ---------------------------------------------- (Right (Tuple "" "ABC"))
+  log $ show $ parse' threeCharsA "A" -------------------------------------------------- (Left EOF)
+  log $ show $ parse' tenCharsA "ABCDEFGHIJKLMNOPQRSTUVXYZ" ---------------------------- (Right (Tuple "KLMNOPQRSTUVXYZ" "ABCDEFGHIJ"))
   log "---------------------"
   log "-- Monadic Parsers --"
   log "---------------------"
-  log $ show $ (parse char "ABC" :: Either PError _)                                  -- (Right (Tuple "BC" 'A')).
-  log $ show $ (parse twoCharsB "ABC" :: Either PError _)                             -- (Right (Tuple "C" (Tuple 'A' 'B'))).
-  log $ show $ (parse threeCharsB "ABC" :: Either PError _)                           -- (Right (Tuple "" (Tuple 'A' (Tuple 'B' 'C'))))
-  log $ show $ (parse threeCharsB' "ABC" :: Either PError _)                          -- (Right (Tuple "" (Threeple 'A' 'B' 'C')))
-  log $ show $ (parse threeCharsB'' "ABC" :: Either PError _)                         -- (Right (Tuple "" "ABC"))
-  log $ show $ parse' char "ABC"                                                      -- (Right (Tuple "BC" 'A')).
-  log $ show $ parse' twoCharsB "ABC"                                                 -- (Right (Tuple "C" (Tuple 'A' 'B'))).
-  log $ show $ parse' threeCharsB "ABC"                                               -- (Right (Tuple "" (Tuple 'A' (Tuple 'B' 'C'))))
-  log $ show $ parse' threeCharsB' "ABC"                                              -- (Right (Tuple "" (Threeple 'A' 'B' 'C')))
-  log $ show $ parse' threeCharsB'' "ABC"                                             -- (Right (Tuple "" "ABC"))
-  log $ show $ parse' threeCharsB "A"                                                 -- (Left EOF)
-  log $ show $ parse' tenCharsB "ABCDEFGHIJKLMNOPQRSTUVXYZ"                           -- (Right (Tuple "KLMNOPQRSTUVXYZ" "ABCDEFGHIJ"))
+  log $ show $ (parse char "ABC" :: Either PError _) ----------------------------------- (Right (Tuple "BC" 'A')).
+  log $ show $ (parse twoCharsB "ABC" :: Either PError _) ------------------------------- (Right (Tuple "C" (Tuple 'A' 'B'))).
+  log $ show $ (parse threeCharsB "ABC" :: Either PError _) ---------------------------- (Right (Tuple "" (Tuple 'A' (Tuple 'B' 'C'))))
+  log $ show $ (parse threeCharsB' "ABC" :: Either PError _) --------------------------- (Right (Tuple "" (Threeple 'A' 'B' 'C')))
+  log $ show $ (parse threeCharsB'' "ABC" :: Either PError _) -------------------------- (Right (Tuple "" "ABC"))
+  log $ show $ parse' char "ABC" ------------------------------------------------------- (Right (Tuple "BC" 'A')).
+  log $ show $ parse' twoCharsB "ABC" -------------------------------------------------- (Right (Tuple "C" (Tuple 'A' 'B'))).
+  log $ show $ parse' threeCharsB "ABC" ------------------------------------------------ (Right (Tuple "" (Tuple 'A' (Tuple 'B' 'C'))))
+  log $ show $ parse' threeCharsB' "ABC" ----------------------------------------------- (Right (Tuple "" (Threeple 'A' 'B' 'C')))
+  log $ show $ parse' threeCharsB'' "ABC" ---------------------------------------------- (Right (Tuple "" "ABC"))
+  log $ show $ parse' threeCharsB "A" -------------------------------------------------- (Left EOF)
+  log $ show $ parse' tenCharsB "ABCDEFGHIJKLMNOPQRSTUVXYZ" ---------------------------- (Right (Tuple "KLMNOPQRSTUVXYZ" "ABCDEFGHIJ"))
   log "----------------------"
   log "-- Helper Functions --"
   log "----------------------"
   log $ show $ parse' (fromCharArray <$> (count 10 char)) "ABCDEFGHIJKLMNOPQRSTUVXYZ" -- (Right (Tuple "KLMNOPQRSTUVXYZ" "ABCDEFGHIJ"))
-  log $ show $ parse' (count' 3 digit) "123456"                                       -- (Right (Tuple "456" "123"))
-  log $ show $ parse' (count' 3 digit) "abc456"                                       -- (Left (InvalidChar "digit"))
-  log $ show $ parse' (count' 4 letter) "Freddy"                                      -- (Right (Tuple "dy" "Fred"))
-  log $ show $ parse' (count' 10 alphaNum) "a1b2c3d4e5"                               -- (Right (Tuple "" "a1b2c3d4e5"))
-  log $ show $ parse' (count' 10 alphaNum) "######"                                   -- (Left (InvalidChar "alphaNum"))
+  log $ show $ parse' (count' 3 digit) "123456" ---------------------------------------- (Right (Tuple "456" "123"))
+  log $ show $ parse' (count' 3 digit) "abc456" ---------------------------------------- (Left (InvalidChar "digit"))
+  log $ show $ parse' (count' 4 letter) "Freddy" --------------------------------------- (Right (Tuple "dy" "Fred"))
+  log $ show $ parse' (count' 10 alphaNum) "a1b2c3d4e5" -------------------------------- (Right (Tuple "" "a1b2c3d4e5"))
+  log $ show $ parse' (count' 10 alphaNum) "######" ------------------------------------ (Left (InvalidChar "alphaNum"))
