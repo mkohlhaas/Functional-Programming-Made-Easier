@@ -77,18 +77,18 @@ data Threeple a b c = Threeple a b c
 main :: Effect Unit
 main = do
   log "Exercise Ch. 17 Applicative Parser."
-  log $ show $ (parse char "ABC" :: Either PError _)                                       -- (Right (Tuple "BC" 'A')).
-  log $ show $ (parse twoChars "ABC" :: Either PError _)                                   -- (Right (Tuple "C" (Tuple 'A' 'B'))).
-  log $ show $ (parse threeChars "ABC" :: Either PError _)                                 -- (Right (Tuple "" (Tuple 'A' (Tuple 'B' 'C'))))
-  log $ show $ (parse threeChars' "ABC" :: Either PError _)                                -- (Right (Tuple "" (Threeple 'A' 'B' 'C')))
-  log $ show $ (parse threeChars'' "ABC" :: Either PError _)                               -- (Right (Tuple "" "ABC"))
-  log $ show $ parse' char "ABC"                                                           -- (Right (Tuple "BC" 'A')).
-  log $ show $ parse' twoChars "ABC"                                                       -- (Right (Tuple "C" (Tuple 'A' 'B'))).
-  log $ show $ parse' threeChars "ABC"                                                     -- (Right (Tuple "" (Tuple 'A' (Tuple 'B' 'C'))))
-  log $ show $ parse' threeChars' "ABC"                                                    -- (Right (Tuple "" (Threeple 'A' 'B' 'C')))
-  log $ show $ parse' threeChars'' "ABC"                                                   -- (Right (Tuple "" "ABC"))
-  log $ show $ parse' threeChars "A"                                                       -- (Left EOF)
-  log $ show $ parse' tenChars "ABCDEFGHIJKLMNOPQRSTUVXYZ"                                 -- (Right (Tuple "KLMNOPQRSTUVXYZ" "ABCDEFGHIJ"))
-  log $ show $ parse' (fromCharArray <$> (count 10 char)) "ABCDEFGHIJKLMNOPQRSTUVXYZ"      -- (Right (Tuple "KLMNOPQRSTUVXYZ" "ABCDEFGHIJ"))
-  log $ show $ parse' (fromCharArray <$> (count' 10 char)) "ABCDEFGHIJKLMNOPQRSTUVXYZ"     -- (Right (Tuple "KLMNOPQRSTUVXYZ" "ABCDEFGHIJ"))
-  log $ show $ parse' (fromCharArray <$> (count' (-10) char)) "ABCDEFGHIJKLMNOPQRSTUVXYZ"  -- (Right (Tuple "ABCDEFGHIJKLMNOPQRSTUVXYZ" ""))
+  log $ show $ (parse char "ABC" :: Either PError _) ---------------------------------------- (Right (Tuple "BC" 'A')).
+  log $ show $ (parse twoChars "ABC" :: Either PError _) ------------------------------------ (Right (Tuple "C" (Tuple 'A' 'B'))).
+  log $ show $ (parse threeChars "ABC" :: Either PError _) ---------------------------------- (Right (Tuple "" (Tuple 'A' (Tuple 'B' 'C'))))
+  log $ show $ (parse threeChars' "ABC" :: Either PError _) --------------------------------- (Right (Tuple "" (Threeple 'A' 'B' 'C')))
+  log $ show $ (parse threeChars'' "ABC" :: Either PError _) -------------------------------- (Right (Tuple "" "ABC"))
+  log $ show $ parse' char "ABC" ------------------------------------------------------------ (Right (Tuple "BC" 'A')).
+  log $ show $ parse' twoChars "ABC" -------------------------------------------------------- (Right (Tuple "C" (Tuple 'A' 'B'))).
+  log $ show $ parse' threeChars "ABC" ------------------------------------------------------ (Right (Tuple "" (Tuple 'A' (Tuple 'B' 'C'))))
+  log $ show $ parse' threeChars' "ABC" ----------------------------------------------------- (Right (Tuple "" (Threeple 'A' 'B' 'C')))
+  log $ show $ parse' threeChars'' "ABC" ---------------------------------------------------- (Right (Tuple "" "ABC"))
+  log $ show $ parse' threeChars "A" -------------------------------------------------------- (Left EOF)
+  log $ show $ parse' tenChars "ABCDEFGHIJKLMNOPQRSTUVXYZ" ---------------------------------- (Right (Tuple "KLMNOPQRSTUVXYZ" "ABCDEFGHIJ"))
+  log $ show $ parse' (fromCharArray <$> (count 10 char)) "ABCDEFGHIJKLMNOPQRSTUVXYZ" ------- (Right (Tuple "KLMNOPQRSTUVXYZ" "ABCDEFGHIJ"))
+  log $ show $ parse' (fromCharArray <$> (count' 10 char)) "ABCDEFGHIJKLMNOPQRSTUVXYZ" ------ (Right (Tuple "KLMNOPQRSTUVXYZ" "ABCDEFGHIJ"))
+  log $ show $ parse' (fromCharArray <$> (count' (-10) char)) "ABCDEFGHIJKLMNOPQRSTUVXYZ" --- (Right (Tuple "ABCDEFGHIJKLMNOPQRSTUVXYZ" ""))
