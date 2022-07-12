@@ -65,13 +65,13 @@ verifyMod4Group = do
 main :: Effect Unit
 main = do
   log "Exercise Chapter 9."
-  log $ show $ ATrue  <> ATrue                                             -- ATrue
-  log $ show $ ATrue  <> AFalse                                            -- AFalse
-  log $ show $ AFalse <> AFalse                                            -- AFalse
-  log $ show $ AFalse <> mempty                                            -- AFalse
-  log $ show $ ATrue  <> mempty                                            -- ATrue
-  log $ show $ mempty <> ATrue  == ATrue                                   -- true
-  log $ show $ mempty <> AFalse == ATrue                                   -- false
+  log $ show $ ATrue  <> ATrue ---------------------------------------------- ATrue
+  log $ show $ ATrue  <> AFalse --------------------------------------------- AFalse
+  log $ show $ AFalse <> AFalse --------------------------------------------- AFalse
+  log $ show $ AFalse <> mempty --------------------------------------------- AFalse
+  log $ show $ ATrue  <> mempty --------------------------------------------- ATrue
+  log $ show $ mempty <> ATrue  == ATrue ------------------------------------ true
+  log $ show $ mempty <> AFalse == ATrue ------------------------------------ false
   verifyAndBoolSemigroup
   verifyAndBoolMonoid
   verifyOrBoolSemigroup
@@ -79,9 +79,9 @@ main = do
   verifyMod4Semigroup
   verifyMod4Monoid
   verifyMod4Group
-  log $ show $ First Nothing <> First (Just 77)                            -- (First (Just 77))
-  log $ show $ mempty <> First Nothing   == First (Nothing :: Maybe Unit)  -- true
-  log $ show $ mempty <> First (Just 77) == First (Just 77)                -- true
-  log $ show $ Last (Just 1) <> Last (Just 99)                             -- (Last (Just 99))
-  log $ show $ mempty <> Last Nothing   == Last (Nothing :: Maybe Unit)    -- true
-  log $ show $ mempty <> Last (Just 77) == Last (Just 77)                  -- true
+  log $ show $ First Nothing <> First (Just 77) ----------------------------- (First (Just 77))
+  log $ show $ mempty <> First Nothing   == First (Nothing :: Maybe Unit) --- true
+  log $ show $ mempty <> First (Just 77) == First (Just 77) ----------------- true
+  log $ show $ Last (Just 1) <> Last (Just 99) ------------------------------ (Last (Just 99))
+  log $ show $ mempty <> Last Nothing   == Last (Nothing :: Maybe Unit) ----- true
+  log $ show $ mempty <> Last (Just 77) == Last (Just 77) ------------------- true
