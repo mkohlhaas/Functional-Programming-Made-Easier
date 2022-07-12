@@ -41,7 +41,7 @@ main :: Effect Unit
 main = do
   log "Chapter 7."
   log "Convert Person to CSV and back again. Imports are allowed and necessary."
-  log $ show $ toCSV (Person { name: FullName "Sue Smith", age: Age 23, occupation: Doctor }) == CSV "Sue Smith,23,Doctor"  -- true
-  log $ show $ toCSV (Person { name: FullName "Sue Smith", age: Age 23, occupation: Doctor })                               -- "Sue Smith,23,Doctor"
+  log $ show $ toCSV (Person { name: FullName "Sue Smith", age: Age 23, occupation: Doctor }) == CSV "Sue Smith,23,Doctor" --- true
+  log $ show $ toCSV (Person { name: FullName "Sue Smith", age: Age 23, occupation: Doctor }) -------------------------------- "Sue Smith,23,Doctor"
   let person = Person { name: FullName "Sue Smith", age: Age 23, occupation: Doctor }
-  log $ show $ (toCSV person # fromCSV) == Just person                                                                      -- true
+  log $ show $ (toCSV person # fromCSV) == Just person ----------------------------------------------------------------------- true
