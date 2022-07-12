@@ -31,8 +31,6 @@ type DateParts = { year :: Year, month :: Month, day :: Day, format :: DateForma
 
 -- 3. Create a function that parses at most a specified count.
 -- atMost :: ∀ e a. Int -> Parser e a -> Parser e (Array a)
--- atMost n p | n > 0 = optional [] $ p >>= \c -> (c : _) <$> atMost (n - 1) p
---            | otherwise = pure []
 
 -- 4. Specialize atMost.
 -- atMost' :: ∀ e. Int -> Parser e Char -> Parser e String

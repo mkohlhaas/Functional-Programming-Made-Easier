@@ -63,9 +63,7 @@ instance Bind (Parser e) where
 instance Monad (Parser e)
 
 instance Alt (Parser e) where
-  alt p1 p2 = Parser \s -> case parse p1 s of
-    Left _ -> parse p2 s
-    Right x -> Right x
+  alt p1 p2 = Parser \s -> parse p1 s <|> parse p2 s
 
 ---------------------------------
 -- Helper Functions for Parser --
