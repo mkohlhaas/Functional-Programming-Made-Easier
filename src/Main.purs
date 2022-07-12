@@ -42,9 +42,6 @@ type DateParts = { year :: Year, month :: Month, day :: Day, format :: DateForma
 
 -- 6. Write a generic function that parses a min and max amount of parses with a given parser.
 -- range :: ∀ e a. Int -> Int -> Parser e a -> Parser e (Array a)
--- range min max p
---   | min >= 0, max > 0, min <= max = count min p >>= \as -> (as <> _) <$> atMost (:) (max - min) p
---   | otherwise = pure []
 
 -- 7. Specialize range for String the same way you did with atMost.
 -- range' :: ∀ e. Int -> Int -> Parser e Char -> Parser e String
