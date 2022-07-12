@@ -99,6 +99,7 @@ yearFirst = do
   pure $ { year, month, day, format: YearFirst }
 
 -- 11. Write a function that takes a String and return its integer value and refactor yearFirst.
+-- The constant (-1) is pretty much irrelevant. We know that it will never be used for date values.
 digitsToNum :: String -> Int
 digitsToNum = fromMaybe (-1) <<< fromString
 
@@ -128,22 +129,22 @@ date = yearFirst <|> monthFirst <|> fail (invalidChar "not a valid date")
 main :: Effect Unit
 main = do
   log "Exercise Chapter 19 - Date Parser."
-  log $ show $ ({ year: Year 1921, month: Month 10, day: Day 10, format: YearFirst } :: DateParts) -- { day: 10, format: YearFirst, month: 10, year: 1921 }
-  log $ show $ { year: Year 1921, month: Month 10, day: Day 10, format: YearFirst } -- { day: 10, format: YearFirst, month: 10, year: 1921 }
-  log $ show $ parse' (optional ' ' alphaNum) "a1b2c3" -- (Right (Tuple "1b2c3" 'a'))
-  log $ show $ parse' (optional ' ' alphaNum) "$_$" -- (Right (Tuple "$_$" ' '))
-  log $ show $ parse' (range' 1 3 alphaNum) "a1b2c3" -- (Right (Tuple "2c3" "a1b"))
-  log $ show $ parse' (range' 3 3 alphaNum) "a1b2c3" -- (Right (Tuple "2c3" "a1b"))
-  log $ show $ parse' (range' 4 3 alphaNum) "a1b2c3" -- (Right (Tuple "a1b2c3" ""))
-  log $ show $ parse' (atMost' (-2) alphaNum) "a1b2c3" -- (Right (Tuple "a1b2c3" ""))
-  log $ show $ parse' (atMost' 2 alphaNum) "$_$" -- (Right (Tuple "$_$" ""))
-  log $ show $ parse' (atMost' 2 alphaNum) "a1b2c3" -- (Right (Tuple "b2c3" "a1"))
-  log $ show $ parse' yearFirst "1962-10-02" -- (Right (Tuple "" { day: 2, format: YearFirst, month: 10, year: 1962 }))
-  log $ show $ parse' yearFirst "1999-12-31" -- (Right (Tuple "" { day: 31, format: YearFirst, month: 12, year: 1999 }))
-  log $ show $ parse' monthFirst "10/2/1962" -- (Right (Tuple "" { day: 2, format: MonthFirst, month: 10, year: 1962 }))
-  log $ show $ parse' monthFirst "12/31/1999" -- (Right (Tuple "" { day: 31, format: MonthFirst, month: 12, year: 1999 }))
-  log $ show $ parse' date "1962-10-02" -- (Right (Tuple "" { day: 2, format: YearFirst, month: 10, year: 1962 }))
-  log $ show $ parse' date "10/2/1962" -- (Right (Tuple "" { day: 2, format: MonthFirst, month: 10, year: 1962 }))
-  log $ show $ parse' date "1999-12-31" -- (Right (Tuple "" { day: 31, format: YearFirst, month: 12, year: 1999 }))
-  log $ show $ parse' date "12/31/1999" -- (Right (Tuple "" { day: 31, format: MonthFirst, month: 12, year: 1999 }))
-  log $ show $ parse' date "12-31-1999" -- (Left (InvalidChar "not a valid date"))
+  log $ show $ ({ year: Year 1921, month: Month 10, day: Day 10, format: YearFirst } :: DateParts) --- { day: 10, format: YearFirst, month: 10, year: 1921 }
+  log $ show $ { year: Year 1921, month: Month 10, day: Day 10, format: YearFirst } ------------------ { day: 10, format: YearFirst, month: 10, year: 1921 }
+  log $ show $ parse' (optional ' ' alphaNum) "a1b2c3" ----------------------------------------------- (Right (Tuple "1b2c3" 'a'))
+  log $ show $ parse' (optional ' ' alphaNum) "$_$" -------------------------------------------------- (Right (Tuple "$_$" ' '))
+  log $ show $ parse' (range' 1 3 alphaNum) "a1b2c3" ------------------------------------------------- (Right (Tuple "2c3" "a1b"))
+  log $ show $ parse' (range' 3 3 alphaNum) "a1b2c3" ------------------------------------------------- (Right (Tuple "2c3" "a1b"))
+  log $ show $ parse' (range' 4 3 alphaNum) "a1b2c3" ------------------------------------------------- (Right (Tuple "a1b2c3" ""))
+  log $ show $ parse' (atMost' (-2) alphaNum) "a1b2c3" ----------------------------------------------- (Right (Tuple "a1b2c3" ""))
+  log $ show $ parse' (atMost' 2 alphaNum) "$_$" ----------------------------------------------------- (Right (Tuple "$_$" ""))
+  log $ show $ parse' (atMost' 2 alphaNum) "a1b2c3" -------------------------------------------------- (Right (Tuple "b2c3" "a1"))
+  log $ show $ parse' yearFirst "1962-10-02" --------------------------------------------------------- (Right (Tuple "" { day: 2, format: YearFirst, month: 10, year: 1962 }))
+  log $ show $ parse' yearFirst "1999-12-31" --------------------------------------------------------- (Right (Tuple "" { day: 31, format: YearFirst, month: 12, year: 1999 }))
+  log $ show $ parse' monthFirst "10/2/1962" --------------------------------------------------------- (Right (Tuple "" { day: 2, format: MonthFirst, month: 10, year: 1962 }))
+  log $ show $ parse' monthFirst "12/31/1999" -------------------------------------------------------- (Right (Tuple "" { day: 31, format: MonthFirst, month: 12, year: 1999 }))
+  log $ show $ parse' date "1962-10-02" -------------------------------------------------------------- (Right (Tuple "" { day: 2, format: YearFirst, month: 10, year: 1962 }))
+  log $ show $ parse' date "10/2/1962" --------------------------------------------------------------- (Right (Tuple "" { day: 2, format: MonthFirst, month: 10, year: 1962 }))
+  log $ show $ parse' date "1999-12-31" -------------------------------------------------------------- (Right (Tuple "" { day: 31, format: YearFirst, month: 12, year: 1999 }))
+  log $ show $ parse' date "12/31/1999" -------------------------------------------------------------- (Right (Tuple "" { day: 31, format: MonthFirst, month: 12, year: 1999 }))
+  log $ show $ parse' date "12-31-1999" -------------------------------------------------------------- (Left (InvalidChar "not a valid date"))
