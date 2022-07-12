@@ -87,12 +87,12 @@ import Parser
 main :: Effect Unit
 main = do
   log "Exercise Chapter 19 - Some and Many Parsers."
-  log $ show $ parse' (some' digit) "2343423423abc"            -- (Right (Tuple "abc" "2343423423"))
-  log $ show $ parse' (some' digit) "_2343423423abc"           -- (Left (InvalidChar "digit"))
-  log $ show $ parse' (many' digit) "_2343423423abc"           -- (Right (Tuple "_2343423423abc" ""))
-  log $ show $ parse' digits "2343423423abc"                   -- (Right (Tuple "abc" "2343423423"))
-  log $ show $ parse' digits "_2343423423abc"                  -- (Left (InvalidChar "digit"))
-  log $ show $ parse' uglyM "17, some words"                   -- (Right (Tuple "" ["17","some words",""]))
-  log $ show $ parse' uglyM "5432, some more words1234567890"  -- (Right (Tuple "" ["5432","some more words","1234567890"]))
-  log $ show $ parse' uglyA "17, some words"                   -- (Right (Tuple "" ["17","some words",""]))
-  log $ show $ parse' uglyA "5432, some more words1234567890"  -- (Right (Tuple "" ["5432","some more words","1234567890"]))
+  log $ show $ parse' (some' digit) "2343423423abc" ------------- (Right (Tuple "abc" "2343423423"))
+  log $ show $ parse' (some' digit) "_2343423423abc" ------------ (Left (InvalidChar "digit"))
+  log $ show $ parse' (many' digit) "_2343423423abc" ------------ (Right (Tuple "_2343423423abc" ""))
+  log $ show $ parse' digits "2343423423abc" -------------------- (Right (Tuple "abc" "2343423423"))
+  log $ show $ parse' digits "_2343423423abc" ------------------- (Left (InvalidChar "digit"))
+  log $ show $ parse' uglyM "17, some words" -------------------- (Right (Tuple "" ["17","some words",""]))
+  log $ show $ parse' uglyM "5432, some more words1234567890" --- (Right (Tuple "" ["5432","some more words","1234567890"]))
+  log $ show $ parse' uglyA "17, some words" -------------------- (Right (Tuple "" ["17","some words",""]))
+  log $ show $ parse' uglyA "5432, some more words1234567890" --- (Right (Tuple "" ["5432","some more words","1234567890"]))
