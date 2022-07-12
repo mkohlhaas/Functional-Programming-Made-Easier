@@ -66,9 +66,7 @@ instance Monad (Parser e)
 
 -- 3. Create Alt instance for Parser.
 instance Alt (Parser e) where
-  alt p1 p2 = Parser \str -> case parse p1 str of
-    Left _ -> parse p2 str
-    Right res -> Right res
+  alt p1 p2 = Parser \str -> parse p1 str <|> parse p2 str  -- leverages Either's Alt instance
 
 ------------
 -- Parser --
