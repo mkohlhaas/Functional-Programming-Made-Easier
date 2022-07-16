@@ -61,7 +61,6 @@ type AppResult = Tuple (Maybe String) AppEffects
 
 -- 19. Write the application monad.
 -- For logging use logM.
-
 -- app :: AppM
 
 -- The body of "app" contains the following actions in the specified order:
@@ -72,15 +71,6 @@ type AppResult = Tuple (Maybe String) AppEffects
 -- e) Write to the log "Incremented State".
 -- f) Return the Pure Computational Value.
 
-app :: AppM
-app = do
-  logM "Starting App..."
-  n <- get
-  when (n == 0) $ void $ throwError "WE CANNOT HAVE A ZERO STATE!"
-  put $ n + 1
-  logM "Incremented State"
-  pure unit
-
 ----------
 -- Main --
 ----------
@@ -89,6 +79,6 @@ main :: Effect Unit
 main = do
   log "Exercise Chapter 21."
   result1 <- runApp 0 app
-  log $ show result1 -- (Tuple (Just "WE CANNOT HAVE A ZERO STATE!") { log: "Starting App...\n", result: Nothing, state: 0 })
+  log $ show result1 ------------- (Tuple (Just "WE CANNOT HAVE A ZERO STATE!") { log: "Starting App...\n", result: Nothing, state: 0 })
   result2 <- runApp 99 app
-  log $ show result2 -- (Tuple Nothing { log: "Starting App...\nIncremented State\n", result: (Just unit), state: 100 })
+  log $ show result2 ------------- (Tuple Nothing { log: "Starting App...\nIncremented State\n", result: (Just unit), state: 100 })
