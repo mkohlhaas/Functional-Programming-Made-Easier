@@ -24,13 +24,16 @@ runStateT (StateT f) = f
 
 -- 3. Write Functor instance.
 -- Note: m should be a Functor not a Monad to minimize constraints!
+-- Using map for inner monad.
 instance Functor m ⇒ Functor (StateT s m) where
   map f g = StateT \s → runStateT g s <#> \(Tuple a s') → Tuple (f a) s'
 
+-- Using bind for inner monad.
 -- instance Monad m ⇒ Functor (StateT s m) where
 --   map f g = StateT \s → runStateT g s >>= \(Tuple a s') → pure $ Tuple (f a) s'
 
 -- 4. Write Apply instance.
+-- Using bind for inner monad.
 instance Monad m ⇒ Apply (StateT s m) where
   apply f x = StateT \s → do
     Tuple f' s' ← runStateT f s
@@ -48,6 +51,7 @@ instance Monad m ⇒ Applicative (StateT s m) where
   pure x = StateT \s → pure $ Tuple x s
 
 -- 6. Write Bind instance.
+-- Using bind for inner monad.
 instance Monad m ⇒ Bind (StateT s m) where
   bind x f = StateT \s → runStateT x s >>= \(Tuple a s') → runStateT (f a) s'
 
@@ -59,18 +63,35 @@ instance Monad m ⇒ MonadState s (StateT s m) where
   state f = StateT $ pure <<< f
 
 -- 9. Write MonadTrans instance.
+-- Using map for inner monad.
+instance MonadTrans (StateT s) where
+  lift mx = StateT \s → mx <#> \x → Tuple x s
+
+-- Using bind for inner monad.
 -- instance MonadTrans (StateT s) where
 --   lift ma = StateT \s → ma >>= \a → pure $ Tuple a s
-instance monadTransStateT :: MonadTrans (StateT s) where
-  lift mx = StateT \s -> mx <#> \x -> Tuple x s
 
 -- 10. Write MonadAsk instance.
+-- Using map for inner monad.
 -- instance MonadAsk r m ⇒ MonadAsk r (StateT s m) where
 --   ask = StateT \s → ask <#> \r → Tuple r s
 
+-- Using bind for inner monad.
+-- instance MonadAsk r m ⇒ MonadAsk r (StateT s m) where
+--   ask = StateT \s → do
+--     r ← ask
+--     pure $ Tuple r s
+
 -- 11. Write MonadTell instance.
+-- Using map for inner monad.
 -- instance MonadTell w m ⇒ MonadTell w (StateT s m) where
 --   tell w = StateT \s → tell w <#> \_ → Tuple unit s
+
+-- Using bind for inner monad.
+-- instance MonadTell w m ⇒ MonadTell w (StateT s m) where
+--   tell w = StateT \s → do
+--     tell w
+--     pure $ Tuple unit s
 
 -- 12. Write monadAskStateT and monadTellStateT in terms of MonadTrans, i.e. with lift.
 instance MonadAsk r m ⇒ MonadAsk r (StateT s m) where
