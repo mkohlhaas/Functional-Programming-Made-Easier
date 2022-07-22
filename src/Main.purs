@@ -5,8 +5,8 @@ import Prelude
 import Effect (Effect)
 import Effect.Console (log)
 
-type RWSResult r w s = { r :: r, w :: w, s :: s } -- contains all three monads.
-data RWS r w s a = RWS (RWSResult r w s -> Tuple a (RWSResult r w s)) -- works similar to the state monad.
+type RWSResult r w s = { r :: r, w :: w, s :: s } ---------------------- contains all needed information
+data RWS r w s a = RWS (RWSResult r w s -> Tuple a (RWSResult r w s)) -- works similar to the State monad
 
 -- 1. Write Reader, Writer and State monads for your own reference.
 
@@ -15,8 +15,7 @@ data RWS r w s a = RWS (RWSResult r w s -> Tuple a (RWSResult r w s)) -- works s
 
 -- 3. Write a functor instance for RWS.
 
--- 4. Write an apply instance for RWS.
--- This time take a shortcut.
+-- 4. Write an apply instance for RWS (take shortcut).
 
 -- 5. Write an applicative instance for RWS.
 
