@@ -8,10 +8,10 @@ import Prelude (Unit, discard, (<>))
 -- JS Primitives --
 -------------------
 
-foreign import ordIntImpl :: Ordering -> Ordering -> Ordering -> Int -> Int -> Ordering
-foreign import eqIntImpl :: Int -> Int -> Boolean
-foreign import showIntImpl :: Int -> String
-foreign import showStringImpl :: String -> String
+foreign import ordIntImpl ∷ Ordering → Ordering → Ordering → Int → Int → Ordering
+foreign import eqIntImpl ∷ Int → Int → Boolean
+foreign import showIntImpl ∷ Int → String
+foreign import showStringImpl ∷ String → String
 
 ----------------
 -- Data Types --
@@ -51,7 +51,7 @@ data Ordering = DONT_KNOW
 -- Main --
 ----------
 
-main :: Effect Unit
+main ∷ Effect Unit
 main = do
   log "Exercise Chapter 7."
   log "Implement ALL missing standard 'parts' by hand! No further imports necessary!"
