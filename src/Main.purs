@@ -148,7 +148,7 @@ import Prelude (type (~>), Unit, discard, max, negate, otherwise, show, (+), (-)
 ----------
 -- Main --
 ----------
-main :: Effect Unit
+main ∷ Effect Unit
 main = do
   log "Exercise Chapter 5."
   log (show ((flip const 1 2) == 2))
@@ -160,21 +160,21 @@ main = do
   log $ show $ snoc (1 : 2 : Nil) 3 == (1 : 2 : 3 : Nil)
   log $ show $ (length $ 1 : 2 : 3 : Nil) == 3
   log $ show $ head ("abc" : "123" : Nil) == Just "abc"
-  log $ show $ head (Nil :: List Unit) == Nothing
-  log $ show $ tail (Nil :: List Unit) == Nothing
+  log $ show $ head (Nil ∷ List Unit) == Nothing
+  log $ show $ tail (Nil ∷ List Unit) == Nothing
   log $ show $ tail ("abc" : "123" : Nil) == Just ("123" : Nil)
-  log $ show $ last (Nil :: List Unit) == Nothing
+  log $ show $ last (Nil ∷ List Unit) == Nothing
   log $ show $ last ("a" : "b" : "c" : Nil) == Just "c"
   log $ show $ (last $ "a" : "b" : "c" : Nil) == Just "c"
-  log $ show $ init (Nil :: List Unit) == Nothing
+  log $ show $ init (Nil ∷ List Unit) == Nothing
   log $ show $ init (1 : Nil) == Just Nil
   log $ show $ init (1 : 2 : Nil) == Just (1 : Nil)
   log $ show $ init (1 : 2 : 3 : Nil) == Just (1 : 2 : Nil)
   log $ show $ uncons (1 : 2 : 3 : Nil) == Just { head: 1, tail: (2 : 3 : Nil) }
-  log $ show $ uncons (Nil :: List Unit) == Nothing
+  log $ show $ uncons (Nil ∷ List Unit) == Nothing
   log $ show $ index (1 : Nil) 4 == Nothing
   log $ show $ index (1 : 2 : 3 : Nil) 1 == Just 2
-  log $ show $ index (Nil :: List Unit) 0 == Nothing
+  log $ show $ index (Nil ∷ List Unit) 0 == Nothing
   log $ show $ index (1 : 2 : 3 : Nil) (-99) == Nothing
   log $ show $ (1 : 2 : 3 : Nil) !! 1 == Just 2
   log $ show $ findIndex (_ >= 2) (1 : 2 : 3 : Nil) == Just 1
@@ -194,7 +194,7 @@ main = do
   log $ show $ take 5 (12 : 13 : 14 : Nil) == (12 : 13 : 14 : Nil)
   log $ show $ take 5 (-7 : 9 : 0 : 12 : -13 : 45 : 976 : -19 : Nil) == (-7 : 9 : 0 : 12 : -13 : Nil)
   log $ show $ drop 2 (1 : 2 : 3 : 4 : 5 : 6 : 7 : Nil) == (3 : 4 : 5 : 6 : 7 : Nil)
-  log $ show $ drop 10 (Nil :: List Unit) == Nil
+  log $ show $ drop 10 (Nil ∷ List Unit) == Nil
   log $ show $ takeWhile (_ > 3) (5 : 4 : 3 : 99 : 101 : Nil) == (5 : 4 : Nil)
   log $ show $ takeWhile (_ == -17) (1 : 2 : 3 : Nil) == Nil
   log $ show $ dropWhile (_ > 3) (5 : 4 : 3 : 99 : 101 : Nil) == (3 : 99 : 101 : Nil)
@@ -205,7 +205,7 @@ main = do
   log $ show $ dropEnd 10 (1 : Nil) == Nil
   log $ show $ zip (1 : 2 : 3 : Nil) ("a" : "b" : "c" : "d" : "e" : Nil) == ((Tuple 1 "a") : (Tuple 2 "b") : (Tuple 3 "c") : Nil)
   log $ show $ zip ("a" : "b" : "c" : "d" : "e" : Nil) (1 : 2 : 3 : Nil) == ((Tuple "a" 1) : (Tuple "b" 2) : (Tuple "c" 3) : Nil)
-  log $ show $ zip (Nil :: List Unit) (1 : 2 : Nil) == Nil
+  log $ show $ zip (Nil ∷ List Unit) (1 : 2 : Nil) == Nil
   log $ show $ unzip (Tuple 1 "a" : Tuple 2 "b" : Tuple 3 "c" : Nil) == (Tuple (1 : 2 : 3 : Nil) ("a" : "b" : "c" : Nil))
   log $ show $ unzip (Tuple "a" 1 : Tuple "b" 2 : Tuple "c" 3 : Nil) == (Tuple ("a" : "b" : "c" : Nil) (1 : 2 : 3 : Nil))
-  log $ show $ unzip (Nil :: (List (Tuple Unit Unit))) == (Tuple Nil Nil)
+  log $ show $ unzip (Nil ∷ (List (Tuple Unit Unit))) == (Tuple Nil Nil)
