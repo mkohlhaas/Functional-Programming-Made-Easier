@@ -49,19 +49,19 @@ type AppM = AppStack String String Int Unit
 -- type StackResult = ...
 
 -- AppEffects stores all side-effects of the monad stack.
-type AppEffects = { log :: String, state :: Int, result :: Maybe Unit }
+type AppEffects = { log ∷ String, state ∷ Int, result ∷ Maybe Unit }
 
 -- AppResult contains our side-effect values from running our Monad Stack AppEffects and, optionally, the error if one occurred.
 type AppResult = Tuple (Maybe String) AppEffects
 
 -- 17. Write a mapping function "results" that turns StackResult into an AppResult. Change runApp using "results".
--- results :: StackResult -> AppResult
+-- results ∷ StackResult → AppResult
 
 -- 18. Write helper function "logM" that appends a newline after every string in the writer.
 
 -- 19. Write the application monad.
 -- For logging use logM.
--- app :: AppM
+-- app ∷ AppM
 
 -- The body of "app" contains the following actions in the specified order:
 -- a) Write to the log "Starting App...".
@@ -75,10 +75,10 @@ type AppResult = Tuple (Maybe String) AppEffects
 -- Main --
 ----------
 
-main :: Effect Unit
+main ∷ Effect Unit
 main = do
   log "Exercise Chapter 21."
-  result1 <- runApp 0 app
+  result1 ← runApp 0 app
   log $ show result1 ------------- (Tuple (Just "WE CANNOT HAVE A ZERO STATE!") { log: "Starting App...\n", result: Nothing, state: 0 })
-  result2 <- runApp 99 app
+  result2 ← runApp 99 app
   log $ show result2 ------------- (Tuple Nothing { log: "Starting App...\nIncremented State\n", result: (Just unit), state: 100 })
