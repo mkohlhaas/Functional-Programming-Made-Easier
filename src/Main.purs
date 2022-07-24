@@ -5,39 +5,22 @@ import Effect (Effect)
 import Effect.Console (log)
 import Prelude (Unit, discard, show, (==), (#), ($))
 
------------------
--- Data Types --
------------------
-
 newtype CSV = CSV String
 newtype FullName = FullName String
 newtype Age = Age Int
 data Occupation = Doctor | Dentist | Lawyer | Unemployed
-data Person = Person { name :: FullName, age :: Age, occupation :: Occupation }
-
-------------------
--- Type Classes --
-------------------
+data Person = Person { name ∷ FullName, age ∷ Age, occupation ∷ Occupation }
 
 class ToCSV a where
-  toCSV :: a -> CSV
+  toCSV ∷ a → CSV
 
 class FromCSV a where
-  fromCSV :: CSV -> Maybe a
-
---------------------------
--- Type Class instances --
---------------------------
-
----------------
--- Functions --
----------------
+  fromCSV ∷ CSV → Maybe a
 
 ----------
 -- Main --
 ----------
-
-main :: Effect Unit
+main ∷ Effect Unit
 main = do
   log "Chapter 7."
   log "Convert Person to CSV and back again. Imports are allowed and necessary."
