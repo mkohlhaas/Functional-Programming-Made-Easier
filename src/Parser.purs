@@ -25,8 +25,8 @@ import Data.Unfoldable as U
 ------------------------------
 
 class ParserError e where
-  eof :: e
-  invalidChar :: String -> e
+  eof ∷ e
+  invalidChar ∷ String → e
 
 data PError
   = EOF
@@ -34,31 +34,31 @@ data PError
 
 type ParserState a = Tuple String a
 
-type ParseFunction e a = ParserError e => String -> Either e (ParserState a)
+type ParseFunction e a = ParserError e ⇒ String → Either e (ParserState a)
 
 newtype Parser e a = Parser (ParseFunction e a)
 
 instance Functor (Parser e) where
-  map f g = Parser \s -> map f <$> parse g s
+  map f g = Parser \s → map f <$> parse g s
 
 instance Apply (Parser e) where
   apply = ap
 
 instance Applicative (Parser e) where
-  pure a = Parser \s -> Right $ Tuple s a
+  pure a = Parser \s → Right $ Tuple s a
 
 instance Bind (Parser e) where
   bind p f =
-    Parser \s -> do
-      Tuple s1 x <- parse p s
+    Parser \s → do
+      Tuple s1 x ← parse p s
       parse (f x) s1
 
 instance Monad (Parser e)
 
 instance Alt (Parser e) where
-  alt p1 p2 = Parser \s -> parse p1 s <|> parse p2 s
+  alt p1 p2 = Parser \s → parse p1 s <|> parse p2 s
 
-parse :: ∀ e a. Parser e a -> ParseFunction e a
+parse ∷ ∀ e a. Parser e a → ParseFunction e a
 parse (Parser f) = f
 
 derive instance Generic PError _
@@ -70,68 +70,68 @@ instance ParserError PError where
   eof = EOF
   invalidChar s = InvalidChar s
 
-char :: ∀ e. Parser e Char
+char ∷ ∀ e. Parser e Char
 char =
-  Parser \s -> case uncons s of
-    Nothing -> Left eof
-    Just { head, tail } -> Right $ Tuple tail head
+  Parser \s → case uncons s of
+    Nothing → Left eof
+    Just { head, tail } → Right $ Tuple tail head
 
-parse' :: ∀ a. Parser PError a -> ParseFunction PError a
+parse' ∷ ∀ a. Parser PError a → ParseFunction PError a
 parse' = parse
 
-count :: ∀ e a. Int -> Parser e a -> Parser e (Array a)
+count ∷ ∀ e a. Int → Parser e a → Parser e (Array a)
 count n p
   | n < 0 = pure []
   | otherwise = sequence (A.replicate n p)
 
-count' :: ∀ e a f. Traversable f => U.Unfoldable f => Int -> Parser e a -> Parser e (f a)
+count' ∷ ∀ e a f. Traversable f ⇒ U.Unfoldable f ⇒ Int → Parser e a → Parser e (f a)
 count' n p
   | n < 0 = pure U.none
   | otherwise = sequence (U.replicate n p)
 
-count'' :: ∀ e. Int -> Parser e Char -> Parser e String
+count'' ∷ ∀ e. Int → Parser e Char → Parser e String
 count'' n p = fromCharArray <$> count n p
 
-satisfy :: ∀ e. ParserError e => String -> (Char -> Boolean) -> Parser e Char
-satisfy expected pred = char >>= \c -> if pred c then pure c else fail $ invalidChar expected
+satisfy ∷ ∀ e. ParserError e ⇒ String → (Char → Boolean) → Parser e Char
+satisfy expected pred = char >>= \c → if pred c then pure c else fail $ invalidChar expected
 
-fail :: ∀ e a. ParserError e => e -> Parser e a
+fail ∷ ∀ e a. ParserError e ⇒ e → Parser e a
 fail e = Parser $ const $ Left e
 
-digit :: ∀ e. ParserError e => Parser e Char
+digit ∷ ∀ e. ParserError e ⇒ Parser e Char
 digit = satisfy "digit" $ isDecDigit <<< codePointFromChar
 
-letter :: ∀ e. ParserError e => Parser e Char
+letter ∷ ∀ e. ParserError e ⇒ Parser e Char
 letter = satisfy "letter" $ isAlpha <<< codePointFromChar
 
-alphaNum :: ∀ e. ParserError e => Parser e Char
+alphaNum ∷ ∀ e. ParserError e ⇒ Parser e Char
 alphaNum = letter <|> digit <|> fail (invalidChar "alphaNum")
 
 ----------------------
 -- Helper Functions --
 ----------------------
 
-atMost :: ∀ e f a. U.Unfoldable f => (a -> f a -> f a) -> Int -> Parser e a -> Parser e (f a)
+atMost ∷ ∀ e f a. U.Unfoldable f ⇒ (a → f a → f a) → Int → Parser e a → Parser e (f a)
 atMost cons n p
   | n <= 0 = pure U.none
-  | otherwise = optional U.none $ p >>= \c -> cons c <$> atMost cons (n - 1) p
+  | otherwise = optional U.none $ p >>= \c → cons c <$> atMost cons (n - 1) p
 
-atMost' :: ∀ e. Int -> Parser e Char -> Parser e String
+atMost' ∷ ∀ e. Int → Parser e Char → Parser e String
 atMost' n p = fromCharArray <$> atMost A.cons n p
 
-optional :: ∀ e a. a -> Parser e a -> Parser e a
+optional ∷ ∀ e a. a → Parser e a → Parser e a
 optional x p = p <|> pure x
 
-range :: ∀ e f a. Semigroup (f a) => Traversable f => U.Unfoldable f => (a -> f a -> f a) -> Int -> Int -> Parser e a -> Parser e (f a)
+range ∷ ∀ e f a. Semigroup (f a) ⇒ Traversable f ⇒ U.Unfoldable f ⇒ (a → f a → f a) → Int → Int → Parser e a → Parser e (f a)
 range cons min max p
   | min > max, min < 0, max <= 0 = pure U.none
-  | otherwise = count' min p >>= \cs -> (cs <> _) <$> atMost cons (max - min) p
+  | otherwise = count' min p >>= \cs → (cs <> _) <$> atMost cons (max - min) p
 
-range' :: ∀ e. Int -> Int -> Parser e Char -> Parser e String
+range' ∷ ∀ e. Int → Int → Parser e Char → Parser e String
 range' min max p = fromCharArray <$> range A.cons min max p
 
-constChar :: ∀ e. ParserError e => Char -> Parser e Unit
+constChar ∷ ∀ e. ParserError e ⇒ Char → Parser e Unit
 constChar = void <<< constChar'
 
-constChar' :: ∀ e. ParserError e => Char -> Parser e Char
+constChar' ∷ ∀ e. ParserError e ⇒ Char → Parser e Char
 constChar' c = satisfy (show c) (_ == c)
