@@ -13,13 +13,13 @@ newtype RFTree a = RFTree (Tree a) -- RightFirstTree; breadth-first search
 newtype LFTree a = LFTree (Tree a) -- LeftFirstTree; depth-first search
 
 class ToList f where
-  toList :: ∀ a. f a -> List a
+  toList ∷ ∀ a. f a → List a
 
 ----------
 -- Main --
 ----------
 
-main :: Effect Unit
+main ∷ Effect Unit
 main = do
   log "Exercise Chapter 11."
   log $ show $ reverse (10 : 20 : 30 : Nil) ------------------------------------------------------------ (30 : 20 : 10 : Nil)
