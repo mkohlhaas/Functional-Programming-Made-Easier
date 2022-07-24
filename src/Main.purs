@@ -21,16 +21,16 @@ data Threeple a b c = Threeple a b c
 ----------
 -- Main --
 ----------
-main :: Effect Unit
+main ∷ Effect Unit
 main = do
   log "Exercise Chapter 13."
   log $ show $ (_ / 2) <$> Just 10 --------------------------------------------------------------------------------- (Just 5)
   log $ show $ (_ / 2) <$> Nothing --------------------------------------------------------------------------------- Nothing
-  log $ show $ (_ / 2) <$> (Right 10 :: Either Unit _) ------------------------------------------------------------- (Right 5)
+  log $ show $ (_ / 2) <$> (Right 10 ∷ Either Unit _) -------------------------------------------------------------- (Right 5)
   log $ show $ (_ / 2) <$> Left "error reason" --------------------------------------------------------------------- (Left "error reason")
   log $ show $ (_ / 2) <$> Tuple 10 20 ----------------------------------------------------------------------------- (Tuple 10 10)
   log $ show $ (_ / 2) <$> Threeple 10 20 40 ----------------------------------------------------------------------- (Threeple 10 20 20)
-  log $ show $ "Maybe Identity for Nothing: " <> show ((identity <$> Nothing) == (Nothing :: Maybe Unit)) ---------- Maybe Identity for Nothing: true
+  log $ show $ "Maybe Identity for Nothing: " <> show ((identity <$> Nothing) == (Nothing ∷ Maybe Unit)) ----------- Maybe Identity for Nothing: true
   log $ show $ "Maybe Identity for Just: " <> show ((identity <$> Just [ 1, 2 ]) == Just [ 1, 2 ]) ----------------- Maybe Identity for Just: true
   let
     g x = x * 2
@@ -40,8 +40,8 @@ main = do
   log $ show $ "Tuple Identity: " <> show ((identity <$> Tuple 10 20) == Tuple 10 20) ------------------------------ "Tuple Identity: true"
   log $ show $ "Tuple Composition : " <> show ((map (g <<< f) (Tuple 10 20)) == (map f <<< map g) (Tuple 10 20)) --- "Tuple Composition : true"
   log $ show $ rmap (_ * 2) $ Left "error reason" ------------------------------------------------------------------ (Left "error reason")
-  log $ show $ lmap toUpper $ (Left "error reason" :: Either String Unit) ------------------------------------------ (Left "ERROR REASON")
-  log $ show $ rmap (_ * 2) $ (Right 10 :: Either Unit Int) -------------------------------------------------------- (Right 20)
+  log $ show $ lmap toUpper $ (Left "error reason" ∷ Either String Unit) ------------------------------------------- (Left "ERROR REASON")
+  log $ show $ rmap (_ * 2) $ (Right 10 ∷ Either Unit Int) --------------------------------------------------------- (Right 20)
   log $ show $ lmap toUpper $ Right 10 ----------------------------------------------------------------------------- (Right 10)
   log $ show $ rmap (_ * 2) $ Tuple 80 40 -------------------------------------------------------------------------- (Tuple 80 80)
   log $ show $ lmap (_ / 2) $ Tuple 80 40 -------------------------------------------------------------------------- (Tuple 40 40)
