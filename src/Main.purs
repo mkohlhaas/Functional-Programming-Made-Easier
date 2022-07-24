@@ -5,9 +5,9 @@ import Effect (Effect)
 import Effect.Console (log)
 import Prelude (Unit, discard, show, ($), (==))
 
----------------------------------------------------------
--- 1. Define Type Classes Semigroup, Monoid, and Group --
----------------------------------------------------------
+------------------------------------------------------
+-- Define Type Classes Semigroup, Monoid, and Group --
+------------------------------------------------------
 
 ----------------
 -- Data Types --
@@ -17,7 +17,7 @@ data AndBool = AFalse | ATrue
 data OrBool = OFalse | OTrue
 data Mod4 = Zero | One | Two | Three
 newtype First a = First (Maybe a) -- prefer first Maybe with value
-newtype Last a = Last (Maybe a) -- prefer last Maybe with value
+newtype Last a = Last (Maybe a) ---- prefer last Maybe with value
 
 ----------------------
 -- Helper Functions --
@@ -27,43 +27,29 @@ verifyAndBoolSemigroup ∷ Effect Unit
 verifyAndBoolSemigroup = do
   log "Verifying AndBool Semigroup Laws"
 
--- log $ show $ ...
-
 verifyAndBoolMonoid ∷ Effect Unit
 verifyAndBoolMonoid = do
   log "Verifying AndBool Monoid Laws"
-
--- log $ show $ ...
 
 verifyOrBoolSemigroup ∷ Effect Unit
 verifyOrBoolSemigroup = do
   log "Verifying OrBool Semigroup Laws"
 
--- log $ show $ ...
-
 verifyOrBoolMonoid ∷ Effect Unit
 verifyOrBoolMonoid = do
   log "Verifying OrBool Monoid Laws"
-
--- log $ show $ ...
 
 verifyMod4Semigroup ∷ Effect Unit
 verifyMod4Semigroup = do
   log "Verifying Mod4 Semigroup Laws"
 
--- log $ show $ ...
-
 verifyMod4Monoid ∷ Effect Unit
 verifyMod4Monoid = do
   log "Verifying Mod4 Monoid Laws"
 
--- log $ show $ ...
-
 verifyMod4Group ∷ Effect Unit
 verifyMod4Group = do
   log "Verifying Mod4 Group Laws"
-
--- log $ show $ ...
 
 ----------
 -- Main --
