@@ -9,20 +9,19 @@ import Effect (Effect)
 import Effect.Console (log)
 import Prelude (Unit, discard, show, ($), (==))
 
----------------------------------------------------------
--- 1. Define Type Classes Semigroup, Monoid, and Group --
----------------------------------------------------------
-
+------------------------------------------------------
+-- Define Type Classes Semigroup, Monoid, and Group --
+------------------------------------------------------
 class Semigroup a where
-  append :: a -> a -> a
+  append ∷ a → a → a
 
 infixr 5 append as <>
 
-class Semigroup m <= Monoid m where
-  mempty :: m
+class Semigroup a ⇐ Monoid a where
+  mempty ∷ a
 
-class Monoid g <= Group g where
-  ginverse :: g -> g
+class Monoid a ⇐ Group a where
+  ginverse ∷ a → a
 
 ----------------
 -- Data Types --
@@ -31,16 +30,18 @@ class Monoid g <= Group g where
 data AndBool = AFalse | ATrue
 data OrBool = OFalse | OTrue
 data Mod4 = Zero | One | Two | Three
-newtype First a = First (Maybe a) -- prefer first Maybe with value
-newtype Last a = Last (Maybe a) -- prefer last Maybe with value
-
--------------------------------------------------------
----------------------- Instances ----------------------
--------------------------------------------------------
+newtype First a = First (Maybe a) -- prefer first Maybe value
+newtype Last a = Last (Maybe a) ---- prefer last Maybe value
 
 -------------
 -- AndBool --
 -------------
+derive instance Eq AndBool
+
+instance Show AndBool where
+  show AFalse = "AFalse"
+  show ATrue = "ATrue"
+
 instance Semigroup AndBool where
   append ATrue ATrue = ATrue
   append _ _ = AFalse
@@ -48,16 +49,15 @@ instance Semigroup AndBool where
 instance Monoid AndBool where
   mempty = ATrue
 
-derive instance Eq AndBool
-
-derive instance Generic AndBool _
-
-instance Show AndBool where
-  show = genericShow
-
 ------------
 -- OrBool --
 ------------
+derive instance Eq OrBool
+
+instance Show OrBool where
+  show OFalse = "OFalse"
+  show OTrue = "OTrue"
+
 instance Semigroup OrBool where
   append OFalse OFalse = OFalse
   append _ _ = OTrue
@@ -65,21 +65,20 @@ instance Semigroup OrBool where
 instance Monoid OrBool where
   mempty = OFalse
 
-derive instance Eq OrBool
-
-derive instance Generic OrBool _
-
-instance Show OrBool where
-  show = genericShow
-
 ----------
 -- Mod4 --
 ----------
 derive instance Eq Mod4
 
+instance Show Mod4 where
+  show Zero = "Zero"
+  show One = "One"
+  show Two = "Two"
+  show Three = "Three"
+
 instance Semigroup Mod4 where
-  append Zero a = a
-  append a Zero = a
+  append Zero x = x
+  append x Zero = x
   append One One = Two
   append One Two = Three
   append One Three = Zero
@@ -102,15 +101,16 @@ instance Group Mod4 where
 -----------
 -- First --
 -----------
-derive newtype instance Eq a => Eq (First a)
+derive instance Eq a ⇒ Eq (First a)
+
 derive instance Generic (First a) _
 
-instance Show a => Show (First a) where
+instance Show a ⇒ Show (First a) where
   show = genericShow
 
 instance Semigroup (First a) where
-  append (First Nothing) last = last
-  append first _ = first
+  append (First Nothing) x = x
+  append x _ = x
 
 instance Monoid (First a) where
   mempty = First Nothing
@@ -118,15 +118,16 @@ instance Monoid (First a) where
 ----------
 -- Last --
 ----------
-derive newtype instance Eq a => Eq (Last a)
+derive instance Eq a ⇒ Eq (Last a)
+
 derive instance Generic (Last a) _
 
-instance Show a => Show (Last a) where
+instance Show a ⇒ Show (Last a) where
   show = genericShow
 
 instance Semigroup (Last a) where
-  append first (Last Nothing) = first
-  append _ last = last
+  append x (Last Nothing) = x
+  append _ x = x
 
 instance Monoid (Last a) where
   mempty = Last Nothing
@@ -135,7 +136,7 @@ instance Monoid (Last a) where
 -- Helper Functions --
 ----------------------
 
-verifyAndBoolSemigroup :: Effect Unit
+verifyAndBoolSemigroup ∷ Effect Unit
 verifyAndBoolSemigroup = do
   log "Verifying AndBool Semigroup Laws"
   log $ show $ (AFalse <> AFalse) <> AFalse == AFalse <> (AFalse <> AFalse)
@@ -147,15 +148,15 @@ verifyAndBoolSemigroup = do
   log $ show $ (ATrue <> ATrue) <> AFalse == ATrue <> (ATrue <> AFalse)
   log $ show $ (ATrue <> ATrue) <> ATrue == ATrue <> (ATrue <> ATrue)
 
-verifyAndBoolMonoid :: Effect Unit
+verifyAndBoolMonoid ∷ Effect Unit
 verifyAndBoolMonoid = do
   log "Verifying AndBool Monoid Laws"
-  log $ show $ (mempty <> AFalse) == AFalse
-  log $ show $ (AFalse <> mempty) == AFalse
-  log $ show $ (mempty <> ATrue) == ATrue
-  log $ show $ (ATrue <> mempty) == ATrue
+  log $ show $ AFalse <> mempty == AFalse
+  log $ show $ mempty <> AFalse == AFalse
+  log $ show $ ATrue <> mempty == ATrue
+  log $ show $ mempty <> ATrue == ATrue
 
-verifyOrBoolSemigroup :: Effect Unit
+verifyOrBoolSemigroup ∷ Effect Unit
 verifyOrBoolSemigroup = do
   log "Verifying OrBool Semigroup Laws"
   log $ show $ (OFalse <> OFalse) <> OFalse == OFalse <> (OFalse <> OFalse)
@@ -167,15 +168,15 @@ verifyOrBoolSemigroup = do
   log $ show $ (OTrue <> OTrue) <> OFalse == OTrue <> (OTrue <> OFalse)
   log $ show $ (OTrue <> OTrue) <> OTrue == OTrue <> (OTrue <> OTrue)
 
-verifyOrBoolMonoid :: Effect Unit
+verifyOrBoolMonoid ∷ Effect Unit
 verifyOrBoolMonoid = do
   log "Verifying OrBool Monoid Laws"
-  log $ show $ (mempty <> OFalse) == OFalse
-  log $ show $ (OFalse <> mempty) == OFalse
-  log $ show $ (mempty <> OTrue) == OTrue
-  log $ show $ (OTrue <> mempty) == OTrue
+  log $ show $ OFalse <> mempty == OFalse
+  log $ show $ mempty <> OFalse == OFalse
+  log $ show $ OTrue <> mempty == OTrue
+  log $ show $ mempty <> OTrue == OTrue
 
-verifyMod4Semigroup :: Effect Unit
+verifyMod4Semigroup ∷ Effect Unit
 verifyMod4Semigroup = do
   log "Verifying Mod4 Semigroup Laws"
   log $ show $ (Zero <> Zero) <> Zero == Zero <> (Zero <> Zero)
@@ -243,44 +244,44 @@ verifyMod4Semigroup = do
   log $ show $ (Three <> Three) <> Two == Three <> (Three <> Two)
   log $ show $ (Three <> Three) <> Three == Three <> (Three <> Three)
 
-verifyMod4Monoid :: Effect Unit
+verifyMod4Monoid ∷ Effect Unit
 verifyMod4Monoid = do
   log "Verifying Mod4 Monoid Laws"
-  log $ show $ Zero <> mempty == Zero
-  log $ show $ One <> mempty == One
-  log $ show $ Two <> mempty == Two
-  log $ show $ Three <> mempty == Three
   log $ show $ mempty <> Zero == Zero
   log $ show $ mempty <> One == One
   log $ show $ mempty <> Two == Two
   log $ show $ mempty <> Three == Three
+  log $ show $ Zero <> mempty == Zero
+  log $ show $ One <> mempty == One
+  log $ show $ Two <> mempty == Two
+  log $ show $ Three <> mempty == Three
 
-verifyMod4Group :: Effect Unit
+verifyMod4Group ∷ Effect Unit
 verifyMod4Group = do
   log "Verifying Mod4 Group Laws"
-  log $ show $  ginverse Zero <> Zero == mempty
-  log $ show $  ginverse One <> One == mempty
-  log $ show $  ginverse Two <> Two == mempty
-  log $ show $  ginverse Three <> Three == mempty
-  log $ show $  Zero <> ginverse Zero == mempty
-  log $ show $  One <> ginverse One == mempty
-  log $ show $  Two <> ginverse Two == mempty
-  log $ show $  Three <> ginverse Three == mempty
+  log $ show $ Zero <> ginverse Zero == mempty
+  log $ show $ One <> ginverse One == mempty
+  log $ show $ Two <> ginverse Two == mempty
+  log $ show $ Three <> ginverse Three == mempty
+  log $ show $ ginverse Zero <> Zero == mempty
+  log $ show $ ginverse One <> One == mempty
+  log $ show $ ginverse Two <> Two == mempty
+  log $ show $ ginverse Three <> Three == mempty
 
 ----------
 -- Main --
 ----------
 
-main :: Effect Unit
+main ∷ Effect Unit
 main = do
   log "Exercise Chapter 9."
-  log $ show $ ATrue  <> ATrue                                             -- ATrue
-  log $ show $ ATrue  <> AFalse                                            -- AFalse
-  log $ show $ AFalse <> AFalse                                            -- AFalse
-  log $ show $ AFalse <> mempty                                            -- AFalse
-  log $ show $ ATrue  <> mempty                                            -- ATrue
-  log $ show $ mempty <> ATrue  == ATrue                                   -- true
-  log $ show $ mempty <> AFalse == ATrue                                   -- false
+  log $ show $ ATrue <> ATrue ----------------------------------------------- ATrue
+  log $ show $ ATrue <> AFalse ---------------------------------------------- AFalse
+  log $ show $ AFalse <> AFalse --------------------------------------------- AFalse
+  log $ show $ AFalse <> mempty --------------------------------------------- AFalse
+  log $ show $ ATrue <> mempty ---------------------------------------------- ATrue
+  log $ show $ mempty <> ATrue == ATrue ------------------------------------- true
+  log $ show $ mempty <> AFalse == ATrue ------------------------------------ false
   verifyAndBoolSemigroup
   verifyAndBoolMonoid
   verifyOrBoolSemigroup
@@ -288,9 +289,9 @@ main = do
   verifyMod4Semigroup
   verifyMod4Monoid
   verifyMod4Group
-  log $ show $ First Nothing <> First (Just 77)                            -- (First (Just 77))
-  log $ show $ mempty <> First Nothing   == First (Nothing :: Maybe Unit)  -- true
-  log $ show $ mempty <> First (Just 77) == First (Just 77)                -- true
-  log $ show $ Last (Just 1) <> Last (Just 99)                             -- (Last (Just 99))
-  log $ show $ mempty <> Last Nothing   == Last (Nothing :: Maybe Unit)    -- true
-  log $ show $ mempty <> Last (Just 77) == Last (Just 77)                  -- true
+  log $ show $ First Nothing <> First (Just 77) ----------------------------- (First (Just 77))
+  log $ show $ mempty <> First Nothing == First (Nothing ∷ Maybe Unit) ------ true
+  log $ show $ mempty <> First (Just 77) == First (Just 77) ----------------- true
+  log $ show $ Last (Just 1) <> Last (Just 99) ------------------------------ (Last (Just 99))
+  log $ show $ mempty <> Last Nothing == Last (Nothing ∷ Maybe Unit) -------- true
+  log $ show $ mempty <> Last (Just 77) == Last (Just 77) ------------------- true
