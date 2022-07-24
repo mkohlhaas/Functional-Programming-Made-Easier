@@ -15,8 +15,8 @@ import Effect.Console (log)
 
 newtype Validation err result = Validation (Either err result)
 
-type FamilyAgesRow r = (fatherAge :: Age, motherAge :: Age, childAge :: Age | r)
-type FamilyNamesRow r = (fatherName :: FullName, motherName :: FullName, childName :: FullName | r)
+type FamilyAgesRow r = (fatherAge ∷ Age, motherAge ∷ Age, childAge ∷ Age | r)
+type FamilyNamesRow r = (fatherName ∷ FullName, motherName ∷ FullName, childName ∷ FullName | r)
 
 newtype Age = Age Int
 newtype FullName = FullName String
@@ -29,12 +29,12 @@ data FamilyMember = Father | Mother | Child
 -- Create also a bifunctor instance for Validation. We might need it later.
 
 -- Write validateAge function
--- validateAge :: LowerAge -> UpperAge -> Age -> FamilyMember -> Validation (Array String) Age
+-- validateAge ∷ LowerAge → UpperAge → Age → FamilyMember → Validation (Array String) Age
 
 ----------
 -- Main --
 ----------
-main :: Effect Unit
+main ∷ Effect Unit
 main = do
   log "Exercise Chapter 17."
   log "------------------------------------"
