@@ -16,8 +16,8 @@ import Prelude (Unit, discard, show, ($), (==))
 data AndBool = AFalse | ATrue
 data OrBool = OFalse | OTrue
 data Mod4 = Zero | One | Two | Three
-newtype First a = First (Maybe a) -- prefer first Maybe with value
-newtype Last a = Last (Maybe a) ---- prefer last Maybe with value
+newtype First a = First (Maybe a) -- prefer first Maybe value
+newtype Last a = Last (Maybe a) ---- prefer last Maybe value
 
 ----------------------
 -- Helper Functions --
