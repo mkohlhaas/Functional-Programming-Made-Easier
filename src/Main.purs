@@ -35,10 +35,10 @@ main = do
   let
     g x = x * 2
     f x = x * 3
-  log $ show $ "Maybe Composition for Nothing: " <> show ((map (g <<< f) Nothing) == (map f <<< map g) Nothing) ---- "Maybe Composition for Nothing: true"
-  log $ show $ "Maybe Composition for Just: " <> show ((map (g <<< f) (Just 60)) == (map f <<< map g) (Just 60)) --- "Maybe Composition for Just: true"
+  log $ show $ "Maybe Composition for Nothing: " <> show ((map (f <<< g) Nothing) == (map f <<< map g) Nothing) ---- "Maybe Composition for Nothing: true"
+  log $ show $ "Maybe Composition for Just: " <> show ((map (f <<< g) (Just 60)) == (map f <<< map g) (Just 60)) --- "Maybe Composition for Just: true"
   log $ show $ "Tuple Identity: " <> show ((identity <$> Tuple 10 20) == Tuple 10 20) ------------------------------ "Tuple Identity: true"
-  log $ show $ "Tuple Composition : " <> show ((map (g <<< f) (Tuple 10 20)) == (map f <<< map g) (Tuple 10 20)) --- "Tuple Composition : true"
+  log $ show $ "Tuple Composition : " <> show ((map (f <<< g) (Tuple 10 20)) == (map f <<< map g) (Tuple 10 20)) --- "Tuple Composition : true"
   log $ show $ rmap (_ * 2) $ Left "error reason" ------------------------------------------------------------------ (Left "error reason")
   log $ show $ lmap toUpper $ (Left "error reason" ∷ Either String Unit) ------------------------------------------- (Left "ERROR REASON")
   log $ show $ rmap (_ * 2) $ (Right 10 ∷ Either Unit Int) --------------------------------------------------------- (Right 20)
