@@ -2,16 +2,10 @@ module Main where
 
 import Prelude
 
+import Data.Generic.Rep (class Generic)
+import Data.Show.Generic (genericShow)
 import Effect (Effect)
 import Effect.Console (log)
-
--------------------------------------------
--- Define Maybe and Either - no imports! --
--------------------------------------------
-
-----------------
--- Validation --
-----------------
 
 newtype Validation err result = Validation (Either err result)
 
@@ -26,8 +20,8 @@ newtype LowerAge = LowerAge Int
 newtype UpperAge = UpperAge Int
 data FamilyMember = Father | Mother | Child
 
--- Write validateAge function
--- validateAge ∷ LowerAge → UpperAge → Age → FamilyMember → Validation (Array String) Age
+-- Write `validateAge` function
+-- validateAge ∷ LowerAge → UpperAge → FamilyMember → Age → Validation (Array String) Age
 
 ----------
 -- Main --
@@ -35,6 +29,7 @@ data FamilyMember = Father | Mother | Child
 main ∷ Effect Unit
 main = do
   log "Exercise Chapter 17."
+  log "No further imports allowed!!!"
   log "------------------------------------"
   log "-- Applicative Instance for Maybe --"
   log "------------------------------------"
