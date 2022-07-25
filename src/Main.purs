@@ -26,8 +26,6 @@ newtype LowerAge = LowerAge Int
 newtype UpperAge = UpperAge Int
 data FamilyMember = Father | Mother | Child
 
--- Create also a bifunctor instance for Validation. We might need it later.
-
 -- Write validateAge function
 -- validateAge ∷ LowerAge → UpperAge → Age → FamilyMember → Validation (Array String) Age
 
