@@ -3,13 +3,13 @@ module Parser where
 import Prelude
 
 import Control.Alt (class Alt, (<|>))
-import Data.CodePoint.Unicode (isDecDigit, isAlpha)
+import Data.CodePoint.Unicode (isAlpha, isDecDigit)
 import Data.Either (Either(..))
 import Data.Generic.Rep (class Generic)
 import Data.Maybe (Maybe(..))
 import Data.Show.Generic (genericShow)
 import Data.String.CodePoints (codePointFromChar)
-import Data.String.CodeUnits (uncons, fromCharArray)
+import Data.String.CodeUnits (fromCharArray, uncons)
 import Data.Traversable (class Traversable)
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (class Unfoldable, replicateA)
@@ -31,9 +31,6 @@ data Threeple a b c = Threeple a b c
 
 derive instance Generic (Threeple a b c) _
 
-instance Show (Parser e a) where
-  show _ = "Parser ..."
-
 instance (Show a, Show b, Show c) ⇒ Show (Threeple a b c) where
   show = genericShow
 
@@ -44,26 +41,26 @@ instance Show PError where
 
 instance ParserError PError where
   eof = EOF
-  invalidChar s = InvalidChar s
+  invalidChar = InvalidChar
 
 instance Functor (Parser e) where
-  map f g = Parser \s → map f <$> parse g s
+  map f x = Parser \s → map f <$> parse x s
 
 instance Apply (Parser e) where
   apply = ap
 
 instance Applicative (Parser e) where
-  pure a = Parser \s → Right $ Tuple s a
+  pure x = Parser \s → Right $ Tuple s x
 
 instance Bind (Parser e) where
-  bind p f = Parser \s → do
-    Tuple s1 x <- parse p s
-    parse (f x) s1
+  bind x f = Parser \str -> do
+    Tuple str' x' ← parse x str
+    parse (f x') str'
 
 instance Monad (Parser e)
 
 instance Alt (Parser e) where
-  alt p1 p2 = Parser \s → parse p1 s <|> parse p2 s
+  alt p1 p2 = Parser \str → parse p1 str <|> parse p2 str
 
 ---------------------------------
 -- Helper Functions for Parser --
@@ -87,10 +84,10 @@ count' ∷ ∀ e. Int → Parser e Char → Parser e String
 count' n p = fromCharArray <$> count n p
 
 fail ∷ ∀ e a. ParserError e ⇒ e → Parser e a
-fail e = Parser $ const $ Left e
+fail err = Parser $ const $ Left err
 
 satisfy ∷ ∀ e. ParserError e ⇒ String → (Char → Boolean) → Parser e Char
-satisfy expected pred = char >>= \c → if pred c then pure c else fail $ invalidChar expected
+satisfy errMsg p = char >>= \c → if p c then pure c else fail (invalidChar errMsg)
 
 digit ∷ ∀ e. ParserError e ⇒ Parser e Char
 digit = satisfy "digit" $ isDecDigit <<< codePointFromChar
