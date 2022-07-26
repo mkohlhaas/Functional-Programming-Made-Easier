@@ -7,8 +7,7 @@ import Data.Show.Generic (genericShow)
 import Effect (Effect)
 import Effect.Console (log)
 
--- Define data types Maybe and Either - no imports!
--- Implement instances handishly - no derivations, no shortcuts, unless absolutely necessary!
+-- Implement instances handishly - no derivations, no shortcuts!
 
 ----------
 -- Main --
