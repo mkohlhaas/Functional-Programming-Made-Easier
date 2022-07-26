@@ -2,13 +2,14 @@ module Main where
 
 import Prelude
 
-import Data.Array as A
 import Data.CodePoint.Unicode (isAlpha, isDecDigit)
 import Data.Either (Either(..))
+import Data.Generic.Rep (class Generic)
 import Data.Maybe (Maybe(..))
+import Data.Show.Generic (genericShow)
 import Data.String.CodePoints (codePointFromChar)
 import Data.String.CodeUnits (fromCharArray, uncons)
-import Data.Traversable (sequence)
+import Data.Traversable (class Traversable, sequence)
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (class Unfoldable, replicateA)
 import Effect (Effect)
@@ -40,14 +41,14 @@ instance Functor (Parser e) where
   map f g = Parser \s → map f <$> parse g s
 
 instance applyParser ∷ Apply (Parser e) where
-  apply f g = Parser \s → case parse f s of
-    Left e → Left e
-    Right (Tuple s1 h) → case parse g s1 of
-      Left e → Left e
-      Right (Tuple s2 a) → Right $ Tuple s2 $ h a
+  apply f x = Parser \str → case parse f str of
+    Left err → Left err
+    Right (Tuple str' f') → case parse x str' of
+      Left err' → Left err'
+      Right (Tuple str'' x') → Right $ Tuple str'' (f' x')
 
 instance Applicative (Parser e) where
-  pure a = Parser \s → Right $ Tuple s a
+  pure x = Parser \s → Right $ Tuple s x
 
 -- 1. Create a Bind instance for Parser.
 -- 2. Create a Monad instance for Parser and rewrite Apply (Parser e) in do notation.
@@ -63,12 +64,14 @@ parse (Parser f) = f
 parse' ∷ ∀ a. Parser PError a → ParseFunction PError a
 parse' = parse
 
-derive instance genericPError ∷ Generic PError _
-instance showPError ∷ Show PError where
+derive instance Generic PError _
+
+instance Show PError where
   show = genericShow
 
-derive instance genericThreeple ∷ Generic (Threeple a b c) _
-instance showThreeple ∷ (Show a, Show b, Show c) ⇒ Show (Threeple a b c) where
+derive instance Generic (Threeple a b c) _
+
+instance (Show a, Show b, Show c) ⇒ Show (Threeple a b c) where
   show = genericShow
 
 char ∷ ∀ e. Parser e Char
@@ -77,7 +80,7 @@ char = Parser \s → case uncons s of
   Just { head, tail } → Right $ Tuple tail head
 
 -- 4. These are our applicative parsers. Rewrite them using our new monadic parser using do notation.
---    Replace in new function name A with B for bind, e.g. twoCharsA → twoCharsB.
+--    Replace in new function name A with B, e.g. twoCharsA → twoCharsB.
 
 twoCharsA ∷ ∀ e. Parser e (Tuple Char Char)
 twoCharsA = Tuple <$> char <*> char
