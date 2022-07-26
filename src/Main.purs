@@ -2,6 +2,7 @@ module Main where
 
 import Prelude
 
+import Control.Alt (class Alt, (<|>))
 import Data.CodePoint.Unicode (isAlpha, isDecDigit)
 import Data.Either (Either(..))
 import Data.Generic.Rep (class Generic)
@@ -9,7 +10,7 @@ import Data.Maybe (Maybe(..))
 import Data.Show.Generic (genericShow)
 import Data.String.CodePoints (codePointFromChar)
 import Data.String.CodeUnits (fromCharArray, uncons)
-import Data.Traversable (class Traversable, sequence)
+import Data.Traversable (class Traversable)
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (class Unfoldable, replicateA)
 import Effect (Effect)
@@ -38,14 +39,13 @@ newtype Parser e a = Parser (ParseFunction e a)
 data Threeple a b c = Threeple a b c
 
 instance Functor (Parser e) where
-  map f g = Parser \s → map f <$> parse g s
+  map f x = Parser \s → map f <$> parse x s
 
 instance applyParser ∷ Apply (Parser e) where
-  apply f x = Parser \str → case parse f str of
-    Left err → Left err
-    Right (Tuple str' f') → case parse x str' of
-      Left err' → Left err'
-      Right (Tuple str'' x') → Right $ Tuple str'' (f' x')
+  apply f x = do
+    f' ← f
+    x' ← x
+    pure $ f' x'
 
 instance Applicative (Parser e) where
   pure x = Parser \s → Right $ Tuple s x
@@ -85,14 +85,22 @@ char = Parser \s → case uncons s of
 twoCharsA ∷ ∀ e. Parser e (Tuple Char Char)
 twoCharsA = Tuple <$> char <*> char
 
+-- twoCharsB ∷ ∀ e. Parser e (Tuple Char Char)
+
 threeCharsA ∷ ∀ e. Parser e (Tuple Char (Tuple Char Char))
 threeCharsA = Tuple <$> char <*> twoCharsA
+
+-- threeCharsB ∷ ∀ e. Parser e (Tuple Char (Tuple Char Char))
 
 threeCharsA' ∷ ∀ e. Parser e (Threeple Char Char Char)
 threeCharsA' = Threeple <$> char <*> char <*> char
 
+-- threeCharsB' ∷ ∀ e. Parser e (Threeple Char Char Char)
+
 threeCharsA'' ∷ ∀ e. Parser e String
 threeCharsA'' = (\c1 c2 c3 → fromCharArray [ c1, c2, c3 ]) <$> char <*> char <*> char
+
+-- threeCharsB'' ∷ ∀ e. Parser e String
 
 tenCharsA ∷ ∀ e. Parser e String
 tenCharsA = (\c1 c2 c3 c4 c5 c6 c7 c8 c9 c10 → fromCharArray [ c1, c2, c3, c4, c5, c6, c7, c8, c9, c10 ])
@@ -106,6 +114,8 @@ tenCharsA = (\c1 c2 c3 c4 c5 c6 c7 c8 c9 c10 → fromCharArray [ c1, c2, c3, c4,
   <*> char
   <*> char
   <*> char
+
+-- tenCharsB ∷ ∀ e. Parser e String
 
 -- 5. Write a parser that always fails.
 -- fail ∷ ∀ e a. ParserError e ⇒ e → Parser e a
