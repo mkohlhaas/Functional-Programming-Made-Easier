@@ -55,7 +55,7 @@ instance Applicative (Parser e) where
   pure x = Parser \s → Right $ Tuple s x
 
 instance Bind (Parser e) where
-  bind x f = Parser \str -> do
+  bind x f = Parser \str → do
     Tuple str' x' ← parse x str
     parse (f x') str'
 
@@ -65,7 +65,7 @@ instance Alt (Parser e) where
   alt p1 p2 = Parser \str → parse p1 str <|> parse p2 str
 
 instance Lazy (Parser e a) where
-  defer f = Parser \str -> parse (f unit) str
+  defer f = Parser \str → parse (f unit) str
 
 ---------------------------------
 -- Helper Functions for Parser --
@@ -120,8 +120,8 @@ range ∷ ∀ e f a. Semigroup (f a) ⇒ Traversable f ⇒ Unfoldable f ⇒ (a �
 range cons min max p | min <= max = (<>) <$> count min p <*> atMost cons (max - min) p
 range _ _ _ _ = pure none
 
-constChar :: ∀ e. ParserError e => Char -> Parser e Unit
+constChar ∷ ∀ e. ParserError e ⇒ Char → Parser e Unit
 constChar = void <<< constChar'
 
-constChar' :: ∀ e. ParserError e => Char -> Parser e Char
+constChar' ∷ ∀ e. ParserError e ⇒ Char → Parser e Char
 constChar' c = satisfy (show c) (_ == c)
