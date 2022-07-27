@@ -2,10 +2,11 @@ module Main where
 
 import Prelude
 
+import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Console (log)
 
-type RWSResult r w s = { r ∷ r, w ∷ w, s ∷ s } ---------------------- contains all needed information
+type RWSResult r w s = { r ∷ r, w ∷ w, s ∷ s } ------------------------ contains all needed information
 data RWS r w s a = RWS (RWSResult r w s → Tuple a (RWSResult r w s)) -- works similar to the State monad
 
 -- 1. Write Reader, Writer and State monads for your own reference.
@@ -15,7 +16,7 @@ data RWS r w s a = RWS (RWSResult r w s → Tuple a (RWSResult r w s)) -- works 
 
 -- 3. Write a functor instance for RWS.
 
--- 4. Write an apply instance for RWS (take shortcut).
+-- 4. Write an apply instance for RWS. (Take shortcut possibly after you'll have written `bind` instance.)
 
 -- 5. Write an applicative instance for RWS.
 
@@ -43,10 +44,10 @@ data RWS r w s a = RWS (RWSResult r w s → Tuple a (RWSResult r w s)) -- works 
 -- Data Structures for Testing --
 ---------------------------------
 
--- for the Reader
+-- the Reader
 type Config = { debugModeOn ∷ Boolean }
 
--- for the State
+-- the State
 type Counter = Int
 
 -- test function
