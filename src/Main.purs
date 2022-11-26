@@ -1,9 +1,9 @@
 module Main where
 
 import Data.Eq (class Eq)
-import Data.Generic.Rep (class Generic)
-import Data.Ord (class Ord)
 import Data.Show (class Show)
+import Data.Ord (class Ord)
+import Data.Generic.Rep (class Generic)
 import Data.Show.Generic (genericShow)
 import Effect (Effect)
 import Effect.Console (log)
@@ -16,16 +16,18 @@ import Prelude (Unit, discard, show, (==), (<=), (<), (>), (>=), ($))
 ----------------
 -- Data Types --
 ----------------
-data Maybe a = Nothing | Just a
 
+data Maybe a = Nothing | Just a
 data Either a b = Left a | Right b
 
 ---------------------
 -- Class Instances --
 ---------------------
+
 derive instance Eq a ⇒ Eq (Maybe a)
 derive instance (Eq a, Eq b) ⇒ Eq (Either a b)
-
+derive instance (Ord a, Ord b) ⇒ Ord (Either a b)
+derive instance Ord a ⇒ Ord (Maybe a)
 derive instance Generic (Maybe a) _
 derive instance Generic (Either a b) _
 
@@ -34,9 +36,6 @@ instance Show a ⇒ Show (Maybe a) where
 
 instance (Show a, Show b) ⇒ Show (Either a b) where
   show = genericShow
-
-derive instance Ord a ⇒ Ord (Maybe a)
-derive instance (Ord a, Ord b) ⇒ Ord (Either a b)
 
 ----------
 -- Main --
