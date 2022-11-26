@@ -43,6 +43,25 @@ infixr 0 apply as $
 applyFlipped ∷ ∀ a b. a → (a → b) → b
 applyFlipped = flip apply
 
+-- Type analysis:
+
+-- flip  ∷ ∀ a  b  c. (    a     → b  → c) → b → a → c
+-- apply ∷ ∀ a' b'.    (a' → b') → a' → b'
+
+-- ⇒ Unification:
+-- a = a' → b' = f'
+-- b = a'
+-- c = b'
+
+-- |   apply    |
+-- (f' → a' → b') → a' → f' → b' (= type of flip)
+--                 |           |
+--                  result type
+--              (= type of flip apply)
+
+-- Renaming type variables:
+-- a → f → b = a → (a → b) → b
+
 ---------------------------------------------------------
 -- 6. Define applyFlipped operator # with precedence 1 --
 ---------------------------------------------------------
