@@ -20,6 +20,7 @@ import Prelude (Unit, discard, show, (==), (<=), (<), (>), (>=), ($))
 -- Main --
 ----------
 
+
 main :: Effect Unit
 main = do
   log "Exercise Chapter 7."
