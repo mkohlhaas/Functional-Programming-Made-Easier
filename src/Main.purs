@@ -12,51 +12,60 @@ import Prelude (type (~>), Unit, discard, negate, otherwise, show, (+), (-), (/=
 -------------
 -- 1. flip --
 -------------
+
 flip ∷ ∀ a b c. (a → b → c) → b → a → c
-flip f x y = f y x
+flip f b a = f a b
 
 --------------
 -- 2. const --
 --------------
+
 const ∷ ∀ a b. a → b → a
-const x _ = x
+const a _ = a
 
 --------------
 -- 3. apply --
 --------------
+
 apply ∷ ∀ a b. (a → b) → a → b
-apply f = f
+apply f a = f a
 
 --------------------------------
 -- 4. Define apply operator $ --
 --------------------------------
+
 infixr 0 apply as $
 
 ---------------------
 -- 5. applyFlipped --
 ---------------------
+
 applyFlipped ∷ ∀ a b. a → (a → b) → b
 applyFlipped = flip apply
 
 ---------------------------------------------------------
 -- 6. Define applyFlipped operator # with precedence 1 --
 ---------------------------------------------------------
+
 infixl 1 applyFlipped as #
 
 ------------------------------------------------------
 -- 7. Define List Cons operator : with precedence 6 --
 ------------------------------------------------------
+
 infixr 6 Cons as :
 
 ------------------
 -- 8. singleton --
 ------------------
+
 singleton ∷ ∀ a. a → List a
-singleton x = x : Nil
+singleton a = a : Nil
 
 -------------
 -- 9. null --
 -------------
+
 null ∷ ∀ a. List a → Boolean
 null Nil = true
 null _ = false
@@ -64,211 +73,240 @@ null _ = false
 --------------
 -- 10. snoc --
 --------------
+
 snoc ∷ ∀ a. List a → a → List a
-snoc Nil el = singleton el
-snoc (x : xs) el = x : (snoc xs el)
+snoc Nil x = singleton x
+snoc (a : as) x = a : (snoc as x)
 
 ----------------
 -- 11. length --
 ----------------
+
 length ∷ ∀ a. List a → Int
 length Nil = 0
-length (_ : xs) = 1 + length xs
+length (_ : as) = 1 + length as
 
 --------------
 -- 12. head --
 --------------
+
 head ∷ List ~> Maybe
 head Nil = Nothing
-head (x : _) = Just x
+head (a : _) = Just a
 
 --------------
 -- 13. tail --
 --------------
+
 tail ∷ ∀ a. List a → Maybe (List a)
 tail Nil = Nothing
-tail (_ : xs) = Just xs
+tail (_ : as) = Just as
 
 --------------
 -- 14. last --
 --------------
-last ∷ List ~> Maybe
+
+last ∷ ∀ a. List a → Maybe a
 last Nil = Nothing
-last (x : Nil) = Just x
-last (_ : xs) = last xs
+last (a : Nil) = Just a
+last (_ : as) = last as
 
 --------------
 -- 15. init --
 --------------
+
 init ∷ ∀ a. List a → Maybe (List a)
-init Nil = Nothing
-init l = Just $ go l
+init l = go l Nil
   where
-  go Nil = Nil
-  go (_ : Nil) = Nil
-  go (x : xs) = x : go xs
+  go Nil _ = Nothing
+  go (_ : Nil) acc = Just acc
+  go (a : as) acc = go as (snoc acc a)
 
 ----------------
 -- 16. uncons --
 ----------------
+
 uncons ∷ ∀ a. List a → Maybe { head ∷ a, tail ∷ List a }
 uncons Nil = Nothing
-uncons (x : xs) = Just { head: x, tail: xs }
+uncons (a : as) = Just { head: a, tail: as }
 
 ---------------
 -- 17. index --
 ---------------
+
 index ∷ ∀ a. List a → Int → Maybe a
 index Nil _ = Nothing
-index (x : _) 0 = Just x
-index (_ : xs) idx = index xs (idx - 1)
+index (a : _) 0 = Just a
+index (_ : as) idx = index as (idx - 1)
 
 ----------------------------------------------------
 -- 18. Define index operator !! with precedence 8 --
 ----------------------------------------------------
+
 infixl 8 index as !!
 
 -------------------
 -- 19. findIndex --
 -------------------
+
 findIndex ∷ ∀ a. (a → Boolean) → List a → Maybe Int
 findIndex p l = go l 0
   where
   go Nil _ = Nothing
-  go (x : xs) idx
-    | p x = Just idx
-    | otherwise = go xs (idx + 1)
+  go (a : as) idx
+    | p a = Just idx
+    | otherwise = go as (idx + 1)
 
 -----------------------
 -- 20. findLastIndex --
 -----------------------
+
 findLastIndex ∷ ∀ a. (a → Boolean) → List a → Maybe Int
 findLastIndex p l = go l 0 Nothing
   where
-  go Nil _ res = res
-  go (x : xs) idx res
-    | p x = go xs (idx + 1) (Just idx)
-    | otherwise = go xs (idx + 1) res
+  go Nil _ acc = acc
+  go (a : as) idx acc
+    | p a = go as (idx + 1) (Just idx)
+    | otherwise = go as (idx + 1) acc
 
 -----------------
 -- 21. reverse --
 -----------------
+
+-- reverse ∷ List ~> List
+-- reverse Nil = Nil
+-- reverse (a : as) = snoc (reverse as) a
+
+-- tail-recursive
 reverse ∷ List ~> List
 reverse l = go l Nil
   where
-  go Nil res = res
-  go (x : xs) res = go xs (x : res)
+  go Nil acc = acc
+  go (a : as) acc = go as (a : acc)
 
 ----------------
 -- 22. concat --
 ----------------
+
 concat ∷ ∀ a. List (List a) → List a
 concat Nil = Nil
-concat (Nil : xss) = concat xss
-concat ((x : xs) : xss) = x : concat (xs : xss)
+concat (Nil : ls) = concat ls
+concat ((a : as) : ls) = a : (concat (as : ls))
 
 ----------------
 -- 23. filter --
 ----------------
+
 filter ∷ ∀ a. (a → Boolean) → List a → List a
 filter _ Nil = Nil
-filter p (x : xs)
-  | p x = x : filter p xs
-  | otherwise = filter p xs
+filter p (a : as)
+  | p a = a : (filter p as)
+  | otherwise = filter p as
 
 -------------------
 -- 24. catMaybes --
 -------------------
+
 catMaybes ∷ ∀ a. List (Maybe a) → List a
 catMaybes Nil = Nil
-catMaybes (Nothing : xs) = catMaybes xs
-catMaybes (Just x : xs) = x : catMaybes xs
+catMaybes (Nothing : as) = catMaybes as
+catMaybes (Just a : as) = a : catMaybes as
 
 ---------------
 -- 25. range --
 ---------------
+
 range ∷ Int → Int → List Int
-range from to
-  | from < to = from : range (from + 1) to
-  | from > to = from : range (from - 1) to
-  | otherwise = singleton from
+range start end
+  | start < end = start : range (start + 1) end
+  | start > end = start : range (start - 1) end
+  | otherwise = singleton start
 
 ----------------------------------------------------
 -- 26. Define range operator .. with precedence 8 --
 ----------------------------------------------------
+
 infix 8 range as ..
 
 --------------
 -- 27. take --
 --------------
+
 take ∷ ∀ a. Int → List a → List a
+take 0 _ = Nil
 take _ Nil = Nil
-take n (x : xs)
-  | n > 0 = x : take (n - 1) xs
-  | otherwise = Nil
+take n (a : as) = a : (take (n - 1) as)
 
 --------------
 -- 28. drop --
 --------------
+
 drop ∷ ∀ a. Int → List a → List a
+drop 0 l = l
 drop _ Nil = Nil
-drop n l@(_ : xs)
-  | n > 0 = drop (n - 1) xs
-  | otherwise = l
+drop n (_ : as) = drop (n - 1) as
 
 -------------------
 -- 29. takeWhile --
 -------------------
+
 takeWhile ∷ ∀ a. (a → Boolean) → List a → List a
-takeWhile _ Nil = Nil
-takeWhile p (x : xs)
-  | p x = x : takeWhile p xs
-  | otherwise = Nil
+takeWhile p (a : as) | p a = a : takeWhile p as
+takeWhile _ _ = Nil
 
 -------------------
 -- 30. dropWhile --
 -------------------
+
 dropWhile ∷ ∀ a. (a → Boolean) → List a → List a
-dropWhile _ Nil = Nil
-dropWhile p l@(x : xs)
-  | p x = dropWhile p xs
-  | otherwise = l
+dropWhile p (a : as) | p a = dropWhile p as
+dropWhile _ l = l
 
 -----------------
 -- 31. takeEnd --
 -----------------
+
 takeEnd ∷ ∀ a. Int → List a → List a
 takeEnd n = go >>> snd
   where
   go Nil = Tuple 0 Nil
-  go (x : xs) = case go xs of
-    Tuple n' xs'
-      | n' < n → Tuple (n' + 1) (x : xs')
-      | otherwise → Tuple n' xs'
+  go (a : as) = case go as of
+    Tuple n' l'
+      | n > n' → Tuple (n' + 1) (a : l')
+      | otherwise → Tuple (n' + 1) l'
 
 -----------------
 -- 32. dropEnd --
 -----------------
+
 dropEnd ∷ ∀ a. Int → List a → List a
 dropEnd n = go >>> snd
   where
   go Nil = Tuple 0 Nil
-  go (x : xs) = case go xs of
-    Tuple n' xs'
-      | n' < n → Tuple (n' + 1) xs'
-      | otherwise → Tuple n' (x : xs')
+  go (a : as) = case go as of
+    Tuple n' l' | n > n' → Tuple (n' + 1) l'
+    Tuple n' l' → Tuple (n' + 1) (a : l')
 
 -------------
 -- 33. zip --
 -------------
+
 zip ∷ ∀ a b. List a → List b → List (Tuple a b)
 zip Nil _ = Nil
 zip _ Nil = Nil
-zip (x : xs) (y : ys) = Tuple x y : zip xs ys
+zip (a : as) (b : bs) = Tuple a b : zip as bs
 
 ---------------
 -- 34. unzip --
 ---------------
+
+-- unzip ∷ ∀ a b. List (Tuple a b) → Tuple (List a) (List b)
+-- unzip l = go l (Tuple Nil Nil)
+--   where
+--   go Nil (Tuple as bs) = Tuple (reverse as) (reverse bs)
+--   go (Tuple a b : ts) (Tuple as bs) = go ts (Tuple (a : as) (b : bs))
+
+-- tail-recursive
 unzip ∷ ∀ a b. List (Tuple a b) → Tuple (List a) (List b)
 unzip Nil = Tuple Nil Nil
 unzip (Tuple x y : ts) = unzip ts # \(Tuple l1 l2) → Tuple (x : l1) (y : l2)
@@ -280,8 +318,8 @@ main ∷ Effect Unit
 main = do
   log "Exercise Chapter 5."
   log (show ((flip const 1 2) == 2))
-  log $ show $ (flip const 1 2) == 2
-  (flip const 1 2) == 2 # show # log
+  log $ show $ flip const 1 2 == 2
+  flip const 1 2 == 2 # show # log
   log $ show $ singleton "xyz" == ("xyz" : Nil)
   log $ show $ null Nil == true
   log $ show $ null ("abc" : Nil) == false
