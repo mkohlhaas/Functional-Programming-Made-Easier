@@ -6,6 +6,7 @@
   , "integers"
   , "maybe"
   , "prelude"
+  , "read"
   , "strings"
   ]
 , packages = ./packages.dhall
