@@ -44,36 +44,37 @@ instance ParserError PError where
 
 -- The reason for double mapping is because we have a Tuple inside of an Either - we have to make two hops.
 instance Functor (Parser e) where
-  map f x = Parser \s → map f <$> parse x s
+  map f a = Parser \str → map f <$> parse a str
 
--- instance applyParser ∷ Apply (Parser e) where
---   apply f x = Parser \str → case parse f str of
---     Left err → Left err
---     Right (Tuple str' f') → case parse x str' of
---       Left err' → Left err'
---       Right (Tuple str'' x') → Right $ Tuple str'' (f' x')
+-- instance Apply (Parser e) where
+--   apply p1 p2 =
+--     Parser $ \str → case parse p1 str of
+--       Left err → Left err
+--       Right (Tuple str' f) → case parse p2 str' of
+--         Left err' → Left err'
+--         Right (Tuple str'' a) → Right (Tuple str'' (f a))
 
 -- exactly the same as: apply = ap
-instance applyParser ∷ Apply (Parser e) where
-  apply f x = do
-    f' ← f
-    x' ← x
-    pure $ f' x'
+instance Apply (Parser e) where
+  apply p1 p2 = do
+    f ← p1
+    a ← p2
+    pure $ f a
 
 instance Applicative (Parser e) where
-  pure x = Parser \s → Right $ Tuple s x
+  pure a = Parser \str → Right $ Tuple str a
 
 -- 1. Create a Bind instance for Parser.
 instance Bind (Parser e) where
-  bind x f = Parser \str → case parse x str of
+  bind m f = Parser \str → case parse m str of
     Left err → Left err
-    Right (Tuple str' x') → parse (f x') str'
+    Right (Tuple str' a) → parse (f a) str'
 
 -- Using Either's bind:
 -- instance Bind (Parser e) where
---   bind x f = Parser \str -> do
---     Tuple str' x' ← parse x str
---     parse (f x') str'
+--   bind m f = Parser \str -> do
+--     Tuple str' a ← parse m str
+--     parse (f a) str'
 
 -- 2. Create a Monad instance for Parser and rewrite Apply (Parser e) in do notation.
 instance Monad (Parser e)
@@ -177,7 +178,7 @@ tenCharsB = do
 
 -- 5. Write a parser that always fails.
 fail ∷ ∀ e a. ParserError e ⇒ e → Parser e a
-fail err = Parser $ const $ Left err
+fail err = Parser $ const (Left err)
 
 -- 6. Write a satisfy function (the first argument - the String - is an error message).
 satisfy ∷ ∀ e. ParserError e ⇒ String → (Char → Boolean) → Parser e Char
@@ -187,11 +188,11 @@ satisfy errMsg p = do
 
 -- 7. Write a Char-parser called digit parser based on satisfy using isDecDigit.
 digit ∷ ∀ e. ParserError e ⇒ Parser e Char
-digit = satisfy "digit" $ isDecDigit <<< codePointFromChar
+digit = satisfy "digit" (isDecDigit <<< codePointFromChar)
 
 -- 8. Write a Char-parser called letter parser (use isAlpha).
 letter ∷ ∀ e. ParserError e ⇒ Parser e Char
-letter = satisfy "letter" $ isAlpha <<< codePointFromChar
+letter = satisfy "letter" (isAlpha <<< codePointFromChar)
 
 -- 9. Write an alphanum parser using the digit and letter parsers. Make sure it provides a meaningful error message.
 alphaNum ∷ ∀ e. ParserError e ⇒ Parser e Char
