@@ -10,12 +10,8 @@ import Effect.Console (log)
 newtype Validation err result = Validation (Either err result)
 
 type FamilyAgesRow r = (fatherAge ∷ Age, motherAge ∷ Age, childAge ∷ Age | r)
-type FamilyNamesRow r = (fatherName ∷ FullName, motherName ∷ FullName, childName ∷ FullName | r)
-
-newtype Age = Age Int
-newtype FullName = FullName String
-newtype Family = Family { | FamilyNamesRow (FamilyAgesRow ()) }
 newtype FamilyAges = FamilyAges { | FamilyAgesRow () }
+newtype Age = Age Int
 newtype LowerAge = LowerAge Int
 newtype UpperAge = UpperAge Int
 data FamilyMember = Father | Mother | Child
@@ -51,7 +47,7 @@ main = do
   log "-- Validation --"
   log "----------------"
   log $ show $ createFamilyAges { fatherAge: Age 40, motherAge: Age 30, childAge: Age 10 } --- (Validation (Right (FamilyAges { childAge: 10, fatherAge: 40, motherAge: 30 })))
-  log $ show $ createFamilyAges { fatherAge: Age 400, motherAge: Age 300, childAge: Age 0 } -- (Validation (Left ["Father is too old", "Mother is too old", "Child is too young"]))
-  log $ show $ createFamilyAges { fatherAge: Age 4, motherAge: Age 3, childAge: Age 10 } ----- (Validation (Left ["Father is too young", "Mother is too young"]))
-  log $ show $ createFamilyAges { fatherAge: Age 40, motherAge: Age 30, childAge: Age 100 } -- (Validation (Left ["Child is too old"]))
-  log $ show $ createFamilyAges { fatherAge: Age 40, motherAge: Age 3, childAge: Age 0 } ----- (Validation (Left ["Mother is too young", "Child is too young"]))
+  log $ show $ createFamilyAges { fatherAge: Age 400, motherAge: Age 300, childAge: Age 0 } -- (Validation (Left ["Father is too old.", "Mother is too old.", "Child is too young."]))
+  log $ show $ createFamilyAges { fatherAge: Age 4, motherAge: Age 3, childAge: Age 10 } ----- (Validation (Left ["Father is too young.", "Mother is too young."]))
+  log $ show $ createFamilyAges { fatherAge: Age 40, motherAge: Age 30, childAge: Age 100 } -- (Validation (Left ["Child is too old."]))
+  log $ show $ createFamilyAges { fatherAge: Age 40, motherAge: Age 3, childAge: Age 0 } ----- (Validation (Left ["Mother is too young.", "Child is too young."]))
