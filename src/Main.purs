@@ -10,86 +10,97 @@ import Prelude (class Eq, class Functor, class Show, Unit, discard, flip, identi
 -------------------------------------
 -- Define Type Class for Bifunctor --
 -------------------------------------
+
 class Bifunctor f where
-  bimap ∷ ∀ a b c d. (a → b) → (c → d) → f a c → f b d
+  bimap ∷ ∀ a b c d. (a → c) → (b → d) → f a b → f c d
 
-lmap ∷ ∀ f a b c. Bifunctor f ⇒ (a → b) → f a c → f b c
-lmap = flip bimap identity
-
-rmap ∷ ∀ f a c d. Bifunctor f ⇒ (c → d) → f a c → f a d
+rmap ∷ ∀ a b d f. Bifunctor f ⇒ (b → d) → f a b → f a d
 rmap = bimap identity
 
------------
--- Maybe --
------------
+lmap ∷ ∀ a b c f. Bifunctor f ⇒ (a → c) → f a b → f c b
+lmap = flip bimap identity
+
+------------------------------------------------------------
+-- Define Types for Maybe, Either and Tuple - No imports! --
+------------------------------------------------------------
+
 data Maybe a = Nothing | Just a
+data Either a b = Left a | Right b
+data Tuple a b = Tuple a b
+data Threeple a b c = Threeple a b c
+
+---------------
+-- Instances --
+---------------
+
+--------
+-- Eq --
+--------
 
 derive instance Eq a ⇒ Eq (Maybe a)
+derive instance (Eq a, Eq b) ⇒ Eq (Tuple a b)
 
-instance Functor Maybe where
-  map _ Nothing = Nothing
-  map f (Just x) = Just $ f x
+-------------
+-- Generic --
+-------------
 
 derive instance Generic (Maybe a) _
+derive instance Generic (Either a b) _
+derive instance Generic (Tuple a b) _
+derive instance Generic (Threeple a b c) _
+
+----------
+-- Show --
+----------
 
 instance Show a ⇒ Show (Maybe a) where
   show = genericShow
 
-------------
--- Either --
-------------
-data Either a b = Left a | Right b
-
-instance Bifunctor Either where
-  bimap f _ (Left x) = Left $ f x
-  bimap _ g (Right x) = Right $ g x
-
-instance Functor (Either a) where
-  map _ (Left x) = Left x
-  map f (Right x) = Right $ f x
-
-derive instance Generic (Either a b) _
-
 instance (Show a, Show b) ⇒ Show (Either a b) where
   show = genericShow
-
------------
--- Tuple --
------------
-data Tuple a b = Tuple a b
-
-derive instance (Eq a, Eq b) ⇒ Eq (Tuple a b)
-
-instance Bifunctor Tuple where
-  bimap f g (Tuple x y) = Tuple (f x) (g y)
-
-instance Functor (Tuple a) where
-  map f (Tuple x y) = Tuple x (f y)
-
-derive instance Generic (Tuple a b) _
 
 instance (Show a, Show b) ⇒ Show (Tuple a b) where
   show = genericShow
 
---------------
--- Threeple --
---------------
-data Threeple a b c = Threeple a b c
-
-instance Bifunctor (Threeple a) where
-  bimap f g (Threeple x y z) = Threeple x (f y) (g z)
-
-instance Functor (Threeple a b) where
-  map f (Threeple x y z) = Threeple x y (f z)
-
-derive instance Generic (Threeple a b c) _
-
 instance (Show a, Show b, Show c) ⇒ Show (Threeple a b c) where
   show = genericShow
+
+-------------
+-- Functor --
+-------------
+
+instance Functor Maybe where
+  map _ Nothing = Nothing
+  map f (Just a) = Just $ f a
+
+instance Functor (Either a) where
+  map _ (Left a) = Left a
+  map f (Right b) = Right $ f b
+
+instance Functor (Tuple a) where
+  map f (Tuple a b) = Tuple a (f b)
+
+instance Functor (Threeple a b) where
+  map f (Threeple a b c) = Threeple a b (f c)
+
+---------------
+-- Bifunctor --
+---------------
+
+instance Bifunctor Either where
+  bimap f _ (Left a) = Left (f a)
+  bimap _ g (Right b) = Right (g b)
+
+instance Bifunctor Tuple where
+  bimap f g (Tuple a b) = Tuple (f a) (g b)
+
+instance Bifunctor (Threeple a) where
+  bimap f g (Threeple a b c) = Threeple a (f b) (g c)
 
 ----------
 -- Main --
 ----------
+
 main ∷ Effect Unit
 main = do
   log "Exercise Chapter 13."
