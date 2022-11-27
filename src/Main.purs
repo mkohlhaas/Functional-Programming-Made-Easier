@@ -10,7 +10,7 @@ import Effect.Console (log)
 
 data Tree a = Leaf a | Node (Tree a) (Tree a)
 newtype RFTree a = RFTree (Tree a) -- RightFirstTree; breadth-first search
-newtype LFTree a = LFTree (Tree a) -- LeftFirstTree; depth-first search
+newtype LFTree a = LFTree (Tree a) -- LeftFirstTree;    depth-first search
 
 class ToList f where
   toList ∷ ∀ a. f a → List a
@@ -32,6 +32,8 @@ main = do
   log $ show $ findMaxNE (NonEmptyList $ "a" :| ("bbb" : "c" : Nil)) ----------------------------------- "c"
   log $ show $ sum (1 : 2 : 3 : Nil) ------------------------------------------------------------------- 6
   log $ show $ sum (1.0 : 2.0 : 3.0 : Nil) ------------------------------------------------------------- 6.0
+  log $ show $ sum [ 1, 2, 3 ] ------------------------------------------------------------------------- 6
+  log $ show $ sum [ 1.0, 2.0, 3.0 ] ------------------------------------------------------------------- 6.0
   log $ show $ toList {-          -}  (Node (Node (Leaf 5) (Node (Leaf (-1)) (Leaf 14))) (Leaf 99)) ---- (5 : -1 : 14 : 99 : Nil)
   log $ show $ sum {-             -}  (Node (Node (Leaf 5) (Node (Leaf (-1)) (Leaf 14))) (Leaf 99)) ---- 117
   log $ show $ toList $ LFTree {- -}  (Node (Node (Leaf 5) (Node (Leaf (-1)) (Leaf 14))) (Leaf 99)) ---- (5 : -1 : 14 : 99 : Nil)
