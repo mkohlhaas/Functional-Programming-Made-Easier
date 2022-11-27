@@ -56,12 +56,8 @@ instance Applicative (Either a) where
 newtype Validation err result = Validation (Either err result)
 
 type FamilyAgesRow r = (fatherAge ∷ Age, motherAge ∷ Age, childAge ∷ Age | r)
-type FamilyNamesRow r = (fatherName ∷ FullName, motherName ∷ FullName, childName ∷ FullName | r)
-
-newtype Age = Age Int
-newtype FullName = FullName String
-newtype Family = Family { | FamilyNamesRow (FamilyAgesRow ()) }
 newtype FamilyAges = FamilyAges { | FamilyAgesRow () }
+newtype Age = Age Int
 newtype LowerAge = LowerAge Int
 newtype UpperAge = UpperAge Int
 data FamilyMember = Father | Mother | Child
@@ -70,10 +66,9 @@ derive newtype instance Show Age
 derive newtype instance Show FamilyAges
 derive newtype instance (Show err, Show result) ⇒ Show (Validation err result)
 
+derive instance Generic FamilyMember _
 instance Show FamilyMember where
-  show Father = "Father"
-  show Mother = "Mother"
-  show Child = "Child"
+  show = genericShow
 
 derive instance Functor (Validation err)
 
@@ -85,8 +80,8 @@ instance Semigroup err ⇒ Apply (Validation err) where
 -- Write `validateAge` function
 validateAge ∷ LowerAge → UpperAge → FamilyMember → Age → Validation (Array String) Age
 validateAge (LowerAge la) (UpperAge ua) fm age@(Age a)
-  | a < la = Validation $ Left [ show fm <> " is too young" ]
-  | a > ua = Validation $ Left [ show fm <> " is too old" ]
+  | a < la = Validation $ Left [ show fm <> " is too young." ]
+  | a > ua = Validation $ Left [ show fm <> " is too old." ]
   | otherwise = Validation $ Right age
 
 validateAgeFather ∷ Age → Validation (Array String) Age
@@ -129,7 +124,7 @@ main = do
   log "-- Validation --"
   log "----------------"
   log $ show $ createFamilyAges { fatherAge: Age 40, motherAge: Age 30, childAge: Age 10 } --- (Validation (Right (FamilyAges { childAge: 10, fatherAge: 40, motherAge: 30 })))
-  log $ show $ createFamilyAges { fatherAge: Age 400, motherAge: Age 300, childAge: Age 0 } -- (Validation (Left ["Father is too old", "Mother is too old", "Child is too young"]))
-  log $ show $ createFamilyAges { fatherAge: Age 4, motherAge: Age 3, childAge: Age 10 } ----- (Validation (Left ["Father is too young", "Mother is too young"]))
-  log $ show $ createFamilyAges { fatherAge: Age 40, motherAge: Age 30, childAge: Age 100 } -- (Validation (Left ["Child is too old"]))
-  log $ show $ createFamilyAges { fatherAge: Age 40, motherAge: Age 3, childAge: Age 0 } ----- (Validation (Left ["Mother is too young", "Child is too young"]))
+  log $ show $ createFamilyAges { fatherAge: Age 400, motherAge: Age 300, childAge: Age 0 } -- (Validation (Left ["Father is too old.", "Mother is too old.", "Child is too young."]))
+  log $ show $ createFamilyAges { fatherAge: Age 4, motherAge: Age 3, childAge: Age 10 } ----- (Validation (Left ["Father is too young.", "Mother is too young."]))
+  log $ show $ createFamilyAges { fatherAge: Age 40, motherAge: Age 30, childAge: Age 100 } -- (Validation (Left ["Child is too old."]))
+  log $ show $ createFamilyAges { fatherAge: Age 40, motherAge: Age 3, childAge: Age 0 } ----- (Validation (Left ["Mother is too young.", "Child is too young."]))
