@@ -4,7 +4,9 @@ import Prelude
 
 import Data.Array (replicate)
 import Data.Either (Either(..))
+import Data.Generic.Rep (class Generic)
 import Data.Maybe (Maybe(..))
+import Data.Show.Generic (genericShow)
 import Data.String.CodeUnits (fromCharArray, uncons)
 import Data.Traversable (class Traversable, sequence)
 import Data.Tuple (Tuple(..))
@@ -12,14 +14,13 @@ import Data.Unfoldable (class Unfoldable, replicateA)
 import Effect (Effect)
 import Effect.Console (log)
 
--- The Parsing State is going to need to be passed from Parser to Parser, i.e. when the current Parser is done,
--- it passes what's left of the String to the next Parser who takes a stab at parsing what's left. Also, if a
--- single Parser in the chain were to fail, we want to short-circuit the parsing and return the error, hopefully
--- with some useful information as to what went wrong.
+-- The Parsing State needs to be passed from Parser to Parser, i.e. when the current Parser is done,
+-- it passes what's left of the String to the next Parser. Also, if a single Parser in the chain were to fail,
+-- we want to short-circuit the parsing and return the error.
 
-------------------------------
--- Data Types and Type Classes
-------------------------------
+---------------------------------
+-- Data Types and Type Classes --
+---------------------------------
 
 -- e = error type
 -- a = return type
@@ -36,24 +37,19 @@ data Threeple a b c = Threeple a b c
 -------------------------------------------
 -- Create Necessary Instances for Parser --
 -------------------------------------------
+
 derive instance Functor (Parser e)
 
 -- instance Apply (Parser e) where
---   apply (Parser f) (Parser x) = Parser \str → case f str of
---     Left error → Left error
---     Right (Tuple str' f') → case x str' of
---       Left error' → Left error'
---       Right (Tuple str'' x') → Right $ Tuple str'' (f' x')
-
-instance Apply (Parser e) where
-  apply f x = Parser \str → case parse f str of
-    Left error → Left error
-    Right (Tuple str' f') → case parse x str' of
-      Left error' → Left error'
-      Right (Tuple str'' x') → Right $ Tuple str'' (f' x')
+--   apply (Parser p1) (Parser p2) =
+--     Parser $ \str → case p1 str of
+--       Left err → Left err
+--       Right (Tuple str' f) → case p2 str' of
+--         Left err' → Left err'
+--         Right (Tuple str'' a) → Right (Tuple str'' (f a))
 
 instance Applicative (Parser e) where
-  pure x = Parser \str → Right $ Tuple str x
+  pure a = Parser $ \str → Right (Tuple str a)
 
 ----------------------
 -- Using the Parser --
@@ -61,21 +57,30 @@ instance Applicative (Parser e) where
 
 -- Write a parse function
 parse ∷ ∀ e a. Parser e a → ParseFunction e a
-parse (Parser f) = f
+parse (Parser p) = p
 
 -- Use parse in map/apply
+instance Apply (Parser e) where
+  apply p1 p2 =
+    Parser $ \str → case parse p1 str of
+      Left err → Left err
+      Right (Tuple str' f) → case parse p2 str' of
+        Left err' → Left err'
+        Right (Tuple str'' a) → Right (Tuple str'' (f a))
 
 -- Create Show instance for PError
+derive instance Generic PError _
 instance Show PError where
-  show EOF = "EOF"
+  show = genericShow
 
 -- Create ParserError instance for PError
 instance ParserError PError where
   eof = EOF
 
 -- Write a char parser using String libary function uncons
+-- char ∷ ∀ e. Parser e Char
 char ∷ ∀ e. Parser e Char
-char = Parser \str → case uncons str of
+char = Parser $ \str → case uncons str of
   Nothing → Left eof
   Just { head, tail } → Right $ Tuple tail head
 
@@ -88,8 +93,9 @@ threeChars ∷ ∀ e. Parser e (Tuple Char (Tuple Char Char))
 threeChars = Tuple <$> char <*> twoChars
 
 -- Write a Show instance for Threeple
+derive instance Generic (Threeple a b c) _
 instance (Show a, Show b, Show c) ⇒ Show (Threeple a b c) where
-  show (Threeple x y z) = "Threeple " <> show x <> show y <> show z
+  show = genericShow
 
 -- Write a Threeple 3-char parser
 threeChars' ∷ ∀ e. Parser e (Threeple Char Char Char)
@@ -112,7 +118,7 @@ count ∷ ∀ e a. Int → Parser e a → Parser e (Array a)
 count n p = sequence $ replicate n p
 
 -- Make count more generic and call it count'
-count' :: ∀ m f a. Applicative m ⇒ Unfoldable f ⇒ Traversable f ⇒ Int → m a → m (f a)
+count' ∷ ∀ m f a. Applicative m ⇒ Unfoldable f ⇒ Traversable f ⇒ Int → m a → m (f a)
 count' = replicateA
 
 main ∷ Effect Unit
