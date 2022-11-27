@@ -7,7 +7,8 @@ import Data.Show.Generic (genericShow)
 import Effect (Effect)
 import Effect.Console (log)
 
--- Implement instances handishly - no derivations, no shortcuts!
+-- Implement all but Show instances handishly.
+-- No derivations, no shortcuts!
 
 ----------
 -- Main --
