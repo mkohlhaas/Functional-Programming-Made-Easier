@@ -16,11 +16,13 @@ import Prelude (Unit, class Eq, class Functor, class Show, discard, flip, identi
 --------------
 -- Threeple --
 --------------
+
 data Threeple a b c = Threeple a b c
 
 ----------
 -- Main --
 ----------
+
 main ∷ Effect Unit
 main = do
   log "Exercise Chapter 13."
