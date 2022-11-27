@@ -1,16 +1,18 @@
 module Main where
 
-import Data.Foldable (class Foldable, foldlDefault, foldrDefault, foldl, foldMap)
-import Data.List (List(..), (:), singleton)
+import Data.Foldable (class Foldable, foldMap, foldl, foldlDefault, foldrDefault)
+import Data.List (List(..), singleton, (:))
 import Data.List.NonEmpty (NonEmptyList(..))
 import Data.NonEmpty ((:|))
+import Data.Semigroup.Foldable (class Foldable1, foldl1)
+import Data.Semiring (add, zero)
 import Effect (Effect)
 import Effect.Console (log)
-import Prelude (class Ord, class Semiring, type (~>), Unit, discard, flip, negate, show, zero, ($), (+), (<>), (>))
+import Prelude (class Ord, class Semiring, Unit, discard, flip, negate, show, type (~>), ($), (<>), (>))
 
 data Tree a = Leaf a | Node (Tree a) (Tree a)
 newtype RFTree a = RFTree (Tree a) -- RightFirstTree; breadth-first search
-newtype LFTree a = LFTree (Tree a) -- LeftFirstTree; depth-first search
+newtype LFTree a = LFTree (Tree a) -- LeftFirstTree;    depth-first search
 
 class ToList f where
   toList ∷ ∀ a. f a → List a
@@ -28,42 +30,45 @@ max x y = if x > y then x else y
 findMax ∷ ∀ f a. Foldable f ⇒ Ord a ⇒ a → f a → a
 findMax = foldl max
 
-findMaxNE ∷ ∀ a. Ord a ⇒ NonEmptyList a → a
-findMaxNE (NonEmptyList (x :| xs)) = findMax x xs
+findMaxNE ∷ ∀ f a. Foldable1 f ⇒ Ord a ⇒ f a → a
+findMaxNE = foldl1 max
 
 -- Note: `Semiring` is a bit overkill as it also implies multiplication.
-sum ∷ ∀ a f. Foldable f ⇒ Semiring a ⇒ f a → a
-sum = foldl (+) zero
+sum ∷ ∀ f a. Foldable f ⇒ Semiring a ⇒ f a → a
+sum = foldl add zero
 
--------------------------
--- Typeclass Instances --
--------------------------
+---------------
+-- Instances --
+---------------
+
+-- Eta reducing `f` will result in a strange compiler error:
+-- "The value of $foldableTree9 is undefined here, so this reference is not allowed."
+
+instance Foldable Tree where
+  foldl f = foldlDefault f
+  foldr f = foldrDefault f
+  foldMap f (Leaf a) = f a
+  foldMap f (Node l r) = foldMap f l <> foldMap f r
 
 instance Foldable LFTree where
-  foldr f = foldrDefault f
   foldl f = foldlDefault f
-  foldMap f (LFTree (Leaf x)) = f x
+  foldr f = foldrDefault f
+  foldMap f (LFTree (Leaf a)) = f a
   foldMap f (LFTree (Node l r)) = foldMap f (LFTree l) <> foldMap f (LFTree r)
 
 instance Foldable RFTree where
-  foldr f = foldrDefault f
   foldl f = foldlDefault f
-  foldMap f (RFTree (Leaf x)) = f x
+  foldr f = foldrDefault f
+  foldMap f (RFTree (Leaf a)) = f a
   foldMap f (RFTree (Node l r)) = foldMap f (RFTree r) <> foldMap f (RFTree l)
 
-instance Foldable Tree where
-  foldr f = foldrDefault f
-  foldl f = foldlDefault f
-  foldMap f (Leaf x) = f x
-  foldMap f (Node l r) = foldMap f l <> foldMap f r
+instance ToList Tree where
+  toList = foldMap singleton
 
 instance ToList LFTree where
   toList = foldMap singleton
 
 instance ToList RFTree where
-  toList = foldMap singleton
-
-instance ToList Tree where
   toList = foldMap singleton
 
 ----------
