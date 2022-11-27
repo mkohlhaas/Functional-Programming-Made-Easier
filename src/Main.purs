@@ -16,10 +16,9 @@ import Data.Unfoldable (class Unfoldable, replicateA)
 import Effect (Effect)
 import Effect.Console (log)
 
--- The Parsing State is going to need to be passed from Parser to Parser, i.e. when the current Parser is done,
--- it passes what’s left of the String to the next Parser who takes a stab at parsing what's left. Also, if a
--- single Parser in the chain were to fail, we want to short-circuit the parsing and return the error with
--- some useful information as to what went wrong.
+-- The Parsing State needs to be passed from Parser to Parser, i.e. when the current Parser is done,
+-- it passes what's left of the String to the next Parser. Also, if a single Parser in the chain were to fail,
+-- we want to short-circuit the parsing and return the error.
 
 ---------------------------------
 -- Data Types and Type Classes --
@@ -41,11 +40,13 @@ data Threeple a b c = Threeple a b c
 instance Functor (Parser e) where
   map f x = Parser \s → map f <$> parse x s
 
-instance applyParser ∷ Apply (Parser e) where
-  apply f x = do
-    f' ← f
-    x' ← x
-    pure $ f' x'
+instance Apply (Parser e) where
+  apply p1 p2 =
+    Parser $ \str → case parse p1 str of
+      Left err → Left err
+      Right (Tuple str' f) → case parse p2 str' of
+        Left err' → Left err'
+        Right (Tuple str'' a) → Right (Tuple str'' (f a))
 
 instance Applicative (Parser e) where
   pure x = Parser \s → Right $ Tuple s x

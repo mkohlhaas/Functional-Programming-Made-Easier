@@ -2,6 +2,7 @@
 , dependencies =
   [ "arrays"
   , "console"
+  , "control"
   , "effect"
   , "either"
   , "foldable-traversable"
