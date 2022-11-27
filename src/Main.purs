@@ -8,14 +8,13 @@ import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Console (log)
 
--- The Parsing State is going to need to be passed from Parser to Parser, i.e. when the current Parser is done,
--- it passes what's left of the String to the next Parser who takes a stab at parsing what's left. Also, if a
--- single Parser in the chain were to fail, we want to short-circuit the parsing and return the error, hopefully
--- with some useful information as to what went wrong.
+-- The Parsing State needs to be passed from Parser to Parser, i.e. when the current Parser is done,
+-- it passes what's left of the String to the next Parser. Also, if a single Parser in the chain were to fail,
+-- we want to short-circuit the parsing and return the error.
 
-------------------------------
--- Data Types and Type Classes
-------------------------------
+---------------------------------
+-- Data Types and Type Classes --
+---------------------------------
 
 -- e = error type
 -- a = return type
