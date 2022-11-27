@@ -13,15 +13,14 @@ import Data.Traversable (class Traversable)
 import Data.Unfoldable (class Unfoldable, none)
 import Effect (Effect)
 import Effect.Console (log)
-import Parser (class ParserError, Parser, alphaNum, count, count', digit, fail, invalidChar, parse', satisfy)
+import Parser (class ParserError, Parser(..), alphaNum, count, count', digit, fail, invalidChar, parse', satisfy)
 
 -----------------
 -- Date Parser --
 -----------------
 
--- Keep in mind that these are the parts that we parsed out of a String. This is not guaranteed to be a valid
--- date. That's beyond the scope of this problem. In the real world, we'd first parse the date and then use a
--- date library to do the hard work of validation for us.
+-- Note: The parsed strings are not guaranteed to be valid dates. That's beyond the scope of this problem.
+-- In the real world, we'd first parse the date and then use a date library to do the validation.
 
 newtype Year = Year Int
 newtype Month = Month Int
@@ -44,9 +43,8 @@ type DateParts = { year ∷ Year, month ∷ Month, day ∷ Day, format ∷ DateF
 -- 4. Specialize atMost.
 -- atMost' ∷ ∀ e. Int → Parser e Char → Parser e String
 
--- 5. Generalize atMost on Array and pass a cons-like function to it (bc there isn't in the standard library for Unfoldable).
+-- 5. Generalize atMost on Array and pass a cons-like function to it. (There isn't one in the standard library for Unfoldable.)
 -- Comment out the previous version.
--- Unfoldable does not have a Cons operator like Array so in the first parameter we pass one.
 -- atMost ∷ ∀ e f a. Unfoldable f ⇒ (a → f a → f a) → Int → Parser e a → Parser e (f a)
 
 -- 6. Write a generic function that parses a min and max amount of parses with a given parser.
