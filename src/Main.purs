@@ -74,26 +74,28 @@ instance Show DateFormat where
 -- 7. Generalize range the same way you did with atMost.
 -- range ∷ ∀ e f a. Semigroup (f a) ⇒ Traversable f ⇒ Unfoldable f ⇒ (a → f a → f a) → Int → Int → Parser e a → Parser e (f a)
 
+-- 8. Write a Parser that parses a character but does not return anything.
+-- constChar ∷ ∀ e. ParserError e ⇒ Char → Parser e Unit
+
+-- In this chapter we won't use nested monads: Maybe monad via fromString and (Parser e) monad.
+-- This problem would be done by using a monad stack with monad transformers.
+-- In our case this workaround is valid as `fromString` will always succeed as it has been parsed as such!
+digitsToNum ∷ String → Int
+digitsToNum = fromMaybe 0 <<< fromString
+
 ------------------
 -- Date Parsers --
 ------------------
-
--- 8. Write a Parser that parses a character but does not return anything.
--- constChar ∷ ∀ e. ParserError e ⇒ Char → Parser e Unit
 
 -- 9. Write a parser that can parse dates in the following format: YYYY-MM-DD, M and D could be single chars.
 -- 1962-10-02, 1962-10-2, 1962-9-2, ...
 -- yearFirst ∷ ∀ e. ParserError e ⇒ Parser e DateParts
 
--- 10. Write a function that takes a String and return its integer value and refactor yearFirst.
--- `fromString` will always succeed as it has been parsed as such.
--- digitsToNum ∷ String → Int
-
--- 11. Same for different date format: MM/DD/YYYY.
+-- 10. Same for different date format: MM/DD/YYYY.
 -- 10/02/1962, 10/2/1962, 9/2/1962, ...
 -- monthFirst ∷ ∀ e. ParserError e ⇒ Parser e DateParts
 
--- 12. Create a parser that can parse both date formats.
+-- 11. Create a parser that can parse both date formats.
 -- date ∷ ∀ e. ParserError e ⇒ Parser e DateParts
 
 ----------
