@@ -34,6 +34,7 @@ derive instance Generic (Threeple a b c) _
 instance (Show a, Show b, Show c) ⇒ Show (Threeple a b c) where
   show = genericShow
 
+derive instance Eq PError
 derive instance Generic PError _
 
 instance Show PError where
