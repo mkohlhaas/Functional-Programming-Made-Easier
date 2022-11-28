@@ -1,6 +1,6 @@
 module Main where
 
-import Prelude (class Eq, class Semigroup, class Show, Unit, bind, discard, negate, pure, show, void, ($), (-), (<$>), (<*>), (<<<), (<=), (<>), (==), (>>=))
+import Prelude
 
 import Control.Alt ((<|>))
 import Data.Array ((:))
@@ -58,9 +58,17 @@ optional ∷ ∀ e a. a → Parser e a → Parser e a
 optional def p = p <|> pure def
 
 -- 2. Create a function that parses at most a specified count.
+-- without do notation
 -- atMost ∷ ∀ e a. Int → Parser e a → Parser e (Array a)
--- atMost n _ | n <= 0 = pure []
+-- atMost n _ | n ⇐ 0 = pure []
 -- atMost n p = optional [] (p >>= \x → (x : _) <$> atMost (n - 1) p)
+
+-- atMost ∷ ∀ e a. Int → Parser e a → Parser e (Array a)
+-- atMost n _ | n ⇐ 0 = pure []
+-- atMost n p = optional [] do
+--   a ← p
+--   as ← atMost (n - 1) p
+--   pure $ a : as
 
 -- 3. Specialize atMost.
 -- atMost' ∷ ∀ e. Int → Parser e Char → Parser e String
@@ -71,23 +79,52 @@ atMost' n p = fromCharArray <$> atMost (:) n p
 
 -- 4. Generalize atMost on Array and pass a cons-like function to it (bc there isn't in the standard library for Unfoldable).
 -- Comment out the previous version.
--- Unfoldable does not have a Cons operator like Array so in the first parameter we pass one.
+
+-- without do notation
+-- atMost ∷ ∀ e f a. Unfoldable f ⇒ (a → f a → f a) → Int → Parser e a → Parser e (f a)
+-- atMost _ n _ | n ⇐ 0 = pure none
+-- atMost cons n p = optional none (p >>= \x → cons x <$> atMost cons (n - 1) p)
+
 atMost ∷ ∀ e f a. Unfoldable f ⇒ (a → f a → f a) → Int → Parser e a → Parser e (f a)
 atMost _ n _ | n <= 0 = pure none
-atMost cons n p = optional none (p >>= \x → cons x <$> atMost cons (n - 1) p)
+atMost cons n p = optional none do
+  a ← p
+  as ← atMost cons (n - 1) p
+  pure $ cons a as
 
 -- 5. Write a generic function that parses a min and max amount of parses with a given parser.
+
+-- without do notation
 -- range ∷ ∀ e a. ParserError e ⇒ Int → Int → Parser e a → Parser e (Array a)
--- range min max p | min <= max = (<>) <$> count min p <*> atMost (:) (max - min) p
+-- range min max p | min ⇐ max = (<>) <$> count min p <*> atMost (:) (max - min) p
+-- range _ _ _ = pure []
+
+-- range ∷ ∀ e a. ParserError e ⇒ Int → Int → Parser e a → Parser e (Array a)
+-- range min max p | min ⇐ max = do
+--               cm ← count min p
+--               am ← atMost (:) (max - min) p
+--               pure $ cm <> am
 -- range _ _ _ = pure []
 
 -- 6. Specialize range for String the same way you did with atMost.
+-- range' ∷ ∀ e. ParserError e ⇒ Int → Int → Parser e Char → Parser e String
+-- range' min max p = fromCharArray <$> range min max p
+
 range' ∷ ∀ e. ParserError e ⇒ Int → Int → Parser e Char → Parser e String
 range' min max p = fromCharArray <$> range (:) min max p
 
 -- 7. Generalize range the same way you did with atMost.
+
+-- without do notation
+-- range ∷ ∀ e f a. Semigroup (f a) ⇒ Traversable f ⇒ Unfoldable f ⇒ (a → f a → f a) → Int → Int → Parser e a → Parser e (f a)
+-- range cons min max p | min ⇐ max = (<>) <$> count min p <*> atMost cons (max - min) p
+-- range _ _ _ _ = pure none
+
 range ∷ ∀ e f a. Semigroup (f a) ⇒ Traversable f ⇒ Unfoldable f ⇒ (a → f a → f a) → Int → Int → Parser e a → Parser e (f a)
-range cons min max p | min <= max = (<>) <$> count min p <*> atMost cons (max - min) p
+range cons min max p | min <= max = do
+  cm ← count min p
+  am ← atMost cons (max - min) p
+  pure $ cm <> am
 range _ _ _ _ = pure none
 
 ----------------------
