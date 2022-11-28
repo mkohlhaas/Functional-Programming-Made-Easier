@@ -5,12 +5,14 @@ import Prelude
 import Control.Alt (class Alt, (<|>))
 import Control.Lazy (class Lazy, defer)
 import Data.Array ((:))
+import Data.Either (Either(..))
 import Data.NonEmpty (NonEmpty, fromNonEmpty, (:|))
 import Data.String.CodeUnits (fromCharArray)
+import Data.Tuple (Tuple(..))
 import Data.Unfoldable (class Unfoldable, none)
 import Effect (Effect)
 import Effect.Console (log)
-import Parser (class ParserError, Parser, constChar, constChar', digit, letter, parse', range')
+import Parser (class ParserError, PError(..), Parser, constChar, constChar', digit, letter, parse', range')
 
 ---------------------------
 -- Some and Many Parsers --
@@ -35,10 +37,18 @@ import Parser (class ParserError, Parser, constChar, constChar', digit, letter, 
 --------------------------------------------------------------------------------------------
 -- Do not worry about mutual recursion at this point. It will blow the stack but we'll fix it shortly.
 
--- some' ∷ ∀ e a. Parser e a → Parser e (Array a)
+-- applicative style
+-- some' ∷ ∀ e a. ParserError e ⇒ Parser e a → Parser e (Array a)
 -- some' p = (:) <$> p <*> many' p
 
--- many' ∷ ∀ e a. Parser e a → Parser e (Array a)
+-- monadic style (with do-notation)
+-- some' ∷ ∀ e a. ParserError e ⇒ Parser e a → Parser e (Array a)
+-- some' p = do
+--   a ← p
+--   as ← many' p
+--   pure $ a : as
+
+-- many' ∷ ∀ e a. ParserError e ⇒ Parser e a → Parser e (Array a)
 -- many' p = some' p <|> pure []
 
 ------------------------------------------
@@ -49,20 +59,29 @@ import Parser (class ParserError, Parser, constChar, constChar', digit, letter, 
 ----------------------------------------------------------
 -- 3. Make "some'" lazy by deferring the "many'" parser --
 ----------------------------------------------------------
--- some' ∷ ∀ e a. Parser e a → Parser e (Array a)
+
+-- applicative style
+-- some' ∷ ∀ e a. ParserError e ⇒ Parser e a → Parser e (Array a)
 -- some' p = (:) <$> p <*> defer (\_ → many' p)
 
--- many' ∷ ∀ e a. Parser e a → Parser e (Array a)
+-- monadic style (with do-notation)
+-- some' ∷ ∀ e a. ParserError e ⇒ Parser e a → Parser e (Array a)
+-- some' p = do
+--   a ← p
+--   as ← defer $ const (many' p)
+--   pure $ a : as
+
+-- many' ∷ ∀ e a. ParserError e ⇒ Parser e a → Parser e (Array a)
 -- many' p = some' p <|> pure []
 
 ----------------------------------------------------
 -- 4. Write specific versions for Char and String --
 ----------------------------------------------------
 
--- some'' ∷ ∀ e. Parser e Char → Parser e String
+-- some'' ∷ ∀ e. ParserError e ⇒ Parser e Char → Parser e String
 -- some'' p = fromCharArray <$> some' p
 
--- many'' ∷ ∀ e. Parser e Char → Parser e String
+-- many'' ∷ ∀ e. ParserError e ⇒ Parser e Char → Parser e String
 -- many'' p = fromCharArray <$> many' p
 
 ----------------------------------------------------------------------
@@ -103,23 +122,23 @@ uglyA = (\d1 d2 d3 → [ d1, d2, d3 ]) <$> range' 1 4 digit <* constChar ',' <* 
 -- Write generic some and many!
 -- Pass a cons function parameter because Unfoldable does not have one.
 
--- some ∷ ∀ e a f. Unfoldable f ⇒ (a → f a → f a) → Parser e a → Parser e (f a)
+-- some ∷ ∀ e a f. ParserError e ⇒ Unfoldable f ⇒ (a → f a → f a) → Parser e a → Parser e (f a)
 -- some cons p = cons <$> p <*> defer (\_ → many cons p)
 
--- many ∷ ∀ e a f. Unfoldable f ⇒ (a → f a → f a) → Parser e a → Parser e (f a)
+-- many ∷ ∀ e a f. ParserError e ⇒ Unfoldable f ⇒ (a → f a → f a) → Parser e a → Parser e (f a)
 -- many cons p =  some cons p <|> pure none
 
 -- Write primed versions from the generic versions!
--- some' ∷ ∀ e a. Parser e a → Parser e (Array a)
+-- some' ∷ ∀ e a. ParserError e ⇒ Parser e a → Parser e (Array a)
 -- some' p = some (:) p
 
--- many' ∷ ∀ e a. Parser e a → Parser e (Array a)
+-- many' ∷ ∀ e a. ParserError e ⇒ Parser e a → Parser e (Array a)
 -- many' p = many (:) p
 
--- some'' ∷ ∀ e. Parser e Char → Parser e String
+-- some'' ∷ ∀ e. ParserError e ⇒ Parser e Char → Parser e String
 -- some'' p = fromCharArray <$> some' p
 
--- many'' ∷ ∀ e. Parser e Char → Parser e String
+-- many'' ∷ ∀ e. ParserError e ⇒ Parser e Char → Parser e String
 -- many'' p = fromCharArray <$> many' p
 
 -----------------------------------------------------
@@ -130,22 +149,22 @@ uglyA = (\d1 d2 d3 → [ d1, d2, d3 ]) <$> range' 1 4 digit <* constChar ',' <* 
 -- Use `fromNonEmpty` to fix the issue. Look it up on Pursuit.
 -- Write new primed versions. Comment out their previous versions.
 
--- some ∷ ∀ e a f. Unfoldable f ⇒ (a → f a → f a) → Parser e a → Parser e (NonEmpty f a)
+-- some ∷ ∀ e a f. ParserError e ⇒ Unfoldable f ⇒ (a → f a → f a) → Parser e a → Parser e (NonEmpty f a)
 -- some cons p = (:|) <$> p <*> defer (\_ → many cons p)
 
--- many ∷ ∀ e a f. Unfoldable f ⇒ (a → f a → f a) → Parser e a → Parser e (f a)
+-- many ∷ ∀ e a f. ParserError e ⇒ Unfoldable f ⇒ (a → f a → f a) → Parser e a → Parser e (f a)
 -- many cons p = fromNonEmpty cons <$> some cons p <|> pure none
 
-some' ∷ ∀ e a. Parser e a → Parser e (Array a)
+some' ∷ ∀ e a. ParserError e ⇒ Parser e a → Parser e (Array a)
 some' p = fromNonEmpty (:) <$> some (:) p
 
-many' ∷ ∀ e a. Parser e a → Parser e (Array a)
+many' ∷ ∀ e a. ParserError e ⇒ Parser e a → Parser e (Array a)
 many' p = many (:) p
 
-some'' ∷ ∀ e. Parser e Char → Parser e String
+some'' ∷ ∀ e. ParserError e ⇒ Parser e Char → Parser e String
 some'' p = fromCharArray <$> some' p
 
-many'' ∷ ∀ e. Parser e Char → Parser e String
+many'' ∷ ∀ e. ParserError e ⇒ Parser e Char → Parser e String
 many'' p = fromCharArray <$> many' p
 
 -----------------------------------------------------------------------------
@@ -167,15 +186,15 @@ many cons p = fromNonEmpty cons <$> some cons p <|> pure none
 main ∷ Effect Unit
 main = do
   log "Exercise Chapter 19 - Some and Many Parsers."
-  log $ show $ parse' (some' digit) "2343423423abc" ------------- (Right (Tuple "abc" ['2','3','4','3','4','2','3','4','2','3']))
-  log $ show $ parse' (some' digit) "_2343423423abc" ------------ (Left (InvalidChar "digit"))
-  log $ show $ parse' (many' digit) "_2343423423abc" ------------ (Right (Tuple "_2343423423abc" []))
-  log $ show $ parse' (some'' digit) "2343423423abc" ------------ (Right (Tuple "abc" "2343423423"))
-  log $ show $ parse' (some'' digit) "_2343423423abc"------------ (Left (InvalidChar "digit"))
-  log $ show $ parse' (many'' digit) "_2343423423abc" ----------- (Right (Tuple "_2343423423abc" ""))
-  log $ show $ parse' digits "2343423423abc" -------------------- (Right (Tuple "abc" "2343423423"))
-  log $ show $ parse' digits "_2343423423abc" ------------------- (Left (InvalidChar "digit"))
-  log $ show $ parse' uglyM "17, some words" -------------------- (Right (Tuple "" ["17","some words",""]))
-  log $ show $ parse' uglyM "5432, some more words1234567890" --- (Right (Tuple "" ["5432","some more words","1234567890"]))
-  log $ show $ parse' uglyA "17, some words" -------------------- (Right (Tuple "" ["17","some words",""]))
-  log $ show $ parse' uglyA "5432, some more words1234567890" --- (Right (Tuple "" ["5432","some more words","1234567890"]))
+  log $ show $ parse' (some' digit) "2343423423abc" == (Right (Tuple "abc" ['2','3','4','3','4','2','3','4','2','3']))
+  log $ show $ parse' (some' digit) "_2343423423abc" == (Left (InvalidChar "digit"))
+  log $ show $ parse' (many' digit) "_2343423423abc" == (Right (Tuple "_2343423423abc" []))
+  log $ show $ parse' (some'' digit) "2343423423abc" == (Right (Tuple "abc" "2343423423"))
+  log $ show $ parse' (some'' digit) "_2343423423abc" == (Left (InvalidChar "digit"))
+  log $ show $ parse' (many'' digit) "_2343423423abc" == (Right (Tuple "_2343423423abc" ""))
+  log $ show $ parse' digits "2343423423abc" == (Right (Tuple "abc" "2343423423"))
+  log $ show $ parse' digits "_2343423423abc" == (Left (InvalidChar "digit"))
+  log $ show $ parse' uglyM "17, some words" == (Right (Tuple "" ["17","some words",""]))
+  log $ show $ parse' uglyM "5432, some more words1234567890" == (Right (Tuple "" ["5432","some more words","1234567890"]))
+  log $ show $ parse' uglyA "17, some words" == (Right (Tuple "" ["17","some words",""]))
+  log $ show $ parse' uglyA "5432, some more words1234567890" == (Right (Tuple "" ["5432","some more words","1234567890"]))
