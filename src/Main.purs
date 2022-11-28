@@ -9,20 +9,20 @@ import Effect.Console (log)
 type RWSResult r w s = { r ∷ r, w ∷ w, s ∷ s } ------------------------ contains all needed information
 data RWS r w s a = RWS (RWSResult r w s → Tuple a (RWSResult r w s)) -- works similar to the State monad
 
--- 1. Write Reader, Writer and State monads for your own reference.
+-- 1. Write Reader, Writer and State monads for your own reference. (They won't be used, though.)
 
 -- 2. Write a runRWS function similar to runstate.
 -- runRWS ∷ ∀ r w s a. RWS r w s a → RWSResult r w s → Tuple a (RWSResult r w s)
 
--- 3. Write a functor instance for RWS.
+-- 3. Write a Functor instance for RWS.
 
--- 4. Write an apply instance for RWS. (Take shortcut possibly after you'll have written `bind` instance.)
+-- 4. Write an Apply instance for RWS. (Take shortcut possibly after you'll have written `bind` instance.)
 
--- 5. Write an applicative instance for RWS.
+-- 5. Write an Applicative instance for RWS.
 
--- 6. Write a bind instance for RWS.
+-- 6. Write a Bind instance for RWS.
 
--- 7. Write a monad instance for RWS.
+-- 7. Write a Monad instance for RWS.
 
 -------------------
 -- RWS Monad API --
