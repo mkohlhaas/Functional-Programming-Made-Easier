@@ -35,6 +35,7 @@ derive instance Generic (Threeple a b c) _
 instance (Show a, Show b, Show c) ⇒ Show (Threeple a b c) where
   show = genericShow
 
+derive instance Eq PError
 derive instance Generic PError _
 
 instance Show PError where
@@ -63,9 +64,9 @@ instance Monad (Parser e)
 instance Alt (Parser e) where
   alt p1 p2 = Parser \str → parse p1 str <|> parse p2 str
 
----------------------------------
--- Helper Functions for Parser --
----------------------------------
+------------------------
+-- Parser Combinators --
+------------------------
 
 parse ∷ ∀ e a. Parser e a → ParseFunction e a
 parse (Parser f) = f

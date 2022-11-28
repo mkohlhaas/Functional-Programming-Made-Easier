@@ -72,18 +72,19 @@ import Parser (class ParserError, PError(..), Parser, constChar, constChar', dig
 -----------------------------------------------------------------------------------------------------------------
 -- (\d{1,4}), ([a-zA-Z ]+)([0-9]*)
 
--- We capture the capture groups in an array.
--- uglyM ∷ ∀ e. ParserError e ⇒ Parser e (Array String)
+-- We store the capture groups in an array.
+-- regexM ∷ ∀ e. ParserError e ⇒ Parser e (Array String)
 
 ---------------------------------------------------
 -- 7. Write the same parser in applicative style --
 ---------------------------------------------------
 
--- uglyA ∷ ∀ e. ParserError e ⇒ Parser e (Array String)
+-- regexA ∷ ∀ e. ParserError e ⇒ Parser e (Array String)
 
 -----------------------------------------------------
 -- 8. All tests should work now. Let's generalize! --
 -----------------------------------------------------
+
 -- Generalize some and many and express the primed versions with these generic parsers.
 -- Comment out all the previous primed versions.
 
@@ -95,6 +96,7 @@ import Parser (class ParserError, PError(..), Parser, constChar, constChar', dig
 -- many ∷ ∀ e a f. ParserError e ⇒ Unfoldable f ⇒ (a → f a → f a) → Parser e a → Parser e (f a)
 
 -- Write primed versions from the generic versions!
+
 -- some' ∷ ∀ e a. ParserError e ⇒ Parser e a → Parser e (Array a)
 
 -- many' ∷ ∀ e a. ParserError e ⇒ Parser e a → Parser e (Array a)
@@ -106,14 +108,15 @@ import Parser (class ParserError, PError(..), Parser, constChar, constChar', dig
 -----------------------------------------------------
 -- 9. `some` will never return an empty Unfoldable --
 -----------------------------------------------------
--- The compiler will complain about "many".
--- We have to transform a NonEmpty to something that is not NonEmpty. ;-)
--- Use `fromNonEmpty` to fix the issue. Look it up on Pursuit.
--- Write new primed versions. Comment out their previous versions.
 
 -- some ∷ ∀ e a f. ParserError e ⇒ Unfoldable f ⇒ (a → f a → f a) → Parser e a → Parser e (NonEmpty f a)
 
+-- The compiler will complain about "many".
+-- We have to transform a `NonEmpty` to something that is not `NonEmpty`. ;-)
+-- Use `fromNonEmpty` to fix the issue. Look it up on Pursuit.
 -- many ∷ ∀ e a f. ParserError e ⇒ Unfoldable f ⇒ (a → f a → f a) → Parser e a → Parser e (f a)
+
+-- Write new primed versions. Comment out their previous versions.
 
 -- some' ∷ ∀ e a. ParserError e ⇒ Parser e a → Parser e (Array a)
 
@@ -126,14 +129,9 @@ import Parser (class ParserError, PError(..), Parser, constChar, constChar', dig
 -----------------------------------------------------------------------------
 -- 10. Make the resulting combinators "some" and "many" even more general! --
 -----------------------------------------------------------------------------
+
 -- Let's use any Monad instead of just our Parser and adapt the constraints.
 -- Comment out their previous versions. Leave the primed versions alone.
-
--- some ∷ ∀ a f m. Unfoldable f ⇒ (a → f a → f a) → m a → m (NonEmpty f a)
--- some cons p = (:|) <$> p <*> defer (\_ → many cons p)
-
--- many ∷ ∀ a f m. Unfoldable f ⇒ (a → f a → f a) → m a → m (f a)
--- many cons p = fromNonEmpty cons <$> some cons p <|> pure none
 
 ----------
 -- Main --
@@ -150,7 +148,7 @@ main = do
   log $ show $ parse' (many'' digit) "_2343423423abc" == (Right (Tuple "_2343423423abc" ""))
   log $ show $ parse' digits "2343423423abc" == (Right (Tuple "abc" "2343423423"))
   log $ show $ parse' digits "_2343423423abc" == (Left (InvalidChar "digit"))
-  log $ show $ parse' uglyM "17, some words" == (Right (Tuple "" ["17","some words",""]))
-  log $ show $ parse' uglyM "5432, some more words1234567890" == (Right (Tuple "" ["5432","some more words","1234567890"]))
-  log $ show $ parse' uglyA "17, some words" == (Right (Tuple "" ["17","some words",""]))
-  log $ show $ parse' uglyA "5432, some more words1234567890" == (Right (Tuple "" ["5432","some more words","1234567890"]))
+  log $ show $ parse' regexM "17, some words" == (Right (Tuple "" ["17","some words",""]))
+  log $ show $ parse' regexM "5432, some more words1234567890" == (Right (Tuple "" ["5432","some more words","1234567890"]))
+  log $ show $ parse' regexA "17, some words" == (Right (Tuple "" ["17","some words",""]))
+  log $ show $ parse' regexA "5432, some more words1234567890" == (Right (Tuple "" ["5432","some more words","1234567890"]))
