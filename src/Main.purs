@@ -37,11 +37,6 @@ import Parser (class ParserError, PError(..), Parser, constChar, constChar', dig
 --------------------------------------------------------------------------------------------
 -- Do not worry about mutual recursion at this point. It will blow the stack but we'll fix it shortly.
 
--- applicative style
--- some' ∷ ∀ e a. ParserError e ⇒ Parser e a → Parser e (Array a)
--- some' p = (:) <$> p <*> many' p
-
--- monadic style (with do-notation)
 -- some' ∷ ∀ e a. ParserError e ⇒ Parser e a → Parser e (Array a)
 -- some' p = do
 --   a ← p
@@ -54,21 +49,17 @@ import Parser (class ParserError, PError(..), Parser, constChar, constChar', dig
 ------------------------------------------
 -- 2. Create a Lazy instance for Parser --
 ------------------------------------------
--- see Parser.purs
+
+-- see src/Parser.purs
 
 ----------------------------------------------------------
 -- 3. Make "some'" lazy by deferring the "many'" parser --
 ----------------------------------------------------------
 
--- applicative style
--- some' ∷ ∀ e a. ParserError e ⇒ Parser e a → Parser e (Array a)
--- some' p = (:) <$> p <*> defer (\_ → many' p)
-
--- monadic style (with do-notation)
 -- some' ∷ ∀ e a. ParserError e ⇒ Parser e a → Parser e (Array a)
 -- some' p = do
 --   a ← p
---   as ← defer $ const (many' p)
+--   as ← defer (const $ many' p)
 --   pure $ a : as
 
 -- many' ∷ ∀ e a. ParserError e ⇒ Parser e a → Parser e (Array a)
@@ -96,26 +87,27 @@ digits = some'' digit
 -----------------------------------------------------------------------------------------------------------------
 -- (\d{1,4}), ([a-zA-Z ]+)([0-9]*)
 
--- We capture the capture groups in an array.
-uglyM ∷ ∀ e. ParserError e ⇒ Parser e (Array String)
-uglyM = do
-  d1 <- range' 1 4 digit
+-- We store the capture groups in an array.
+regexM ∷ ∀ e. ParserError e ⇒ Parser e (Array String)
+regexM = do
+  cg1 ← range' 1 4 digit
   constChar ','
   constChar ' '
-  d2 <- some'' $ letter <|> constChar' ' '
-  d3 <- many'' digit
-  pure [ d1, d2, d3 ]
+  cg2 ← some'' (letter <|> constChar' ' ')
+  cg3 ← many'' digit
+  pure $ [cg1, cg2, cg3]
 
 ---------------------------------------------------
 -- 7. Write the same parser in applicative style --
 ---------------------------------------------------
 
-uglyA ∷ ∀ e. ParserError e ⇒ Parser e (Array String)
-uglyA = (\d1 d2 d3 → [ d1, d2, d3 ]) <$> range' 1 4 digit <* constChar ',' <* constChar ' ' <*> some'' (letter <|> constChar' ' ') <*> many'' digit
+regexA ∷ ∀ e. ParserError e ⇒ Parser e (Array String)
+regexA = (\cg1 cg2 cg3 → [cg1, cg2, cg3]) <$> range' 1 4 digit <* constChar ',' <* constChar ' ' <*> some'' (letter <|> constChar' ' ') <*> many'' digit
 
 -----------------------------------------------------
 -- 8. All tests should work now. Let's generalize! --
 -----------------------------------------------------
+
 -- Generalize some and many and express the primed versions with these generic parsers.
 -- Comment out all the previous primed versions.
 
@@ -123,12 +115,16 @@ uglyA = (\d1 d2 d3 → [ d1, d2, d3 ]) <$> range' 1 4 digit <* constChar ',' <* 
 -- Pass a cons function parameter because Unfoldable does not have one.
 
 -- some ∷ ∀ e a f. ParserError e ⇒ Unfoldable f ⇒ (a → f a → f a) → Parser e a → Parser e (f a)
--- some cons p = cons <$> p <*> defer (\_ → many cons p)
+-- some cons p = do
+--   a ← p
+--   as ← defer (const $ many cons p)
+--   pure $ cons a as
 
 -- many ∷ ∀ e a f. ParserError e ⇒ Unfoldable f ⇒ (a → f a → f a) → Parser e a → Parser e (f a)
--- many cons p =  some cons p <|> pure none
+-- many cons p = some cons p <|> pure none
 
 -- Write primed versions from the generic versions!
+
 -- some' ∷ ∀ e a. ParserError e ⇒ Parser e a → Parser e (Array a)
 -- some' p = some (:) p
 
@@ -144,16 +140,21 @@ uglyA = (\d1 d2 d3 → [ d1, d2, d3 ]) <$> range' 1 4 digit <* constChar ',' <* 
 -----------------------------------------------------
 -- 9. `some` will never return an empty Unfoldable --
 -----------------------------------------------------
--- The compiler will complain about "many".
--- We have to transform a NonEmpty to something that is not NonEmpty. ;-)
--- Use `fromNonEmpty` to fix the issue. Look it up on Pursuit.
--- Write new primed versions. Comment out their previous versions.
 
 -- some ∷ ∀ e a f. ParserError e ⇒ Unfoldable f ⇒ (a → f a → f a) → Parser e a → Parser e (NonEmpty f a)
--- some cons p = (:|) <$> p <*> defer (\_ → many cons p)
+-- some cons p = do
+--   a ← p
+--   as ← defer (const $ many cons p)
+--   pure $ (:|) a as
+
+-- The compiler will complain about "many".
+-- We have to transform a `NonEmpty` to something that is not `NonEmpty`. ;-)
+-- Use `fromNonEmpty` to fix the issue. Look it up on Pursuit.
 
 -- many ∷ ∀ e a f. ParserError e ⇒ Unfoldable f ⇒ (a → f a → f a) → Parser e a → Parser e (f a)
 -- many cons p = fromNonEmpty cons <$> some cons p <|> pure none
+
+-- Write new primed versions. Comment out their previous versions.
 
 some' ∷ ∀ e a. ParserError e ⇒ Parser e a → Parser e (Array a)
 some' p = fromNonEmpty (:) <$> some (:) p
@@ -170,13 +171,17 @@ many'' p = fromCharArray <$> many' p
 -----------------------------------------------------------------------------
 -- 10. Make the resulting combinators "some" and "many" even more general! --
 -----------------------------------------------------------------------------
+
 -- Let's use any Monad instead of just our Parser and adapt the constraints.
 -- Comment out their previous versions. Leave the primed versions alone.
 
-some ∷ ∀ a f m. Alt m ⇒ Lazy (m (f a)) ⇒ Applicative m ⇒ Unfoldable f ⇒ (a → f a → f a) → m a → m (NonEmpty f a)
-some cons p = (:|) <$> p <*> defer (\_ → many cons p)
+some ∷ ∀ m f a. Alt m ⇒ Lazy (m (f a)) ⇒ Monad m ⇒ Unfoldable f ⇒ (a → f a → f a) → m a → m (NonEmpty f a)
+some cons p = do
+  a ← p
+  as ← defer (const $ many cons p)
+  pure $ (:|) a as
 
-many ∷ ∀ a f m. Alt m ⇒ Lazy (m (f a)) ⇒ Applicative m ⇒ Unfoldable f ⇒ (a → f a → f a) → m a → m (f a)
+many ∷ ∀ a f m. Alt m ⇒ Lazy (m (f a)) ⇒ Monad m ⇒ Unfoldable f ⇒ (a → f a → f a) → m a → m (f a)
 many cons p = fromNonEmpty cons <$> some cons p <|> pure none
 
 ----------
@@ -194,7 +199,7 @@ main = do
   log $ show $ parse' (many'' digit) "_2343423423abc" == (Right (Tuple "_2343423423abc" ""))
   log $ show $ parse' digits "2343423423abc" == (Right (Tuple "abc" "2343423423"))
   log $ show $ parse' digits "_2343423423abc" == (Left (InvalidChar "digit"))
-  log $ show $ parse' uglyM "17, some words" == (Right (Tuple "" ["17","some words",""]))
-  log $ show $ parse' uglyM "5432, some more words1234567890" == (Right (Tuple "" ["5432","some more words","1234567890"]))
-  log $ show $ parse' uglyA "17, some words" == (Right (Tuple "" ["17","some words",""]))
-  log $ show $ parse' uglyA "5432, some more words1234567890" == (Right (Tuple "" ["5432","some more words","1234567890"]))
+  log $ show $ parse' regexM "17, some words" == (Right (Tuple "" ["17","some words",""]))
+  log $ show $ parse' regexM "5432, some more words1234567890" == (Right (Tuple "" ["5432","some more words","1234567890"]))
+  log $ show $ parse' regexA "17, some words" == (Right (Tuple "" ["17","some words",""]))
+  log $ show $ parse' regexA "5432, some more words1234567890" == (Right (Tuple "" ["5432","some more words","1234567890"]))

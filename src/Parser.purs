@@ -3,8 +3,8 @@ module Parser where
 import Prelude
 
 import Control.Alt (class Alt, (<|>))
-import Control.Lazy (class Lazy)
 import Data.Array ((:))
+import Control.Lazy (class Lazy, defer)
 import Data.CodePoint.Unicode (isAlpha, isDecDigit)
 import Data.Either (Either(..))
 import Data.Generic.Rep (class Generic)
@@ -65,12 +65,12 @@ instance Monad (Parser e)
 instance Alt (Parser e) where
   alt p1 p2 = Parser \str → parse p1 str <|> parse p2 str
 
-instance ParserError e ⇒ Lazy (Parser e a) where
-  defer f = Parser \str → parse (f unit) str
+instance Lazy (Parser e a) where
+  defer f = Parser $ \str → parse (f unit) str
 
----------------------------------
--- Helper Functions for Parser --
----------------------------------
+------------------------
+-- Parser Combinators --
+------------------------
 
 parse ∷ ∀ e a. Parser e a → ParseFunction e a
 parse (Parser f) = f
