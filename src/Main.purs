@@ -6,7 +6,7 @@ import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Console (log)
 
-type RWSResult r w s = { r ∷ r, w ∷ w, s ∷ s } ------------------------ contains all needed information
+type RWSResult r w s = { r ∷ r, w ∷ w, s ∷ s } ------------------------ contains a Reader, a Writer and a State
 data RWS r w s a = RWS (RWSResult r w s → Tuple a (RWSResult r w s)) -- works similar to the State monad
 
 -- 1. Write Reader, Writer and State monads for your own reference. (They won't be used, though.)
@@ -14,6 +14,8 @@ data RWS r w s a = RWS (RWSResult r w s → Tuple a (RWSResult r w s)) -- works 
 -- 2. Write a runRWS function similar to runstate.
 
 -- runRWS ∷ ∀ r w s a. RWS r w s a → RWSResult r w s → Tuple a (RWSResult r w s)
+
+-- Note: Instances could be written in terms of runRWS but I find it more complicated.
 
 -- 3. Write a Functor instance for RWS.
 
@@ -25,21 +27,24 @@ data RWS r w s a = RWS (RWSResult r w s → Tuple a (RWSResult r w s)) -- works 
 
 -- 7. Write a Monad instance for RWS.
 
--------------------
 -- RWS Monad API --
 -------------------
 
 -- 8. Write a tell function.
+
 -- tell ∷ ∀ r w s. Semigroup w ⇒ w → RWS r w s Unit
 
 -- 9. Write an ask function.
--- ask ∷ ∀ r w s. Monoid w ⇒ RWS r w s r
+
+-- ask ∷ ∀ r w s. RWS r w s r
 
 -- 10. Write a get function.
--- get ∷ ∀ r w s. Monoid w ⇒ RWS r w s s
+
+-- get ∷ ∀ r w s. RWS r w s s
 
 -- 11. Write a put function.
--- put ∷ ∀ r w s. s → Monoid w ⇒ RWS r w s Unit
+
+-- put ∷ ∀ r w s. s → RWS r w s Unit
 
 ---------------------------------
 -- Data Structures for Testing --
