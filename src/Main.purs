@@ -27,6 +27,7 @@ data RWS r w s a = RWS (RWSResult r w s → Tuple a (RWSResult r w s)) -- works 
 
 -- 7. Write a Monad instance for RWS.
 
+-------------------
 -- RWS Monad API --
 -------------------
 
@@ -77,15 +78,10 @@ rwsTest = do
 main ∷ Effect Unit
 main = do
   log "Chapter 19 - RWS Monad."
-  log $ show $ runRWS rwsTest { r: { debugModeOn: true }, w: mempty, s: 0 }
-
--- Output:
--- (Tuple unit
--- { r: { debugModeOn: true },
---   s: 1,
---   w: ["test the log",
---       "test the log2",
---       "test the log3",
---       "the config is { debugModeOn: true }",
---       "old counter is 0",
---       "new counter is 1"] })
+  log $ show $ runRWS rwsTest { r: { debugModeOn: true }, w: mempty, s: 0 } ==
+    ( Tuple unit
+        { r: { debugModeOn: true }
+        , s: 1
+        , w: [ "test the log", "test the log2", "test the log3", "the config is { debugModeOn: true }", "old counter is 0", "new counter is 1" ]
+        }
+    )
