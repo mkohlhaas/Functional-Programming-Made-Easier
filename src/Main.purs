@@ -12,6 +12,7 @@ data RWS r w s a = RWS (RWSResult r w s → Tuple a (RWSResult r w s)) -- works 
 -- 1. Write Reader, Writer and State monads for your own reference. (They won't be used, though.)
 
 -- 2. Write a runRWS function similar to runstate.
+
 -- runRWS ∷ ∀ r w s a. RWS r w s a → RWSResult r w s → Tuple a (RWSResult r w s)
 
 -- 3. Write a Functor instance for RWS.
