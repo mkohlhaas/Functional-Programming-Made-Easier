@@ -3,7 +3,6 @@
   [ "console"
   , "effect"
   , "either"
-  , "maybe"
   , "prelude"
   , "transformers"
   , "tuples"
