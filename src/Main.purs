@@ -7,127 +7,183 @@ import Control.Monad.Reader.Trans (class MonadAsk, ask)
 import Control.Monad.State.Trans (class MonadState, get, put)
 import Control.Monad.Trans.Class (class MonadTrans, lift)
 import Control.Monad.Writer.Trans (class MonadTell, WriterT, runWriterT, tell)
-import Data.Either (Either)
+import Data.Either (Either(..))
 import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Console (log)
 
 -- 1. Write StateT type definition.
+
 newtype StateT s m a = StateT (s → m (Tuple a s))
 
 -- 2. Write runStateT.
-runStateT ∷ ∀ s m a. StateT s m a -> s -> m (Tuple a s)
+
+runStateT ∷ ∀ s m a. StateT s m a → s → m (Tuple a s)
 runStateT (StateT f) = f
 
 -- 3. Write Functor instance.
--- Note: Only Functor constraint is allowed!
-instance Functor m ⇒ Functor (StateT s m) where
-  map f x = StateT \s → runStateT x s <#> \(Tuple x' s') → Tuple (f x') s'
 
--- Using bind for inner monad.
--- instance Monad m ⇒ Functor (StateT s m) where
---   map f x = StateT \s → runStateT x s >>= \(Tuple x' s') → pure $ Tuple (f x') s'
+instance Monad m ⇒ Functor (StateT s m) where
+  map f (StateT g) = StateT $ \s → do
+    Tuple a s' ← g s
+    pure $ Tuple (f a) s'
 
--- 4. Write Apply instance.
+-- 4. Write a Functor instance with only a Functor constraint.
+-- (This is just to make your life even more miserable. Comment it out as it is not used!)
+
+-- instance Functor m ⇒ Functor (StateT s m) where
+--   map f (StateT g) = StateT $ \s → g s <#> \(Tuple a b) → Tuple (f a) b
+
+-- 5. Write Apply instance.
+
+-- monadic style
 instance Monad m ⇒ Apply (StateT s m) where
-  apply = ap
+  apply (StateT f) (StateT g) = StateT $ \s → do
+    Tuple f' s' ← f s
+    Tuple a s'' ← g s'
+    pure $ Tuple (f' a) s''
 
--- Using bind for inner monad.
+-- cheating style :-)
 -- instance Monad m ⇒ Apply (StateT s m) where
---   apply f x = StateT \s → runStateT f s >>= \(Tuple f' s') → runStateT x s' >>= \(Tuple x' s'') → pure $ Tuple (f' x') s''
+--   apply = ap
 
--- Using bind with do-notation (same as `ap`).
--- instance Monad m ⇒ Apply (StateT s m) where
---   apply f x = StateT \s → do
---     Tuple f' s' ← runStateT f s
---     Tuple x' s'' ← runStateT x s'
---     pure $ Tuple (f' x') s''
+-- 6. Write Applicative instance.
 
--- 5. Write Applicative instance.
 instance Monad m ⇒ Applicative (StateT s m) where
-  pure x = StateT \s → pure $ Tuple x s
+  pure a = StateT $ \s → pure $ Tuple a s
 
--- 6. Write Bind instance.
--- Using inner monad's bind.
+-- 7. Write Bind instance.
+
 instance Monad m ⇒ Bind (StateT s m) where
-  bind x f = StateT \s → runStateT x s >>= \(Tuple x' s') → runStateT (f x') s'
+  bind (StateT f) g = StateT $ \s → f s >>= \(Tuple a s') → g a # \(StateT h) → h s'
 
--- 7. Write Monad instance.
+-- with do notation:
+-- bind (StateT f) g = StateT $ \s → do
+--    Tuple a s' ← f s
+--    let StateT h = g a
+--    h s'
+
+-- 8. Write Monad instance.
+
 instance Monad m ⇒ Monad (StateT s m)
 
--- 8. Write MonadState instance.
+-- 9. Write MonadState instance.
+
 instance Monad m ⇒ MonadState s (StateT s m) where
+  -- state f = StateT $ \s → pure $ f s
   state f = StateT $ pure <<< f
 
--- 9. Write MonadTrans instance.
+-- 10. Write MonadTrans instance.
+
+-- instance Monad m ⇒ MonadTrans (StateT s) where
+--   lift m = StateT $ \s → m >>= \a → pure $ Tuple a s
+
 instance MonadTrans (StateT s) where
-  lift x = StateT \s → x <#> \x' → Tuple x' s
+  lift m = StateT $ \s → do
+    a ← m
+    pure $ Tuple a s
 
--- Using inner monad's bind.
+-- alternative
 -- instance MonadTrans (StateT s) where
---   lift x = StateT \s → x >>= \x' → pure $ Tuple x' s
+--   lift x = StateT \s → x <#> \x' → Tuple x' s
 
--- 10. Write MonadAsk instance.
--- instance MonadAsk r m ⇒ MonadAsk r (StateT s m) where
---   ask = StateT \s → ask <#> \r → Tuple r s
+-- 11. Write MonadAsk instance.
 
--- Using inner monad's bind.
 -- instance MonadAsk r m ⇒ MonadAsk r (StateT s m) where
---   ask = StateT \s → do
+--   ask = StateT $ \s → do
 --     r ← ask
 --     pure $ Tuple r s
 
--- 11. Write MonadTell instance.
--- instance MonadTell w m ⇒ MonadTell w (StateT s m) where
---   tell w = StateT \s → tell w <#> \_ → Tuple unit s
+-- alternative
+-- instance MonadAsk r m ⇒ MonadAsk r (StateT s m) where
+--   ask = StateT \s → ask <#> \r → Tuple r s
 
--- Using inner monad's bind.
+-- 12. Write MonadTell instance.
+
 -- instance MonadTell w m ⇒ MonadTell w (StateT s m) where
---   tell w = StateT \s → do
+--   tell w = StateT $ \s → do
 --     tell w
 --     pure $ Tuple unit s
 
--- 12. Write monadAskStateT and monadTellStateT in terms of MonadTrans, i.e. with lift.
+-- alternative
+-- instance MonadTell w m ⇒ MonadTell w (StateT s m) where
+--   tell w = StateT \s → tell w <#> (const $ Tuple unit s)
+
+-- 13. Write monadAsk and monadTell instances in terms of MonadTrans, i.e. with lift.
+
 instance MonadAsk r m ⇒ MonadAsk r (StateT s m) where
   ask = lift ask
 
 instance MonadTell w m ⇒ MonadTell w (StateT s m) where
   tell = lift <<< tell
 
--- 13. Write MonadThrow instance.
+-- 14. Write MonadThrow instance.
+
+-- instance MonadThrow e m ⇒ MonadThrow e (StateT s m) where
+--   throwError e = StateT $ \s → do
+--      a ← throwError e
+--      pure $ Tuple a s
+
 instance MonadThrow e m ⇒ MonadThrow e (StateT s m) where
   throwError = lift <<< throwError
 
--- 14. Write MonadError instance.
+-- 15. Write MonadError instance.
+
+-- Notice that we have to pass the same state twice!
+
 instance MonadError e m ⇒ MonadError e (StateT s m) where
-  catchError x f = StateT \s → catchError (runStateT x s) \e → runStateT (f e) s
+  catchError (StateT f) g = StateT \s → catchError (f s) \e → runStateT (g e) s
 
 -------------
 -- Testing --
 -------------
 
--- This is our monad stack:
+-- This is our Monad stack:
+
+-- Note: ExceptT is at the top of the stack to make sure the log and state are not lost in case of an error.
+
 type AppStack e w s a = ExceptT e (WriterT w (StateT s Effect)) a
 
--- 15. Write runApp to run AppStack.
-runApp ∷ ∀ s e w a. s → AppStack e w s a → Effect (StackResult e w s a)
+-- 16. Write runApp to run AppStack.
+
+runApp ∷ ∀ e a w s m. s → ExceptT e (WriterT w (StateT s m)) a → m (StackResult e w s a)
 runApp s = runExceptT >>> runWriterT >>> flip runStateT s
 
--- 16. Factor out the return type, call it StackResult and update runApp.
+-- 17. Factor out the return type, call it StackResult and update runApp.
+
 type StackResult e w s a = (Tuple (Tuple (Either e a) w) s)
 
--- Given helper function.
+---------------------
+-- Helper function --
+---------------------
+
 logM ∷ ∀ m. MonadTell (Array String) m ⇒ String → m Unit
 logM s = tell [ s <> "\n" ]
 
--- This is our specific monad stack:
+validate ∷ Int → AppM
+validate n = when (n == 0) $ void $ throwError "WE CANNOT HAVE A 0 STATE!"
+
+-- our specific monad stack
 type AppM = AppStack String (Array String) Int Unit
 
-app ∷ AppM
-app = do
+app1 ∷ AppM
+app1 = do
   logM "Starting App..."
   n ← get
   when (n == 0) $ void $ throwError "WE CANNOT HAVE A ZERO STATE!"
+  put $ n + 1
+  logM "Incremented State"
+  pure unit
+
+app2 ∷ AppM
+app2 = do
+  logM "Starting App..."
+  n ← get
+  catchError (validate n)
+    ( \err → do
+        tell [ "We encountered an error: " <> err ]
+        put 1
+    )
   put $ n + 1
   logM "Incremented State"
   pure unit
@@ -139,8 +195,11 @@ app = do
 main ∷ Effect Unit
 main = do
   log "Exercise Chapter 21."
-  result1 ← runApp 0 app
-  -- We could transform the output to something nicer, but ... we call it a day!
-  log $ show result1 ------------- (Tuple (Tuple (Left "WE CANNOT HAVE A ZERO STATE!") ["Starting App...\n"]) 0)
-  result2 ← runApp 99 app
-  log $ show result2 ------------- (Tuple (Tuple (Right unit) ["Starting App...\n","Incremented State\n"]) 100)
+  result1 ← runApp 0 app1
+  log $ show $ result1 == (Tuple (Tuple (Left "WE CANNOT HAVE A ZERO STATE!") [ "Starting App...\n" ]) 0)
+  result2 ← runApp 99 app1
+  log $ show $ result2 == (Tuple (Tuple (Right unit) [ "Starting App...\n", "Incremented State\n" ]) 100)
+  result3 ← runApp 0 app2
+  log $ show $ result3 == (Tuple (Tuple (Right unit) [ "Starting App...\n", "We encountered an error: WE CANNOT HAVE A 0 STATE!", "Incremented State\n" ]) 1)
+  result4 ← runApp 99 app2
+  log $ show $ result4 == (Tuple (Tuple (Right unit) [ "Starting App...\n", "Incremented State\n" ]) 100)
