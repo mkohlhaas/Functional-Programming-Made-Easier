@@ -76,7 +76,6 @@ main ∷ Effect Unit
 main = do
   log "Exercise Chapter 21."
   result1 ← runApp 0 app
-  -- We could transform the output to something nicer, but ... we call it a day!
-  log $ show result1 ------------- (Tuple (Tuple (Left "WE CANNOT HAVE A ZERO STATE!") ["Starting App...\n"]) 0)
+  log $ show $ result1 == (Tuple (Tuple (Left "WE CANNOT HAVE A ZERO STATE!") ["Starting App...\n"]) 0)
   result2 ← runApp 99 app
-  log $ show result2 ------------- (Tuple (Tuple (Right unit) ["Starting App...\n","Incremented State\n"]) 100)
+  log $ show $ result2 == (Tuple (Tuple (Right unit) ["Starting App...\n","Incremented State\n"]) 100)
