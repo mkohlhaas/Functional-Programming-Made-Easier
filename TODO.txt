@@ -1,0 +1,31 @@
+                         ------------------------
+                         -- Chapter 18. Monads --
+                         ------------------------
+
+  - Rewrite function in do-notation (including let and if)
+  - 'void' instead of '_ ← 'some monadic function''
+  - use of '*>' and '<*'
+  - implement applyFirst and applySecond
+  - write 'ap' for creating a short-cut for an Apply implementation: apply = ap ('ap' is in the Prelude)
+    - writing apply in terms of bind
+  - write Writer monad [newtype Writer w a = Writer (Tuple a w)]
+    - in a second version use ap for implementing Apply
+    - and helper functions (Writer API)
+      - tell
+      - listen
+      - pass
+  - write Reader monad [newtype Reader r a = Reader (r → a)]
+    - and helper functions (Reader API)
+      - ask
+      - asks
+    - p. 705: Function Application, $, gets replaced with Function Composition, <<<, during an Eta-reduction step.
+  - write State monad [newtype State s a = State (s → Tuple a s)]
+    - and helper functions (State API)
+      - state
+      - get (in terms of state)
+      - gets (in terms of state)
+      - put (in terms of state)
+      - modify (in terms of state)
+      - modify_ (in terms of state)
+        - In practice, modify_ is used more often since it doesn't require a void in a do block and we rarely need the
+          new State back. But, when we do, modify will save us a call to get.
