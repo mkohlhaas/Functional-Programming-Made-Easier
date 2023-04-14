@@ -54,22 +54,24 @@ infixl 4 applySecond as *>
 gauntlet ∷ Int → Maybe Int
 gauntlet x = oddTest x >>= \o → pure (o + 1) >>= \y → greaterThanTest 10 y *> lessThanTest 20 y
 
--- Provide a default implementation of apply (<*>) for any Monad using 'bind'.
--- Writing apply in terms of bind.
+-- Provide a default implementation of apply (<*>) for any Monad using 'bind'. (Writing apply in terms of bind.)
 ap ∷ ∀ m a b. Monad m ⇒ m (a → b) → m a → m b
 ap f a = do
   f' ← f
   a' ← a
   pure $ f' a'
 
-------------------
--- Writer Monad --
-------------------
+-------------------------------------------------------------------------------------------------
+--------------------------------------------- Writer Monad --------------------------------------
+-------------------------------------------------------------------------------------------------
 
 -- Define the data definition for the Writer monad.
 newtype Writer w a = Writer (Tuple a w)
 
--- Implement the Writer monad.
+--------------------------------
+-- Implement the Writer Monad --
+--------------------------------
+
 instance Monoid w ⇒ Applicative (Writer w) where
   pure x = Writer (Tuple x mempty)
 
@@ -80,11 +82,12 @@ instance Semigroup w ⇒ Functor (Writer w) where
   map f (Writer (Tuple x w)) = Writer (Tuple (f x) w)
 
 instance Monoid w ⇒ Bind (Writer w) where
-  bind (Writer (Tuple x _)) f = f x
+  bind (Writer (Tuple x w)) f = f x # \(Writer (Tuple y w')) → Writer (Tuple y (w <> w'))
 
 instance Monoid w ⇒ Monad (Writer w)
 
 -- In a second version use 'ap' for implementing Apply. (Comment out previous version.)
+-- We have to change constraint from Semigroup to Monoid. Same for Bind. (Nothing comes for free.)
 instance Monoid w ⇒ Apply (Writer w) where
   apply = ap
 
@@ -104,9 +107,9 @@ listen (Writer (Tuple x w)) = Writer (Tuple (Tuple x w) w)
 pass ∷ ∀ a w. Writer w (Tuple a (w → w)) → Writer w a
 pass (Writer (Tuple (Tuple x f) w)) = Writer (Tuple x (f w))
 
-------------------
--- Reader Monad --
-------------------
+-------------------------------------------------------------------------------------------------
+--------------------------------------------- Reader Monad --------------------------------------
+-------------------------------------------------------------------------------------------------
 
 -- Define the data definition for the Reader monad.
 newtype Reader r a = Reader (r → a)
@@ -115,7 +118,10 @@ newtype Reader r a = Reader (r → a)
 runReader ∷ ∀ r a. Reader r a → r → a
 runReader (Reader f) = f
 
--- Implement the Reader monad.
+--------------------------------
+-- Implement the Reader Monad --
+--------------------------------
+
 -- Function Application, $, gets replaced with Function Composition, <<<, during an Eta-reduction step.
 instance Applicative (Reader r) where
   pure = Reader <<< const
@@ -127,7 +133,7 @@ instance Functor (Reader r) where
   map f (Reader x) = Reader \r → f $ x r
 
 instance Bind (Reader r) where
-  bind (Reader x) f = Reader \r → f (x r) # \(Reader y) → y r
+  bind (Reader x) f = Reader \r → runReader (f $ x r) r
 
 instance Monad (Reader r)
 
@@ -143,20 +149,34 @@ ask = Reader identity
 asks ∷ ∀ a r. (r → a) → Reader r a
 asks f = Reader \r → f r
 
------------------
--- State Monad --
------------------
+-------------------------------------------------------------------------------------------------
+--------------------------------------------- State Monad ---------------------------------------
+-------------------------------------------------------------------------------------------------
 
 -- Define the data definition for the State monad.
-newtype State s a = State (s → (Tuple a s))
+newtype State s a = State (s → Tuple a s)
 
 -- Implement runState.
 runState ∷ ∀ s a. State s a → s → Tuple a s
-runState (State f) s = f s
+runState (State f) = f
 
 -------------------------------
 -- Implement the State Monad --
 -------------------------------
+
+instance Functor (State s) where
+  map f (State fx) = State \s → fx s # \(Tuple x s') → Tuple (f x) s'
+
+instance Apply (State s) where
+  apply (State ff) (State fx) = State \s → ff s # \(Tuple g s') → fx s' # \(Tuple x s'') → Tuple (g x) s''
+
+instance Applicative (State s) where
+  pure x = State \s → Tuple x s
+
+instance Bind (State s) where
+  bind (State fx) f = State \s → fx s # \(Tuple x s') → runState (f x) s'
+
+instance monadState ∷ Monad (State s)
 
 -- Implement the helper function 'state'.
 state ∷ ∀ s a. (s → Tuple a s) → State s a
@@ -180,13 +200,13 @@ put s = state $ const (Tuple unit s)
 
 -- Modify the state by applying a function to the current state. The returned value is the new state value.
 modify ∷ ∀ s. (s → s) → State s s
-modify f = state \s → Tuple (f s) s
+modify f = State \s → let ns = f s in Tuple ns ns
 
 -- A version of modify which does not return the updated value.
 -- In practice, modify_ is used more often since it doesn't require a void in a do block and we rarely need the new State back.
 -- But, when we do, modify will save us a call to get.
 modify_ ∷ ∀ s. (s → s) → State s Unit
-modify_ f = state \s → f s # const (Tuple unit s)
+modify_ f = State \s → Tuple unit (f s)
 
 main ∷ Effect Unit
 main = do
