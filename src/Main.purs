@@ -16,7 +16,7 @@ greaterThanTest min x = if x > min then Just x else Nothing
 lessThanTest ∷ Int → Int → Maybe Int
 lessThanTest max x = if x < max then Just x else Nothing
 
--- Rewrite the following function in do-notation.
+-- Rewrite the following function in do-notation. (Comment out old function version.)
 gauntlet ∷ Int → Maybe Int
 gauntlet x =
   pure x >>= oddTest
@@ -24,9 +24,9 @@ gauntlet x =
       >>= \y → greaterThanTest 10 y
         >>= \z → lessThanTest 20 z
 
-----------------------------
--- applyFirst applySecond --
-----------------------------
+------------------------------
+-- applyFirst & applySecond --
+------------------------------
 
 -- Combine two effectful actions, keeping only the result of the first.
 -- applyFirst ∷ ∀ a b f. Apply f ⇒ f a → f b → f a
@@ -42,20 +42,24 @@ gauntlet x =
 
 -- Rewrite the rewritten function gauntlet in do-notation with bind (>>=) again.
 
--- Provide a default implementation of apply (<*>) for any Monad using 'bind'.
+-- Provide a default implementation of apply (<*>) for any Monad using 'bind'. (Writing apply in terms of bind.)
 -- ap ∷ ∀ m a b. Monad m ⇒ m (a → b) → m a → m b
 
-------------------
--- Writer Monad --
-------------------
+-------------------------------------------------------------------------------------------------
+--------------------------------------------- Writer Monad --------------------------------------
+-------------------------------------------------------------------------------------------------
 
 -- Define the data definition for the Writer monad.
 
--- Implement the Writer monad.
+--------------------------------
+-- Implement the Writer Monad --
+--------------------------------
 
--- In a second version use 'ap' for implementing Apply.
+-- In a second version use 'ap' for implementing Apply. (Comment out previous version.)
 
--- Implement helper functions for the Writer monad(Writer API): tell, listen, pass.
+--------------------------------------------------------------------------------------
+-- Implement Helper Functions for the Writer Monad (Writer API): tell, listen, pass --
+--------------------------------------------------------------------------------------
 
 -- append a value to the accumulator/log
 -- tell ∷ ∀ w. w → Writer w Unit
@@ -66,18 +70,22 @@ gauntlet x =
 -- apply the returned function to the accumulator/log
 -- pass ∷ ∀ a w. Writer w (Tuple a (w → w)) → Writer w a
 
-------------------
--- Reader Monad --
-------------------
+-------------------------------------------------------------------------------------------------
+--------------------------------------------- Reader Monad --------------------------------------
+-------------------------------------------------------------------------------------------------
 
 -- Define the data definition for the Reader monad.
 
 -- Implement runReader.
 -- runReader ∷ ∀ r a. Reader r a → r → a
 
--- Implement the Reader monad.
+--------------------------------
+-- Implement the Reader Monad --
+--------------------------------
 
--- Implement helper functions for the Reader monad(Reader API): ask, asks.
+-----------------------------------------------------------------------------
+-- Implement Helper Functions for the Reader Monad (Reader API): ask, asks --
+-----------------------------------------------------------------------------
 
 -- get the global context/configuration
 -- ask ∷ ∀ r. Reader r r
@@ -85,21 +93,25 @@ gauntlet x =
 -- project a value from the global context/configuration
 -- asks ∷ ∀ a r. (r → a) → Reader r a
 
------------------
--- State Monad --
------------------
+-------------------------------------------------------------------------------------------------
+--------------------------------------------- State Monad ---------------------------------------
+-------------------------------------------------------------------------------------------------
 
 -- Define the data definition for the State monad.
 
 -- Implement runState.
 -- runState ∷ ∀ s a. State s a → s → Tuple a s
 
--- Implement the State monad.
+-------------------------------
+-- Implement the State Monad --
+-------------------------------
 
 -- Implement the helper function 'state'.
 -- state ∷ ∀ a. (s → (Tuple a s)) → m a
 
--- Implement helper functions for the State monad(State API): get, gets, put, modify, modify_.
+-------------------------------------------------------------------------------------------------
+-- Implement Helper Functions for the State Monad (State API): get, gets, put, modify, modify_ --
+-------------------------------------------------------------------------------------------------
 
 -- get the current state
 -- get ∷ ∀ s. State s s
@@ -114,6 +126,8 @@ gauntlet x =
 -- modify ∷ ∀ s. (s → s) → State s s
 
 -- A version of modify which does not return the updated value.
+-- In practice, modify_ is used more often since it doesn't require a void in a do block and we rarely need the new State back.
+-- But, when we do, modify will save us a call to get.
 -- modify_ ∷ ∀ s. (s → s) → State s Unit
 
 main ∷ Effect Unit
