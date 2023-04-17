@@ -9,8 +9,16 @@ import Effect.Console (log)
 
 -- Write runWriterT function.
 
--- Implenent Apply, Applicative, Functor, Bind and Monad instances for WriterT.
+-- Implement Apply instance for WriterT.
+
+-- Implement Applicative instance for WriterT.
+
+-- Implement Functor instance for WriterT.
+
+-- Implement Bind instance for WriterT.
+
+-- Implement Monad instance for WriterT.
 
 main ∷ Effect Unit
 main = do
-  log "Implementing WriterT"
+  log "Coding WriterT"
