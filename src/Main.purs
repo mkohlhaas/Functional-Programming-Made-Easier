@@ -5,20 +5,20 @@ import Prelude
 import Effect (Effect)
 import Effect.Console (log)
 
--- Define data type for WriterT.
+-- Define data type for ReaderT.
 
--- Write runWriterT function.
+-- Write runReaderT function.
 
--- Implement Apply instance for WriterT.
+-- Implement Apply instance for ReaderT.
 
--- Implement Applicative instance for WriterT.
+-- Implement Applicative instance for ReaderT.
 
--- Implement Functor instance for WriterT.
+-- Implement Functor instance for ReaderT.
 
--- Implement Bind instance for WriterT.
+-- Implement Bind instance for ReaderT.
 
--- Implement Monad instance for WriterT.
+-- Implement Monad instance for ReaderT.
 
 main ∷ Effect Unit
 main = do
-  log "Coding WriterT"
+  log "Coding ReaderT"
