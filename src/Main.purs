@@ -9,11 +9,11 @@ import Effect.Console (log)
 
 -- Write runReaderT function.
 
+-- Implement Functor instance for ReaderT.
+
 -- Implement Apply instance for ReaderT.
 
 -- Implement Applicative instance for ReaderT.
-
--- Implement Functor instance for ReaderT.
 
 -- Implement Bind instance for ReaderT.
 
