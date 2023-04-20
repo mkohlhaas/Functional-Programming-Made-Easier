@@ -29,7 +29,6 @@ instance Monad m ⇒ Functor (StateT s m) where
     pure $ Tuple (f a) s'
 
 -- 4. Write a Functor instance with only a Functor constraint.
--- (This is just to make your life even more miserable. Comment it out as it is not used!)
 
 -- instance Functor m ⇒ Functor (StateT s m) where
 --   map f (StateT g) = StateT $ \s → g s <#> \(Tuple a b) → Tuple (f a) b
@@ -50,12 +49,16 @@ instance Monad m ⇒ Apply (StateT s m) where
 -- 6. Write Applicative instance.
 
 instance Monad m ⇒ Applicative (StateT s m) where
-  pure a = StateT $ \s → pure $ Tuple a s
+  pure a = StateT \s → pure $ Tuple a s
 
 -- 7. Write Bind instance.
 
 instance Monad m ⇒ Bind (StateT s m) where
-  bind (StateT f) g = StateT $ \s → f s >>= \(Tuple a s') → g a # \(StateT h) → h s'
+  bind (StateT f) g = StateT \s → f s >>= \(Tuple a s') → g a # \(StateT h) → h s'
+
+-- alternative
+-- instance Monad m ⇒ Bind (StateT s m) where
+--   bind (StateT x) f = StateT \s → x s >>= \(Tuple x' s') → runStateT (f x') s'
 
 -- with do notation:
 -- bind (StateT f) g = StateT $ \s → do
@@ -70,7 +73,6 @@ instance Monad m ⇒ Monad (StateT s m)
 -- 9. Write MonadState instance.
 
 instance Monad m ⇒ MonadState s (StateT s m) where
-  -- state f = StateT $ \s → pure $ f s
   state f = StateT $ pure <<< f
 
 -- 10. Write MonadTrans instance.
