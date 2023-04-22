@@ -19,7 +19,6 @@ import Effect.Console (log)
 -- 3. Write Functor instance.
 
 -- 4. Write a Functor instance with only a Functor constraint.
---   (This is just to make your life even more miserable. Comment it out as it is not needed! ;-)
 
 -- 5. Write Apply instance.
 
@@ -52,6 +51,7 @@ import Effect.Console (log)
 type AppStack e w s a = ExceptT e (WriterT w (StateT s Effect)) a
 
 -- 16. Write runApp to run AppStack.
+-- Hint: Use a type hole to find out the result type.
 
 -- 17. Factor out the return type, call it StackResult and update runApp.
 
