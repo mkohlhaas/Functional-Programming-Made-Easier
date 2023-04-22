@@ -143,6 +143,7 @@ instance MonadError e m ⇒ MonadError e (StateT s m) where
 -- This is our Monad stack:
 
 -- Note: ExceptT is at the top of the stack to make sure the log and state are not lost in case of an error.
+--       And catchError for other Monad transformers are not called which are faulty by design.
 
 type AppStack e w s a = ExceptT e (WriterT w (StateT s Effect)) a
 
